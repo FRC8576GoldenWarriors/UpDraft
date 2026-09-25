@@ -94,7 +94,7 @@ public class Intake extends SubsystemBase {
 
   private void homing() {
     this.isHomed = io.home(inputs.intakePivotCurrent);
-    if(isHomed) {
+    if (isHomed) {
       setWantedState(WantedState.IDLE);
     }
   }

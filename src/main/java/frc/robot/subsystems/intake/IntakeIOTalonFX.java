@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -105,8 +104,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public void setWantedIntakeRollerSpeed(double dutyCycleOutput) {
-    intakeRollerTalonFX.setControl(
-        intakeRollerDutyCycleRequest.withOutput(dutyCycleOutput));
+    intakeRollerTalonFX.setControl(intakeRollerDutyCycleRequest.withOutput(dutyCycleOutput));
   }
 
   @Override
@@ -117,7 +115,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public boolean home(Current activeHomingCurrent) {
-    if(!atUpperHardstopCurrent(activeHomingCurrent)) {
+    if (!atUpperHardstopCurrent(activeHomingCurrent)) {
       intakePivotTalonFX.setControl(intakePivotHomingRequest);
       return false;
     }
@@ -126,6 +124,9 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   private boolean atUpperHardstopCurrent(Current activeHomingCurrent) {
-    return MathUtil.isNear(intakeConfig.getIntakeHomingCurrent().in(Amps), activeHomingCurrent.in(Amps), intakeConfig.getIntakeHomingCurrentTolerance().in(Amps));
+    return MathUtil.isNear(
+        intakeConfig.getIntakeHomingCurrent().in(Amps),
+        activeHomingCurrent.in(Amps),
+        intakeConfig.getIntakeHomingCurrentTolerance().in(Amps));
   }
 }
