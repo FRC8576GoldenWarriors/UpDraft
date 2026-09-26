@@ -17,7 +17,6 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.LoggedTunablePIDFNumbers;
 import frc.robot.util.LoggedTunableUtil;
 import frc.robot.util.StatusSignalRefresher;
-
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
@@ -50,42 +49,54 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID);
     intakeRollerTalonFX = new TalonFX(IntakeConstants.INTAKE_ROLLER_MOTOR_ID);
 
-    intakePivotLoggedTunablePIDF = new LoggedTunablePIDFNumbers(
-      "IntakePivot", 
-      Arrays.asList(
-        IntakeConstants.KP, 
-        IntakeConstants.KI, 
-        IntakeConstants.KD, 
-        IntakeConstants.KS, 
-        IntakeConstants.KV, 
-        IntakeConstants.KG), 
-        Arrays.asList(
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKP(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          },
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKI(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          },
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKD(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          },
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKS(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          },
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKV(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          },
-          (value) -> {
-            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKG(value);
-            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-          }
-        ), 
-        IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
+    intakePivotLoggedTunablePIDF =
+        new LoggedTunablePIDFNumbers(
+            "IntakePivot",
+            Arrays.asList(
+                IntakeConstants.KP,
+                IntakeConstants.KI,
+                IntakeConstants.KD,
+                IntakeConstants.KS,
+                IntakeConstants.KV,
+                IntakeConstants.KG),
+            Arrays.asList(
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKP(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                },
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKI(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                },
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKD(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                },
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKS(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                },
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKV(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                },
+                (value) -> {
+                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKG(value);
+                  this.intakePivotTalonFX
+                      .getConfigurator()
+                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+                }),
+            IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
 
     intakePivotConnectedSignal = () -> intakePivotTalonFX.isConnected();
     intakePivotPositionSignal = intakePivotTalonFX.getPosition();

@@ -7,9 +7,6 @@
 
 package frc.robot.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -109,14 +106,14 @@ public class LoggedTunableNumber implements DoubleSupplier, LoggedTunable {
    * @param tunableNumbers All tunable numbers to check
    */
   public void onChange(Consumer<Double> action) {
-    if(this.action == null || !this.action.equals(action)) {
+    if (this.action == null || !this.action.equals(action)) {
       this.action = action;
     }
   }
 
   /** Runs action if any of the tunableNumbers have changed */
   public void checkForChange() {
-    if(hasChanged()) {
+    if (hasChanged()) {
       action.accept(get());
     }
   }

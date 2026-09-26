@@ -59,6 +59,22 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('setupGitHooks', Exec) {
+    description = 'Configures Git to use custom hooks located in .githooks'
+    group = 'git hooks'
+
+    // Commands work across Windows, macOS, and Linux
+    commandLine 'git', 'config', 'core.hooksPath', '.githooks'
+
+    // Don't fail the build if the developer isn't in a Git repository (e.g. downloaded zip)
+    ignoreExitValue = true
+}
+
+// Automatically run setupGitHooks prior to compiling Java
+tasks.named('compileJava') {
+    dependsOn tasks.named('setupGitHooks')
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
