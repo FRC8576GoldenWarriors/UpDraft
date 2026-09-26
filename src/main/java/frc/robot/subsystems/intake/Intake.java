@@ -78,18 +78,18 @@ public class Intake extends SubsystemBase {
   }
 
   private void deploying() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_CONFIG.getIntakeDownPosition());
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_CONFIG.getIntakeDeployRollerSpeed());
+    io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
+    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_DEPLOYING_DUTY_CYCLE);
   }
 
   private void retracting() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_CONFIG.getIntakeUpPosition());
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_CONFIG.getIntakeRetractRollerSpeed());
+    io.setWantedIntakePosition(IntakeConstants.INTAKE_UP_POSITION);
+    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_RETRACTING_DUTY_CYCLE);
   }
 
   private void intaking() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_CONFIG.getIntakeDownPosition());
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_CONFIG.getIntakeIntakeRollerSpeed());
+    io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
+    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_INTAKING_DUTY_CYCLE);
   }
 
   private void homing() {

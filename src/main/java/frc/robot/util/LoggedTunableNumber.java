@@ -10,6 +10,7 @@ package frc.robot.util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -19,7 +20,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * value not in dashboard.
  */
 @SuppressWarnings("unused")
-public class LoggedTunableNumber implements DoubleSupplier {
+public class LoggedTunableNumber implements DoubleSupplier, LoggedTunable {
   private static final String tableKey = "/Tuning";
 
   private final String key;
@@ -27,7 +28,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
   private boolean hasDefault = false;
   private double defaultValue;
   private LoggedNetworkNumber dashboardNumber;
-  private Map<Integer, Double> lastHasChangedValues = new HashMap<>();
+  private Consumer<Double> action;
+  private Stack<Double> hasLastChange = new Stack<>();
 
   /**
    * Create a new LoggedTunableNumber
@@ -87,14 +89,13 @@ public class LoggedTunableNumber implements DoubleSupplier {
    * @return True if the number has changed since the last time this method was called, false
    *     otherwise.
    */
-  public boolean hasChanged(int id) {
+  public boolean hasChanged() {
     double currentValue = get();
-    Double lastValue = lastHasChangedValues.get(id);
+    Double lastValue = hasLastChange.peek();
     if (lastValue == null || currentValue != lastValue) {
-      lastHasChangedValues.put(id, currentValue);
+      hasLastChange.push(lastValue);
       return true;
     }
-
     return false;
   }
 
@@ -107,16 +108,17 @@ public class LoggedTunableNumber implements DoubleSupplier {
    *     numbers in order inputted in method
    * @param tunableNumbers All tunable numbers to check
    */
-  public static void ifChanged(
-      int id, Consumer<double[]> action, LoggedTunableNumber... tunableNumbers) {
-    if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {
-      action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
+  public void onChange(Consumer<Double> action) {
+    if(this.action == null || !this.action.equals(action)) {
+      this.action = action;
     }
   }
 
   /** Runs action if any of the tunableNumbers have changed */
-  public static void ifChanged(int id, Runnable action, LoggedTunableNumber... tunableNumbers) {
-    ifChanged(id, values -> action.run(), tunableNumbers);
+  public void checkForChange() {
+    if(hasChanged()) {
+      action.accept(get());
+    }
   }
 
   @Override

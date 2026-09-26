@@ -14,22 +14,25 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.LoggedTunablePIDFNumbers;
+import frc.robot.util.LoggedTunableUtil;
 import frc.robot.util.StatusSignalRefresher;
-import frc.robot.util.configs.IntakeConfig;
+
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
 public class IntakeIOTalonFX implements IntakeIO {
-
-  private final IntakeConfig intakeConfig;
 
   private final TalonFX intakePivotTalonFX;
   private final TalonFX intakeRollerTalonFX;
 
   private final MotionMagicVoltage intakePivotPositionRequest =
       new MotionMagicVoltage(Radians.zero());
-  private final DutyCycleOut intakePivotHomingRequest = new DutyCycleOut(0.1);
+  private final DutyCycleOut intakePivotHomingRequest = new DutyCycleOut(0.05);
   private final DutyCycleOut intakeRollerDutyCycleRequest = new DutyCycleOut(0);
   private final EmptyControl intakeIdleRequest = new EmptyControl();
+
+  private final LoggedTunablePIDFNumbers intakePivotLoggedTunablePIDF;
 
   // Status Signals
   private final BooleanSupplier intakePivotConnectedSignal;
@@ -43,11 +46,46 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Voltage> intakeRollerVoltageSignal;
   private final StatusSignal<Current> intakeRollerCurrentSignal;
 
-  public IntakeIOTalonFX(IntakeConfig config) {
-    this.intakeConfig = config;
+  public IntakeIOTalonFX() {
+    intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID);
+    intakeRollerTalonFX = new TalonFX(IntakeConstants.INTAKE_ROLLER_MOTOR_ID);
 
-    this.intakePivotTalonFX = new TalonFX(intakeConfig.getIntakePivotId());
-    this.intakeRollerTalonFX = new TalonFX(intakeConfig.getIntakeRollerId());
+    intakePivotLoggedTunablePIDF = new LoggedTunablePIDFNumbers(
+      "IntakePivot", 
+      Arrays.asList(
+        IntakeConstants.KP, 
+        IntakeConstants.KI, 
+        IntakeConstants.KD, 
+        IntakeConstants.KS, 
+        IntakeConstants.KV, 
+        IntakeConstants.KG), 
+        Arrays.asList(
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKP(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          },
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKI(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          },
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKD(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          },
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKS(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          },
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKV(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          },
+          (value) -> {
+            IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKG(value);
+            this.intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
+          }
+        ), 
+        IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
 
     intakePivotConnectedSignal = () -> intakePivotTalonFX.isConnected();
     intakePivotPositionSignal = intakePivotTalonFX.getPosition();
@@ -61,7 +99,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeRollerCurrentSignal = intakeRollerTalonFX.getStatorCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        intakeConfig.getIntakeStatusSignalUpdateFrequency(),
+        IntakeConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,
         intakePivotPositionSignal,
         intakePivotVelocitySignal,
         intakePivotVoltageSignal,
@@ -80,8 +118,9 @@ public class IntakeIOTalonFX implements IntakeIO {
             intakeRollerVoltageSignal,
             intakeRollerCurrentSignal);
 
-    intakePivotTalonFX.getConfigurator().apply(intakeConfig.getIntakePivotConfiguration());
-    intakeRollerTalonFX.getConfigurator().apply(intakeConfig.getIntakeRollerConfiguration());
+    intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG);
+    intakeRollerTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_ROLLER_CONFIG);
+    LoggedTunableUtil.registerLoggedTunable(intakePivotLoggedTunablePIDF);
   }
 
   public void updateInputs(IntakeIOInputs inputs) {
@@ -119,14 +158,14 @@ public class IntakeIOTalonFX implements IntakeIO {
       intakePivotTalonFX.setControl(intakePivotHomingRequest);
       return false;
     }
-    intakePivotTalonFX.setPosition(intakeConfig.getIntakeHomingExpectedZero());
+    intakePivotTalonFX.setPosition(IntakeConstants.INTAKE_EXPECTED_HOMING_ZERO);
     return true;
   }
 
   private boolean atUpperHardstopCurrent(Current activeHomingCurrent) {
     return MathUtil.isNear(
-        intakeConfig.getIntakeHomingCurrent().in(Amps),
+        IntakeConstants.PIVOT_HOMING_CURRENT.in(Amps),
         activeHomingCurrent.in(Amps),
-        intakeConfig.getIntakeHomingCurrentTolerance().in(Amps));
+        IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE.in(Amps));
   }
 }

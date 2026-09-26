@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.CommandSchedulerLogger;
+import frc.robot.util.LoggedTunableUtil;
 import frc.robot.util.StatusSignalRefresher;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -62,6 +63,8 @@ public class Robot extends LoggedRobot {
     schedulerLogger.log();
 
     refresher.checkStatusSignals();
+
+    LoggedTunableUtil.checkLoggedTunables();
 
     /*
      * This example of adding Limelight is very simple and may not be sufficient for on-field use.
