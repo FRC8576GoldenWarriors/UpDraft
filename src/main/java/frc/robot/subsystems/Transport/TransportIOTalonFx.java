@@ -16,8 +16,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.StatusSignalRefresher;
 
-public class TransportIOTalonFX {
+public class TransportIOTalonFx {
     private final TalonFX transportMotorLeft;
     private final TalonFX transportMotorRight;
     private final TalonFXConfiguration transportMotorConfiguration;
@@ -34,7 +35,7 @@ public class TransportIOTalonFX {
     private final StatusSignal<Voltage> transportMotorRightVoltage;
     private final StatusSignal<Current> transportMotorRightSupplyCurrent;
 
-    public TransportIOTalonFX() {
+    public TransportIOTalonFx() {
         transportMotorLeft = new TalonFX(transportConstants.TRANSPORT_LEFT_MOTOR_ID);
         transportMotorRight= new TalonFX(transportConstants.TRANSPORT_RIGHT_MOTOR_ID);
         transportMotorConfiguration = new TalonFXConfiguration()
@@ -69,14 +70,25 @@ public class TransportIOTalonFX {
         transportMotorRight.optimizeBusUtilization(Hertz.of(0));
         BaseStatusSignal.setUpdateFrequencyForAll(
             transportConstants.updateFrequency,
-            statorCurrentStatusSignal,
-            supplyCurrentStatusSignal,
-            transportAngularVelocity,
-            transportMotorVoltage,
-            statorCurrentStatusSignalBack,
-            supplyCurrentStatusSignalBack,
-            transportAngularVelocityBack,
-            transportMotorVoltageBack
-        );
+            transportMotorLeftVoltage,
+            transportMotorLeftSupplyCurrent,
+            transportAngularVelocityLeft,
+            transportMotorRightVoltage,
+            transportMotorRightSupplyCurrent,
+            transportAngularVelocityRight);
+
+        StatusSignalRefresher.getInstance()
+        .addStatusSignals(
+           transportMotorLeftVoltage,
+            transportMotorLeftSupplyCurrent,
+            transportAngularVelocityLeft,
+            transportMotorRightVoltage,
+            transportMotorRightSupplyCurrent,
+            transportAngularVelocityRight);
+
+               transportMotorLeft.getConfigurator().apply(transportMotorConfiguration);
+        transportMotorConfiguration.MotorOutput.Inverted = transportConstants.TRANSPORT_RIGHT_INVERTED_VALUE;
+                       transportMotorRight.getConfigurator().apply(transportMotorConfiguration);
+
     }
 }
