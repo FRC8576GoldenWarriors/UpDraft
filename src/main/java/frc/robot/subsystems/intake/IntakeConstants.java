@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -27,13 +28,13 @@ import edu.wpi.first.units.measure.Voltage;
 public class IntakeConstants {
 
   public static final String LOG_PATH = "Intake/";
+  public static final String LOG_PATH_INTAKE_PIVOT = "IntakePivot";
   public static final boolean INTAKE_TUNING_MODE_ENABLED = true;
 
-  public static final int INTAKE_PIVOT_MOTOR_ID = 20;
-  public static final int INTAKE_ROLLER_MOTOR_ID = 21;
+  public static final int INTAKE_ROLLER_MOTOR_ID = 20;
+  public static final int INTAKE_PIVOT_MOTOR_ID = 21;
 
   public static final GravityTypeValue GRAVITY_TYPE_VALUE = GravityTypeValue.Arm_Cosine;
-  public static final Angle GRAVITY_ARM_POSITION_OFFSET = Rotations.of(0);
   public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
       StaticFeedforwardSignValue.UseVelocitySign;
 
@@ -43,17 +44,18 @@ public class IntakeConstants {
   public static final double KS = 0.0;
   public static final double KG = 0.0;
   public static final double KV = 0.0;
+  public static final double KA = 0.0;
 
   // ! CURRENT LIMIT NOT CONFIGURED YET
-  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(60);
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
-  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(120);
+  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(40);
   public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
   public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
   public static final NeutralModeValue PIVOT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
-  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(15);
+  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(9.563);
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
       RotationsPerSecondPerSecond.of(60);
 
@@ -70,30 +72,35 @@ public class IntakeConstants {
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final Current PIVOT_HOMING_CURRENT = Amps.of(4);
-  public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(.5);
+  public static final double PIVOT_HOMING_DUTY_CYCLE = 0.15;
+  public static final Current PIVOT_HOMING_CURRENT = Amps.of(89);
+  public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(2);
+  public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
+  public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.1);
 
-  public static final Angle INTAKE_DOWN_POSITION = Rotations.of(-0.5);
-  public static final Angle INTAKE_EXPECTED_HOMING_ZERO = Rotations.of(0.5);
-  public static final Angle INTAKE_UP_POSITION = Rotations.of(0.5);
+  public static final Angle INTAKE_DOWN_POSITION = Rotations.of(-0.1862);
+  public static final Angle INTAKE_EXPECTED_HOMING_ZERO = Rotations.of(0.4785);
+  public static final Angle INTAKE_UP_POSITION = Rotations.of(0.4785);
 
   public static final double INTAKE_DEPLOYING_DUTY_CYCLE = 0;
   public static final double INTAKE_RETRACTING_DUTY_CYCLE = 0;
   public static final double INTAKE_INTAKING_DUTY_CYCLE = -0.8;
+
+  public static final double PIVOT_SENSOR_TO_MECHANISM_RATION = (60 / 18) * (32 / 12);
 
   public static final TalonFXConfiguration INTAKE_PIVOT_CONFIG =
       new TalonFXConfiguration()
           .withSlot0(
               new Slot0Configs()
                   .withGravityType(GRAVITY_TYPE_VALUE)
-                  .withGravityArmPositionOffset(GRAVITY_ARM_POSITION_OFFSET)
                   .withStaticFeedforwardSign(STATIC_FEEDFORWARD_SIGN_VALUE)
                   .withKP(KP)
                   .withKI(KI)
                   .withKD(KD)
                   .withKS(KS)
                   .withKG(KG)
-                  .withKS(KV))
+                  .withKS(KV)
+                  .withKA(KA))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
                   .withStatorCurrentLimit(PIVOT_STATOR_CURRENT_LIMIT)
@@ -107,7 +114,9 @@ public class IntakeConstants {
           .withMotionMagic(
               new MotionMagicConfigs()
                   .withMotionMagicCruiseVelocity(MOTION_MAGIC_ANGULAR_VELOCITY)
-                  .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION));
+                  .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION))
+          .withFeedback(
+              new FeedbackConfigs().withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION));
 
   public static final TalonFXConfiguration INTAKE_ROLLER_CONFIG =
       new TalonFXConfiguration()

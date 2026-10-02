@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.loggedtunable;
 
 import java.util.ArrayList;
 
@@ -17,6 +17,5 @@ public class LoggedTunableUtil {
 }
 
 interface LoggedTunable {
-  default void checkForChange() {}
-  ;
+  void checkForChange();
 }

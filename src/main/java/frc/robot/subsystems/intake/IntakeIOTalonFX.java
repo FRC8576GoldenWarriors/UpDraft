@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -14,10 +15,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.LoggedTunablePIDFNumbers;
-import frc.robot.util.LoggedTunableUtil;
+import frc.robot.generated.TunerConstants;
 import frc.robot.util.StatusSignalRefresher;
-import java.util.Arrays;
+import frc.robot.util.loggedtunable.LoggedTunablePIDFConstants;
 import java.util.function.BooleanSupplier;
 
 public class IntakeIOTalonFX implements IntakeIO {
@@ -27,11 +27,11 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private final MotionMagicVoltage intakePivotPositionRequest =
       new MotionMagicVoltage(Radians.zero());
-  private final DutyCycleOut intakePivotHomingRequest = new DutyCycleOut(0.05);
+  private final DutyCycleOut intakePivotHomingRequest = new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
   private final DutyCycleOut intakeRollerDutyCycleRequest = new DutyCycleOut(0);
   private final EmptyControl intakeIdleRequest = new EmptyControl();
 
-  private final LoggedTunablePIDFNumbers intakePivotLoggedTunablePIDF;
+  private final LoggedTunablePIDFConstants intakePivotLoggedTunablePIDFConstants;
 
   // Status Signals
   private final BooleanSupplier intakePivotConnectedSignal;
@@ -46,57 +46,37 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Current> intakeRollerCurrentSignal;
 
   public IntakeIOTalonFX() {
-    intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID);
-    intakeRollerTalonFX = new TalonFX(IntakeConstants.INTAKE_ROLLER_MOTOR_ID);
+    intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID, TunerConstants.kCANBus);
+    intakeRollerTalonFX =
+        new TalonFX(IntakeConstants.INTAKE_ROLLER_MOTOR_ID, TunerConstants.kCANBus);
 
-    intakePivotLoggedTunablePIDF =
-        new LoggedTunablePIDFNumbers(
-            "IntakePivot",
-            Arrays.asList(
-                IntakeConstants.KP,
-                IntakeConstants.KI,
-                IntakeConstants.KD,
-                IntakeConstants.KS,
-                IntakeConstants.KV,
-                IntakeConstants.KG),
-            Arrays.asList(
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKP(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                },
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKI(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                },
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKD(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                },
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKS(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                },
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKV(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                },
-                (value) -> {
-                  IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0.withKG(value);
-                  this.intakePivotTalonFX
-                      .getConfigurator()
-                      .apply(IntakeConstants.INTAKE_PIVOT_CONFIG.Slot0);
-                }),
-            IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
+    intakePivotLoggedTunablePIDFConstants =
+        new LoggedTunablePIDFConstants(
+            IntakeConstants.LOG_PATH_INTAKE_PIVOT,
+            IntakeConstants.INTAKE_TUNING_MODE_ENABLED,
+            (values) -> {
+              intakePivotTalonFX
+                  .getConfigurator()
+                  .apply(
+                      IntakeConstants.INTAKE_PIVOT_CONFIG
+                          .Slot0
+                          .withKP(values[0])
+                          .withKI(values[1])
+                          .withKD(values[2])
+                          .withKS(values[3])
+                          .withKG(values[4])
+                          .withKV(values[5])
+                          .withKA(values[6]));
+            },
+            new double[] {
+              IntakeConstants.KP,
+              IntakeConstants.KI,
+              IntakeConstants.KD,
+              IntakeConstants.KS,
+              IntakeConstants.KG,
+              IntakeConstants.KV,
+              IntakeConstants.KA
+            });
 
     intakePivotConnectedSignal = () -> intakePivotTalonFX.isConnected();
     intakePivotPositionSignal = intakePivotTalonFX.getPosition();
@@ -131,7 +111,6 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG);
     intakeRollerTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_ROLLER_CONFIG);
-    LoggedTunableUtil.registerLoggedTunable(intakePivotLoggedTunablePIDF);
   }
 
   public void updateInputs(IntakeIOInputs inputs) {
@@ -164,8 +143,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public boolean home(Current activeHomingCurrent) {
-    if (!atUpperHardstopCurrent(activeHomingCurrent)) {
+  public boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
+    if (!atUpperHardstop(activeHomingCurrent, activeHomingVelocity)) {
       intakePivotTalonFX.setControl(intakePivotHomingRequest);
       return false;
     }
@@ -173,10 +152,15 @@ public class IntakeIOTalonFX implements IntakeIO {
     return true;
   }
 
-  private boolean atUpperHardstopCurrent(Current activeHomingCurrent) {
+  private boolean atUpperHardstop(
+      Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return MathUtil.isNear(
-        IntakeConstants.PIVOT_HOMING_CURRENT.in(Amps),
-        activeHomingCurrent.in(Amps),
-        IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE.in(Amps));
+            IntakeConstants.PIVOT_HOMING_CURRENT.in(Amps),
+            activeHomingCurrent.in(Amps),
+            IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE.in(Amps))
+        && MathUtil.isNear(
+            IntakeConstants.PIVOT_HOMING_VELOCITY.in(RotationsPerSecond),
+            activeHomingVelocity.in(RotationsPerSecond),
+            IntakeConstants.PIVOT_HOMING_VELOCITY_TOLERANCE.in(RotationsPerSecond));
   }
 }

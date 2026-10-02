@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import org.littletonrobotics.junction.Logger;
@@ -20,6 +21,7 @@ public class Orca extends SubsystemBase {
   private final RobotContainer robotContainer;
 
   private final Swerve swerve;
+  private final Intake intake;
 
   private Pose2d currentRobotPose = new Pose2d();
 
@@ -37,7 +39,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    HOME_INTAKE
   }
 
   private enum SystemState {
@@ -51,7 +54,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    HOMING_INTAKE
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -61,6 +65,7 @@ public class Orca extends SubsystemBase {
   public Orca(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
+    this.intake = robotContainer.getIntakeSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -96,6 +101,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> SystemState.SYS_ID_STEER;
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
+      case HOME_INTAKE -> SystemState.HOMING_INTAKE;
       default -> SystemState.IDLE;
     };
   }
@@ -112,6 +118,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> sysIdSteer();
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
+      case HOMING_INTAKE -> home();
       default -> idling();
     }
   }
@@ -130,6 +137,27 @@ public class Orca extends SubsystemBase {
 
   private void idling() {
     swerve.setWantedState(Swerve.WantedState.IDLE);
+    intake.setWantedState(Intake.WantedState.IDLE);
+  }
+
+  private void intake() {
+    intake.setWantedState(Intake.WantedState.INTAKE);
+  }
+
+  private void retract() {
+    intake.setWantedState(Intake.WantedState.RETRACT);
+  }
+
+  private void deploy() {
+    intake.setWantedState(Intake.WantedState.DEPLOY);
+  }
+
+  private void home() {
+    intake.setWantedState(Intake.WantedState.HOME);
+  }
+
+  private void setpoint() {
+    intake.setWantedState(Intake.WantedState.SETPOINT);
   }
 
   private void taxi() {

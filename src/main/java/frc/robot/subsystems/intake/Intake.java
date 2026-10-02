@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,6 +25,7 @@ public class Intake extends SubsystemBase {
     DEPLOY,
     RETRACT,
     INTAKE,
+    SETPOINT,
     HOME
   }
 
@@ -31,6 +34,7 @@ public class Intake extends SubsystemBase {
     DEPLOYING,
     RETRACTING,
     INTAKING,
+    SETPOINTING,
     HOMING
   }
 
@@ -48,6 +52,8 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput(IntakeConstants.LOG_PATH + "WantedState", wantedState);
     Logger.recordOutput(IntakeConstants.LOG_PATH + "SystemState", wantedState);
 
+    Logger.recordOutput("isHomed", isHomed);
+
     applyStates();
   }
 
@@ -58,6 +64,7 @@ public class Intake extends SubsystemBase {
       case RETRACT -> SystemState.RETRACTING;
       case INTAKE -> SystemState.INTAKING;
       case HOME -> SystemState.HOMING;
+      case SETPOINT -> SystemState.SETPOINTING;
       default -> SystemState.IDLING;
     };
   }
@@ -68,6 +75,7 @@ public class Intake extends SubsystemBase {
       case DEPLOYING -> deploying();
       case RETRACTING -> retracting();
       case INTAKING -> intaking();
+      case SETPOINTING -> setpointing();
       case HOMING -> homing();
       default -> idling();
     }
@@ -92,8 +100,13 @@ public class Intake extends SubsystemBase {
     io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_INTAKING_DUTY_CYCLE);
   }
 
+  private void setpointing() {
+    io.setWantedIntakePosition(Rotations.zero());
+    io.setWantedIntakeRollerSpeed(0);
+  }
+
   private void homing() {
-    this.isHomed = io.home(inputs.intakePivotCurrent);
+    this.isHomed = io.home(inputs.intakePivotCurrent, inputs.intakePivotVelocity);
     if (isHomed) {
       setWantedState(WantedState.IDLE);
     }

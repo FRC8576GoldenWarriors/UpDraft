@@ -35,7 +35,7 @@ public interface IntakeIO {
 
   default void idle() {}
 
-  default boolean home(Current activeHomingCurrent) {
+  default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return false;
   }
 }
