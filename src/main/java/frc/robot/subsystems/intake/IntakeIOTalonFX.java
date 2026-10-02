@@ -27,7 +27,8 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private final MotionMagicVoltage intakePivotPositionRequest =
       new MotionMagicVoltage(Radians.zero());
-  private final DutyCycleOut intakePivotHomingRequest = new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
+  private final DutyCycleOut intakePivotHomingRequest =
+      new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
   private final DutyCycleOut intakeRollerDutyCycleRequest = new DutyCycleOut(0);
   private final EmptyControl intakeIdleRequest = new EmptyControl();
 
