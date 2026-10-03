@@ -22,16 +22,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.stream.IntStream;
-import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends SubsystemBase {
+public class Swerve extends SwerveStateMachine {
 
   private final SwerveIO io;
 
@@ -53,12 +51,12 @@ public class Swerve extends SubsystemBase {
     ROTATION_LOCK,
     WHEEL_LOCK_WITH_X,
     IDLE,
-    TAXI,
     SET_MODULE_ROTATIONS,
+    TAXI,
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION
   }
 
   private enum SystemState {
@@ -66,8 +64,8 @@ public class Swerve extends SubsystemBase {
     ROTATION_LOCKING,
     WHEEL_LOCKING_WITH_X,
     IDLING,
-    TAXIING,
     SETTING_MODULE_ROTATIONS,
+    TAXIING,
     SYS_ID
   }
 
@@ -124,6 +122,7 @@ public class Swerve extends SubsystemBase {
   private final SysIdRoutine m_sysIdRoutineRotation;
 
   public Swerve(SwerveIO io) {
+    super(SwerveConstants.LOG_PATH);
     this.io = io;
 
     rotationLockRequest.HeadingController =
@@ -138,10 +137,7 @@ public class Swerve extends SubsystemBase {
                 SwerveConstants.SYS_ID_TRANSLATION_RAMP_RATE,
                 SwerveConstants.SYS_ID_TRANSLATION_DYNAMIC_STEP,
                 SwerveConstants.SYS_ID_TRANSLATION_TIMEOUT,
-                state ->
-                    Logger.recordOutput(
-                        SwerveConstants.LOG_PATH + "SysId/SysIdTranslation_State",
-                        state.toString())),
+                state -> record("SysId/SysIdTranslation_State", state.toString())),
             new SysIdRoutine.Mechanism(
                 output -> io.setSwerveState(m_translationCharacterization.withVolts(output)),
                 null,
@@ -153,9 +149,7 @@ public class Swerve extends SubsystemBase {
                 SwerveConstants.SYS_ID_STEER_RAMP_RATE,
                 SwerveConstants.SYS_ID_STEER_DYNAMIC_STEP,
                 SwerveConstants.SYS_ID_STEER_TIMEOUT,
-                state ->
-                    Logger.recordOutput(
-                        SwerveConstants.LOG_PATH + "SysId/SysIdSteer_State", state.toString())),
+                state -> record("SysId/SysIdSteer_State", state.toString())),
             new SysIdRoutine.Mechanism(
                 volts -> io.setSwerveState(m_steerCharacterization.withVolts(volts)), null, this));
 
@@ -165,15 +159,12 @@ public class Swerve extends SubsystemBase {
                 SwerveConstants.SYS_ID_ROTATION_RAMP_RATE,
                 SwerveConstants.SYS_ID_ROTATION_DYNAMIC_STEP,
                 SwerveConstants.SYS_ID_ROTATION_TIMEOUT,
-                state ->
-                    Logger.recordOutput(
-                        SwerveConstants.LOG_PATH + "SysId/SysIdRotation_State", state.toString())),
+                state -> record("SysId/SysIdRotation_State", state.toString())),
             new SysIdRoutine.Mechanism(
                 output -> {
                   io.setSwerveState(
                       m_rotationCharacterization.withRotationalRate(output.in(Volts)));
-                  Logger.recordOutput(
-                      SwerveConstants.LOG_PATH + "SysId/Rotational_Rate", output.in(Volts));
+                  record("SysId/Rotational_Rate", output.in(Volts));
                 },
                 null,
                 this));
@@ -188,19 +179,19 @@ public class Swerve extends SubsystemBase {
 
     io.updateInputs(swerveInputs, gyroInputs, moduleInputs);
 
-    Logger.processInputs(SwerveConstants.LOG_PATH + "Swerve", swerveInputs);
+    processInputs(SwerveConstants.LOG_PATH + "Swerve", swerveInputs);
 
-    Logger.processInputs(SwerveConstants.LOG_PATH + "Gyro", gyroInputs);
+    processInputs(SwerveConstants.LOG_PATH + "Gyro", gyroInputs);
 
     for (int i = 0; i < moduleInputs.length; i++) {
-      Logger.processInputs(
+      processInputs(
           SwerveConstants.LOG_PATH + SwerveConstants.MODULE_NAMES[i] + "Module", moduleInputs[i]);
     }
 
     systemState = handleStateTransition();
 
-    Logger.recordOutput(SwerveConstants.LOG_PATH + "WantedState", wantedState);
-    Logger.recordOutput(SwerveConstants.LOG_PATH + "SystemState", systemState);
+    record(SwerveConstants.LOG_PATH + "WantedState", wantedState);
+    record(SwerveConstants.LOG_PATH + "SystemState", systemState);
 
     applyStates();
   }
@@ -253,7 +244,7 @@ public class Swerve extends SubsystemBase {
 
       case SETTING_MODULE_ROTATIONS -> settingModuleRotations();
 
-      case SYS_ID -> {}
+      case SYS_ID -> sysId();
 
       case IDLING -> idling();
 
@@ -276,14 +267,14 @@ public class Swerve extends SubsystemBase {
   }
 
   // Apply States Methods
-  private void teleopDriving() {
+  protected void teleopDriving() {
     wantedChassisSpeeds =
         getChassisSpeedsFromControllerInput(xController, yController, omegaController);
 
     io.setSwerveState(teleopRequest.withSpeeds(wantedChassisSpeeds));
   }
 
-  private void rotationLocking() {
+  protected void rotationLocking() {
     wantedChassisSpeeds =
         getChassisSpeedsFromControllerInput(xController, yController, omegaController);
     io.setSwerveState(
@@ -293,22 +284,24 @@ public class Swerve extends SubsystemBase {
             .withTargetDirection(wantedRotationLockRotation));
   }
 
-  private void wheelLockingWithX() {
+  protected void wheelLockingWithX() {
     io.setSwerveState(wheelLockWithXRequest);
   }
 
-  private void idling() {
+  protected void idling() {
     io.setSwerveState(idleRequest);
   }
 
-  private void taxiing() {
+  protected void taxiing() {
     io.setSwerveState(teleopRequest.withSpeeds(SwerveConstants.TAXI_FIELD_CHASSIS_SPEEDS));
   }
 
-  private void settingModuleRotations() {
+  protected void settingModuleRotations() {
     io.setSwerveState(
         absoluteModuleRotationRequest.withModuleRotations(wantedAbsoluteModuleRotations));
   }
+
+  protected void sysId() {}
 
   public void acceptControllerInput(
       double xController, double yController, double omegaController) {
@@ -479,17 +472,17 @@ public class Swerve extends SubsystemBase {
                               / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
-                      Logger.recordOutput(
-                          SwerveConstants.LOG_PATH + "SysId/WheelDelta",
+                      record(
+                          "SysId/WheelDelta",
                           "Wheel Delta: " + formatter.format(wheelDelta) + " radians");
-                      Logger.recordOutput(
-                          SwerveConstants.LOG_PATH + "SysId/GyroDelta",
+                      record(
+                          "SysId/GyroDelta",
                           "Gyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                      Logger.recordOutput(
-                          SwerveConstants.LOG_PATH + "SysId/WheelRadiusMeters",
+                      record(
+                          "SysId/WheelRadiusMeters",
                           "Wheel Radius: " + formatter.format(wheelRadius) + " meters");
-                      Logger.recordOutput(
-                          SwerveConstants.LOG_PATH + "SysId/WheelRadiusInches",
+                      record(
+                          "SysId/WheelRadiusInches",
                           "Wheel Radius: "
                               + formatter.format(Meters.of(wheelRadius).in(Inches))
                               + " inches");

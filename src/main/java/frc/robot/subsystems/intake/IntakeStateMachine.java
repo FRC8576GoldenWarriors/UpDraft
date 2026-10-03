@@ -1,8 +1,13 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedSubsystem;
 
-abstract class IntakeStateMachine extends SubsystemBase {
+abstract class IntakeStateMachine extends LoggedSubsystem {
+
+  public IntakeStateMachine(String logPath) {
+    super(logPath);
+  }
+
   protected abstract void idling();
 
   protected abstract void deploying();

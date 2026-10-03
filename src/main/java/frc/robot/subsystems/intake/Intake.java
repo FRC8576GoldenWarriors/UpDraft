@@ -7,7 +7,6 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Rotations;
 
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
-import org.littletonrobotics.junction.Logger;
 
 public class Intake extends IntakeStateMachine {
 
@@ -41,25 +40,23 @@ public class Intake extends IntakeStateMachine {
   }
 
   public Intake(IntakeIO io) {
+    super(IntakeConstants.LOG_PATH);
     this.io = io;
     manualPositionSetpoint =
-        new LoggedTunableDouble(
-            IntakeConstants.LOG_PATH + "ManualSetpoint",
-            (value) -> {},
-            IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
+        newSubsystemLoggedTunableDouble(
+            "ManualSetpoint", (value) -> {}, IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs(IntakeConstants.LOG_PATH, inputs);
+    processInputs(inputs);
 
     systemState = handleStateTransition();
 
-    Logger.recordOutput(IntakeConstants.LOG_PATH + "WantedState", wantedState);
-    Logger.recordOutput(IntakeConstants.LOG_PATH + "SystemState", wantedState);
-
-    Logger.recordOutput(IntakeConstants.LOG_PATH + "IsHomed", isHomed);
+    record("WantedState", wantedState);
+    record("SystemState", wantedState);
+    record("IsHomed", isHomed);
 
     applyStates();
   }
