@@ -49,7 +49,7 @@ public class IntakeConstants {
   // ! CURRENT LIMIT NOT CONFIGURED YET
   public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
-  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(40);
+  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(60);
   public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
   public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
@@ -77,6 +77,8 @@ public class IntakeConstants {
   public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(2);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.1);
+
+  public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.005);
 
   public static final Angle INTAKE_DOWN_POSITION = Rotations.of(-0.1862);
   public static final Angle INTAKE_EXPECTED_HOMING_ZERO = Rotations.of(0.4785);

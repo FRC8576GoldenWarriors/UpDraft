@@ -6,10 +6,10 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.loggedtunable.LoggedTunableDouble;
 import org.littletonrobotics.junction.Logger;
 
-public class Intake extends SubsystemBase {
+public class Intake extends IntakeStateMachine {
 
   private IntakeIO io;
 
@@ -18,6 +18,8 @@ public class Intake extends SubsystemBase {
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
 
+  private final LoggedTunableDouble manualPositionSetpoint;
+
   private boolean isHomed = false;
 
   public enum WantedState {
@@ -25,8 +27,8 @@ public class Intake extends SubsystemBase {
     DEPLOY,
     RETRACT,
     INTAKE,
-    SETPOINT,
-    HOME
+    HOME,
+    POSITION_MANUALLY
   }
 
   private enum SystemState {
@@ -34,12 +36,17 @@ public class Intake extends SubsystemBase {
     DEPLOYING,
     RETRACTING,
     INTAKING,
-    SETPOINTING,
-    HOMING
+    HOMING,
+    POSITIONING_MANUALLY
   }
 
   public Intake(IntakeIO io) {
     this.io = io;
+    manualPositionSetpoint =
+        new LoggedTunableDouble(
+            IntakeConstants.LOG_PATH + "ManualSetpoint",
+            (value) -> {},
+            IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
   }
 
   @Override
@@ -52,7 +59,7 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput(IntakeConstants.LOG_PATH + "WantedState", wantedState);
     Logger.recordOutput(IntakeConstants.LOG_PATH + "SystemState", wantedState);
 
-    Logger.recordOutput("isHomed", isHomed);
+    Logger.recordOutput(IntakeConstants.LOG_PATH + "IsHomed", isHomed);
 
     applyStates();
   }
@@ -64,7 +71,7 @@ public class Intake extends SubsystemBase {
       case RETRACT -> SystemState.RETRACTING;
       case INTAKE -> SystemState.INTAKING;
       case HOME -> SystemState.HOMING;
-      case SETPOINT -> SystemState.SETPOINTING;
+      case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
       default -> SystemState.IDLING;
     };
   }
@@ -75,41 +82,51 @@ public class Intake extends SubsystemBase {
       case DEPLOYING -> deploying();
       case RETRACTING -> retracting();
       case INTAKING -> intaking();
-      case SETPOINTING -> setpointing();
       case HOMING -> homing();
+      case POSITIONING_MANUALLY -> positioningManually();
       default -> idling();
     }
   }
 
-  private void idling() {
+  @Override
+  protected void idling() {
     io.idle();
   }
 
-  private void deploying() {
+  @Override
+  protected void deploying() {
     io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
     io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_DEPLOYING_DUTY_CYCLE);
   }
 
-  private void retracting() {
+  @Override
+  protected void retracting() {
     io.setWantedIntakePosition(IntakeConstants.INTAKE_UP_POSITION);
     io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_RETRACTING_DUTY_CYCLE);
   }
 
-  private void intaking() {
+  @Override
+  protected void intaking() {
     io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
     io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_INTAKING_DUTY_CYCLE);
   }
 
-  private void setpointing() {
-    io.setWantedIntakePosition(Rotations.zero());
+  @Override
+  protected void positioningManually() {
+    io.setWantedIntakePosition(Rotations.of(manualPositionSetpoint.get()));
     io.setWantedIntakeRollerSpeed(0);
   }
 
-  private void homing() {
+  @Override
+  protected void homing() {
     this.isHomed = io.home(inputs.intakePivotCurrent, inputs.intakePivotVelocity);
     if (isHomed) {
       setWantedState(WantedState.IDLE);
     }
+  }
+
+  public boolean nearSetpoint() {
+    return io.nearSetpoint();
   }
 
   public void setWantedState(WantedState wantedState) {

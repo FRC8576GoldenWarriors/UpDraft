@@ -157,7 +157,7 @@ public class Orca extends SubsystemBase {
   }
 
   private void setpoint() {
-    intake.setWantedState(Intake.WantedState.SETPOINT);
+    intake.setWantedState(Intake.WantedState.POSITION_MANUALLY);
   }
 
   private void taxi() {

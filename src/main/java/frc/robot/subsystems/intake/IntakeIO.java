@@ -38,4 +38,8 @@ public interface IntakeIO {
   default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return false;
   }
+
+  default boolean nearSetpoint() {
+    return false;
+  }
 }

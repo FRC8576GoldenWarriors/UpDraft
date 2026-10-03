@@ -1,8 +1,6 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -10,7 +8,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -26,7 +23,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final TalonFX intakeRollerTalonFX;
 
   private final MotionMagicVoltage intakePivotPositionRequest =
-      new MotionMagicVoltage(Radians.zero());
+      new MotionMagicVoltage(Rotations.zero());
   private final DutyCycleOut intakePivotHomingRequest =
       new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
   private final DutyCycleOut intakeRollerDutyCycleRequest = new DutyCycleOut(0);
@@ -145,7 +142,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
-    if (!atUpperHardstop(activeHomingCurrent, activeHomingVelocity)) {
+    if (!atUpperHomingHardstop(activeHomingCurrent, activeHomingVelocity)) {
       intakePivotTalonFX.setControl(intakePivotHomingRequest);
       return false;
     }
@@ -153,15 +150,17 @@ public class IntakeIOTalonFX implements IntakeIO {
     return true;
   }
 
-  private boolean atUpperHardstop(
+  @Override
+  public boolean nearSetpoint() {
+    return intakePivotPositionSignal.isNear(
+        intakePivotPositionRequest.getPositionMeasure(), IntakeConstants.PIVOT_POSITION_TOLERANCE);
+  }
+
+  private boolean atUpperHomingHardstop(
       Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
-    return MathUtil.isNear(
-            IntakeConstants.PIVOT_HOMING_CURRENT.in(Amps),
-            activeHomingCurrent.in(Amps),
-            IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE.in(Amps))
-        && MathUtil.isNear(
-            IntakeConstants.PIVOT_HOMING_VELOCITY.in(RotationsPerSecond),
-            activeHomingVelocity.in(RotationsPerSecond),
-            IntakeConstants.PIVOT_HOMING_VELOCITY_TOLERANCE.in(RotationsPerSecond));
+    return intakePivotCurrentSignal.isNear(
+            IntakeConstants.PIVOT_HOMING_CURRENT, IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE)
+        && intakePivotVelocitySignal.isNear(
+            IntakeConstants.PIVOT_HOMING_VELOCITY, IntakeConstants.PIVOT_HOMING_VELOCITY_TOLERANCE);
   }
 }
