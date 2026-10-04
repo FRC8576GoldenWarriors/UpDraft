@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.CommandSchedulerLogger;
 import frc.robot.util.StatusSignalRefresher;
+import frc.robot.util.alertmanager.AlertManager;
 import frc.robot.util.loggedtunable.LoggedTunableUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -22,6 +23,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
   private final StatusSignalRefresher refresher;
   private final CommandSchedulerLogger schedulerLogger;
+  private final AlertManager alertManager;
 
   public Robot() {
     Logger.recordMetadata("ProjectName", "CTREIOSwerveDrive"); // Set a metadata value
@@ -51,6 +53,7 @@ public class Robot extends LoggedRobot {
     refresher.finalizeStatusSignals();
     schedulerLogger = CommandSchedulerLogger.getInstance();
     schedulerLogger.bindCommandScheduler();
+    alertManager = AlertManager.getInstance();
   }
 
   @Override
@@ -63,6 +66,8 @@ public class Robot extends LoggedRobot {
     schedulerLogger.log();
 
     refresher.checkStatusSignals();
+
+    alertManager.periodic();
 
     LoggedTunableUtil.checkLoggedTunables();
   }

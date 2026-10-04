@@ -12,8 +12,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.StatusSignalRefresher;
+import frc.robot.util.alertmanager.AlertManager;
 import frc.robot.util.loggedtunable.LoggedTunablePIDFConstants;
 import java.util.function.BooleanSupplier;
 
@@ -82,10 +85,20 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakePivotVoltageSignal = intakePivotTalonFX.getMotorVoltage();
     intakePivotCurrentSignal = intakePivotTalonFX.getStatorCurrent();
 
+    AlertManager.getInstance()
+        .registerAlert(
+            new Alert("The Intake Pivot Motor is Disconnected.", AlertType.kError),
+            intakePivotConnectedSignal);
+
     intakeRollerConnectedSignal = () -> intakeRollerTalonFX.isConnected();
     intakeRollerVelocitySignal = intakeRollerTalonFX.getVelocity();
     intakeRollerVoltageSignal = intakeRollerTalonFX.getMotorVoltage();
     intakeRollerCurrentSignal = intakeRollerTalonFX.getStatorCurrent();
+
+    AlertManager.getInstance()
+        .registerAlert(
+            new Alert("The Intake Roller Motor is Disconnected.", AlertType.kError),
+            intakeRollerConnectedSignal);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         IntakeConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,

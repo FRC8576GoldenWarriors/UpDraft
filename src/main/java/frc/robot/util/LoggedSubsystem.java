@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.util.WPISerializable;
@@ -9,6 +10,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
+import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -809,5 +811,26 @@ public class LoggedSubsystem extends SubsystemBase {
    */
   public void record(String key, Color value) {
     Logger.recordOutput(logPath + key, value);
+  }
+
+  /**
+   * Records a single output field for easy access when viewing the log. On the simulator, use this
+   * method to record extra data based on the original inputs.
+   *
+   * <p>This method serializes an array of objects as a struct automatically. Top-level protobuf
+   * arrays are not supported.
+   *
+   * <p>This method is <b>not thread-safe</b> and should only be called from the main thread. Check
+   * the <a href=
+   * "https://docs.advantagekit.org/getting-started/common-issues/multithreading">documentation</a>
+   * for details.
+   *
+   * @param <T> The object type.
+   * @param key The name of the field to record. It will be stored under the path specified by
+   *     {@code logPath}.
+   * @param value The value of the field.
+   */
+  public <T extends StructSerializable> void recordOutput(String key, ArrayList<T> value) {
+    Logger.recordOutput(logPath + key, value.toArray(new Pose2d[value.size()]));
   }
 }
