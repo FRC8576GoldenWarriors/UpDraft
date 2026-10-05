@@ -40,7 +40,7 @@ public class Intake extends IntakeStateMachine {
   }
 
   public Intake(IntakeIO io) {
-    super(IntakeConstants.LOG_PATH);
+    super(IntakeConstants.LOG_PATH, io.getCurrentSignals());
     this.io = io;
     manualPositionSetpoint =
         newSubsystemLoggedTunableDouble(
@@ -53,7 +53,6 @@ public class Intake extends IntakeStateMachine {
     processInputs(inputs);
 
     systemState = handleStateTransition();
-
     record("WantedState", wantedState);
     record("SystemState", wantedState);
     record("IsHomed", isHomed);

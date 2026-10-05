@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Hertz;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -21,12 +22,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.util.StatusSignalRefresher;
 import frc.robot.util.alertmanager.AlertManager;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -37,6 +40,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   private final HashMap<Integer, Consumer<ModuleIOInputs>> moduleInputUpdater;
 
   private final Field2d fieldViz;
+
+  private final HashSet<StatusSignal<Current>> currenStatusSignals = new HashSet<>();
 
   public SwerveIOCTRE(
       SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>[] moduleConstants) {
@@ -143,6 +148,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       var driveStatorCurrentSignal = driveMotor.getStatorCurrent();
       var driveTemperatureSignal = driveMotor.getDeviceTemp();
 
+      currenStatusSignals.add(driveSupplyCurrentSignal);
+
       BooleanSupplier steerConnectedSupplier = () -> steerMotor.isConnected();
       var steerPositionSignal = steerMotor.getPosition();
       var steerVelocitySignal = steerMotor.getVelocity();
@@ -150,6 +157,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       var steerSupplyCurrentSignal = steerMotor.getSupplyCurrent();
       var steerStatorCurrentSignal = steerMotor.getStatorCurrent();
       var steerTemperatureSignal = steerMotor.getDeviceTemp();
+
+      currenStatusSignals.add(steerSupplyCurrentSignal);
 
       BooleanSupplier canCoderConnectedSupplier = () -> steerCANCoder.isConnected();
       var steerAbsolutePositionSignal = steerCANCoder.getAbsolutePosition();
@@ -311,6 +320,11 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   @Override
   public void setOperatorPerspectiveForward(Rotation2d rotation2d) {
     super.setOperatorPerspectiveForward(rotation2d);
+  }
+
+  @Override
+  public StatusSignal<Current>[] getCurrentSignals() {
+    return currenStatusSignals.toArray(StatusSignal[]::new);
   }
 
   @Override

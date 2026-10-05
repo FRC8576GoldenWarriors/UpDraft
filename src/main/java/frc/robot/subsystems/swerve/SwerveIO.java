@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
@@ -24,9 +25,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.loggedimpl.LoggedIO;
+
 import org.littletonrobotics.junction.AutoLog;
 
-public interface SwerveIO {
+public interface SwerveIO extends LoggedIO {
 
   @AutoLog
   class SwerveIOInputs extends SwerveDriveState {
@@ -102,6 +105,8 @@ public interface SwerveIO {
   default void setSwerveState(SwerveRequest swerveRequest) {}
 
   void resetOdometry(Pose2d pose2d);
+
+  StatusSignal<Current>[] getCurrentSignals();
 
   default void resetRotation() {}
 

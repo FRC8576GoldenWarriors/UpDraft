@@ -122,7 +122,7 @@ public class Swerve extends SwerveStateMachine {
   private final SysIdRoutine m_sysIdRoutineRotation;
 
   public Swerve(SwerveIO io) {
-    super(SwerveConstants.LOG_PATH);
+    super(SwerveConstants.LOG_PATH, io.getCurrentSignals());
     this.io = io;
 
     rotationLockRequest.HeadingController =

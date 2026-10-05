@@ -169,6 +169,11 @@ public class IntakeIOTalonFX implements IntakeIO {
         intakePivotPositionRequest.getPositionMeasure(), IntakeConstants.PIVOT_POSITION_TOLERANCE);
   }
 
+  @Override
+  public StatusSignal<Current>[] getCurrentSignals() {
+    return new StatusSignal[] {intakePivotCurrentSignal, intakeRollerCurrentSignal};
+  }
+
   private boolean atUpperHomingHardstop(
       Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return intakePivotCurrentSignal.isNear(

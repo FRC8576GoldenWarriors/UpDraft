@@ -1,21 +1,31 @@
-package frc.robot.util;
+package frc.robot.util.loggedimpl;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.util.WPISerializable;
 import edu.wpi.first.util.protobuf.Protobuf;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
+import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -24,14 +34,70 @@ import us.hebi.quickbuf.ProtoMessage;
 public class LoggedSubsystem extends SubsystemBase {
 
   private final String logPath;
+  private final HashSet<StatusSignal<Current>> subsystemSupplyCurrentSignals = new HashSet<>();
+  private static final CopyOnWriteArraySet<StatusSignal<Current>> allSubsystemSupplyCurrentSignals =
+      new CopyOnWriteArraySet<>();
 
-  public LoggedSubsystem(String logPath) {
+  public LoggedSubsystem(
+      String logPath, StatusSignal<Current>[] currentSignals, boolean skipCurrentSignalCheck) {
+    if (!skipCurrentSignalCheck && !(currentSignals.length > 0))
+      throw new IllegalArgumentException(
+          logPath.substring(0, logPath.length() - 1)
+              + " requires current signals to log. Ensure you are passing appropriate current signals to log. "
+              + "Otherwise pass true in the constructor to skip the current signal check.");
+
     this.logPath = logPath;
+    this.addToPowerLogging(currentSignals);
+  }
+
+  public LoggedSubsystem(String logPath, StatusSignal<Current>[] currentSignals) {
+    this(logPath, currentSignals, false);
   }
 
   public LoggedTunableDouble newSubsystemLoggedTunableDouble(
       String dashboardKey, Consumer<Double> onChangeAction, boolean subsystemTuningMode) {
     return new LoggedTunableDouble(logPath + dashboardKey, onChangeAction, subsystemTuningMode);
+  }
+
+  private void addToPowerLogging(StatusSignal<Current>[] signals) {
+    for (StatusSignal<Current> signal : signals) {
+      subsystemSupplyCurrentSignals.add(signal);
+    }
+    allSubsystemSupplyCurrentSignals.addAll(subsystemSupplyCurrentSignals);
+  }
+
+  private void recordPowerData() {
+    Current totalSubsystemSupplyCurrent = Amps.zero();
+    subsystemSupplyCurrentSignals.forEach(
+        (current) -> {
+          totalSubsystemSupplyCurrent.plus(current.getValue());
+        });
+
+    Current allSubsystemSupplyCurrent = Amps.zero();
+    allSubsystemSupplyCurrentSignals.forEach(
+        (current) -> {
+          allSubsystemSupplyCurrent.plus(current.getValue());
+        });
+
+    record("PowerMonitor/TotalCurrent", totalSubsystemSupplyCurrent);
+    record(
+        "PowerMonitor/TotalPowerWatts",
+        totalSubsystemSupplyCurrent.times(Volts.of(RobotController.getBatteryVoltage())));
+    record(
+        "PowerMonitor/TotalEnergyJoules",
+        totalSubsystemSupplyCurrent
+            .times(Volts.of(RobotController.getBatteryVoltage()))
+            .times(Seconds.of(LoggedRobot.defaultPeriodSecs)));
+
+    Logger.recordOutput("PowerMonitor/TotalSupplyCurrent", allSubsystemSupplyCurrent);
+    Logger.recordOutput(
+        "PowerMonitor/TotalPowerWatts",
+        allSubsystemSupplyCurrent.times(Volts.of(RobotController.getBatteryVoltage())));
+    Logger.recordOutput(
+        "PowerMonitor/TotalEnergyJoules",
+        allSubsystemSupplyCurrent
+            .times(Volts.of(RobotController.getBatteryVoltage()))
+            .times(Seconds.of(LoggedRobot.defaultPeriodSecs)));
   }
 
   /**
@@ -48,6 +114,7 @@ public class LoggedSubsystem extends SubsystemBase {
    */
   public void processInputs(LoggableInputs inputs) {
     Logger.processInputs(logPath, inputs);
+    this.recordPowerData();
   }
 
   /**
