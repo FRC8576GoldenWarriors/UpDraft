@@ -60,7 +60,6 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     refresher.refreshStatusSignals();
 
-    // m_timeAndJoystickReplay.update();
     CommandScheduler.getInstance().run();
 
     schedulerLogger.log();

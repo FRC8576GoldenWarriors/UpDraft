@@ -10,7 +10,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.loggedimpl.LoggedIO;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO extends LoggedIO {

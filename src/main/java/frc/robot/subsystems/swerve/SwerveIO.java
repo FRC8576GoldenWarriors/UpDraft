@@ -26,7 +26,6 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.loggedimpl.LoggedIO;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveIO extends LoggedIO {

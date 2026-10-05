@@ -6,5 +6,4 @@ import edu.wpi.first.units.measure.Current;
 public interface LoggedIO {
 
   StatusSignal<Current>[] getCurrentSignals();
-
 }
