@@ -1,11 +1,20 @@
 #!/bin/sh
 
-echo "Running ./gradlew build prior to commit..."
+echo "Running ./gradlew spotlessApply..."
+./gradlew spotlessApply
 
-# Run Gradle build
+SPOTLESS_RESULT=$?
+
+if [ $SPOTLESS_RESULT -ne 0 ]; then
+    echo "--------------------------------------------------"
+    echo "Spotless failed to apply formatting! Commit aborted."
+    echo "--------------------------------------------------"
+    exit 1
+fi
+
+echo "Running ./gradlew build prior to commit..."
 ./gradlew build
 
-# Capture the return code of Gradle
 BUILD_RESULT=$?
 
 if [ $BUILD_RESULT -ne 0 ]; then
