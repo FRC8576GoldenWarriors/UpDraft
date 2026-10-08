@@ -4,29 +4,18 @@
 
 package frc.robot.subsystems.orca;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.WantedState;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveConstants;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.util.loggedimpl.LoggedSubsystem;
 
-public class Orca extends SubsystemBase {
+public class Orca extends LoggedSubsystem {
   /** Creates a new Orca. */
   private final RobotContainer robotContainer;
 
   private final Swerve swerve;
   private final Intake intake;
-
-  private Pose2d currentRobotPose = new Pose2d();
-
-  private ChassisSpeeds currentChassisSpeeds = SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
-  private LinearVelocity chassisSpeedMagnitude = MetersPerSecond.zero();
 
   public enum WantedState {
     // Swerve States
@@ -63,6 +52,7 @@ public class Orca extends SubsystemBase {
   private SystemState systemState = SystemState.IDLE;
 
   public Orca(RobotContainer robotContainer) {
+    super(OrcaConstants.LOG_PATH, null, true);
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
     this.intake = robotContainer.getIntakeSubsystem();
@@ -84,8 +74,8 @@ public class Orca extends SubsystemBase {
 
     systemState = handleStateTransitions();
 
-    Logger.recordOutput(OrcaConstants.LOG_PATH + "WantedState", wantedState);
-    Logger.recordOutput(OrcaConstants.LOG_PATH + "CurrentState", systemState);
+    record("WantedState", wantedState);
+    record("CurrentState", systemState);
 
     applyStates();
   }

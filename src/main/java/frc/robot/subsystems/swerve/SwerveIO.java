@@ -3,8 +3,8 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -52,15 +52,15 @@ public interface SwerveIO extends LoggedIO {
     // Connection
     public boolean pigeonConnected = false;
     // Angle Inputs
-    public Angle yaw = Radians.of(0.0);
-    public Angle roll = Radians.of(0.0);
-    public Angle pitch = Radians.of(0.0);
+    public Angle yaw = Rotations.of(0.0);
+    public Angle roll = Rotations.of(0.0);
+    public Angle pitch = Rotations.of(0.0);
     public Rotation3d robotOrientation = Rotation3d.kZero;
 
     // Velocity Inputs
-    public AngularVelocity yawVelocity = RadiansPerSecond.of(0.0);
-    public AngularVelocity rollVelocity = RadiansPerSecond.of(0.0);
-    public AngularVelocity pitchVelocity = RadiansPerSecond.of(0.0);
+    public AngularVelocity yawVelocity = RotationsPerSecond.of(0.0);
+    public AngularVelocity rollVelocity = RotationsPerSecond.of(0.0);
+    public AngularVelocity pitchVelocity = RotationsPerSecond.of(0.0);
 
     // Acceleration Inputs
     public LinearAcceleration xAcceleration = MetersPerSecondPerSecond.of(0.0);
@@ -71,24 +71,24 @@ public interface SwerveIO extends LoggedIO {
   @AutoLog
   class ModuleIOInputs {
     public boolean driveConnected = false;
-    public Angle drivePositionRad = Radians.of(0.0);
-    public AngularVelocity driveVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public Angle drivePositionRad = Rotations.of(0.0);
+    public AngularVelocity driveVelocityRadPerSec = RotationsPerSecond.of(0.0);
     public Voltage driveAppliedVolts = Volts.of(0.0);
     public Current driveSupplyCurrentAmps = Amps.of(0.0);
     public Current driveStatorCurrentAmps = Amps.of(0.0);
     public Temperature driveTemperatureCelsius = Celsius.of(0.0);
 
     public boolean steerConnected = false;
-    public Angle steerPositionRads = Radians.of(0.0);
+    public Angle steerPositionRads = Rotations.of(0.0);
     public Rotation2d steerPosition = Rotation2d.kZero;
-    public AngularVelocity steerVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public AngularVelocity steerVelocityRadPerSec = RotationsPerSecond.of(0.0);
     public Voltage steerAppliedVolts = Volts.of(0.0);
     public Current steerSupplyCurrentAmps = Amps.of(0.0);
     public Current steerStatorCurrentAmps = Amps.of(0.0);
     public Temperature steerTemperatureCelsius = Celsius.of(0.0);
 
     public boolean canCoderConnected = false;
-    public Angle canCoderSteerPositionRads = Radians.of(0);
+    public Angle canCoderSteerPositionRads = Rotations.of(0);
     public Rotation2d steerAbsolutePosition = Rotation2d.kZero;
 
     public SwerveModuleState currentState = new SwerveModuleState();

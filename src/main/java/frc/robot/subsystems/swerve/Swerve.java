@@ -179,19 +179,18 @@ public class Swerve extends SwerveStateMachine {
 
     io.updateInputs(swerveInputs, gyroInputs, moduleInputs);
 
-    processInputs(SwerveConstants.LOG_PATH + "Swerve", swerveInputs);
+    processInputs("Swerve", swerveInputs);
 
-    processInputs(SwerveConstants.LOG_PATH + "Gyro", gyroInputs);
+    processInputs("Gyro", gyroInputs);
 
     for (int i = 0; i < moduleInputs.length; i++) {
-      processInputs(
-          SwerveConstants.LOG_PATH + SwerveConstants.MODULE_NAMES[i] + "Module", moduleInputs[i]);
+      processInputs(SwerveConstants.MODULE_NAMES[i] + "Module", moduleInputs[i]);
     }
 
     systemState = handleStateTransition();
 
-    record(SwerveConstants.LOG_PATH + "WantedState", wantedState);
-    record(SwerveConstants.LOG_PATH + "SystemState", systemState);
+    record("WantedState", wantedState);
+    record("SystemState", systemState);
 
     applyStates();
   }

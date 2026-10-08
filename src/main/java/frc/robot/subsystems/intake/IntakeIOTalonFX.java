@@ -18,6 +18,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.StatusSignalRefresher;
 import frc.robot.util.alertmanager.AlertManager;
 import frc.robot.util.loggedtunable.LoggedTunablePIDFConstants;
+import java.util.HashSet;
 import java.util.function.BooleanSupplier;
 
 public class IntakeIOTalonFX implements IntakeIO {
@@ -45,6 +46,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<AngularVelocity> intakeRollerVelocitySignal;
   private final StatusSignal<Voltage> intakeRollerVoltageSignal;
   private final StatusSignal<Current> intakeRollerCurrentSignal;
+
+  private final HashSet<StatusSignal<Current>> intakeCurrentSignals = new HashSet<>();
 
   public IntakeIOTalonFX() {
     intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID, TunerConstants.kCANBus);
@@ -84,6 +87,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakePivotVelocitySignal = intakePivotTalonFX.getVelocity();
     intakePivotVoltageSignal = intakePivotTalonFX.getMotorVoltage();
     intakePivotCurrentSignal = intakePivotTalonFX.getStatorCurrent();
+    intakeCurrentSignals.add(intakePivotCurrentSignal);
 
     AlertManager.getInstance()
         .registerAlert(
@@ -94,6 +98,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeRollerVelocitySignal = intakeRollerTalonFX.getVelocity();
     intakeRollerVoltageSignal = intakeRollerTalonFX.getMotorVoltage();
     intakeRollerCurrentSignal = intakeRollerTalonFX.getStatorCurrent();
+    intakeCurrentSignals.add(intakeRollerCurrentSignal);
 
     AlertManager.getInstance()
         .registerAlert(
@@ -171,7 +176,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public StatusSignal<Current>[] getCurrentSignals() {
-    return new StatusSignal[] {intakePivotCurrentSignal, intakeRollerCurrentSignal};
+    return intakeCurrentSignals.toArray(StatusSignal[]::new);
   }
 
   private boolean atUpperHomingHardstop(

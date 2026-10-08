@@ -40,14 +40,16 @@ public class LoggedSubsystem extends SubsystemBase {
 
   public LoggedSubsystem(
       String logPath, StatusSignal<Current>[] currentSignals, boolean skipCurrentSignalCheck) {
-    if (!skipCurrentSignalCheck && !(currentSignals.length > 0))
+    if (currentSignals == null) skipCurrentSignalCheck = true;
+
+    if (!skipCurrentSignalCheck && currentSignals.length <= 0)
       throw new IllegalArgumentException(
           logPath.substring(0, logPath.length() - 1)
               + " requires current signals to log. Ensure you are passing appropriate current signals to log. "
               + "Otherwise pass true in the constructor to skip the current signal check.");
 
     this.logPath = logPath;
-    this.addToPowerLogging(currentSignals);
+    if (!skipCurrentSignalCheck) this.addToPowerLogging(currentSignals);
   }
 
   public LoggedSubsystem(String logPath, StatusSignal<Current>[] currentSignals) {
@@ -68,16 +70,14 @@ public class LoggedSubsystem extends SubsystemBase {
 
   private void recordPowerData() {
     Current totalSubsystemSupplyCurrent = Amps.zero();
-    subsystemSupplyCurrentSignals.forEach(
-        (current) -> {
-          totalSubsystemSupplyCurrent.plus(current.getValue());
-        });
+    for (StatusSignal<Current> currentSignal : subsystemSupplyCurrentSignals) {
+      totalSubsystemSupplyCurrent = totalSubsystemSupplyCurrent.plus(currentSignal.getValue());
+    }
 
     Current allSubsystemSupplyCurrent = Amps.zero();
-    allSubsystemSupplyCurrentSignals.forEach(
-        (current) -> {
-          allSubsystemSupplyCurrent.plus(current.getValue());
-        });
+    for (StatusSignal<Current> currentSignal : allSubsystemSupplyCurrentSignals) {
+      allSubsystemSupplyCurrent = allSubsystemSupplyCurrent.plus(currentSignal.getValue());
+    }
 
     record("PowerMonitor/TotalCurrent", totalSubsystemSupplyCurrent);
     record(
@@ -113,8 +113,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param inputs The inputs to log or update.
    */
   public void processInputs(LoggableInputs inputs) {
-    Logger.processInputs(logPath, inputs);
-    this.recordPowerData();
+    this.processInputs("", inputs);
   }
 
   /**
@@ -130,7 +129,8 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param inputs The inputs to log or update.
    */
   public void processInputs(String key, LoggableInputs inputs) {
-    Logger.processInputs(key, inputs);
+    Logger.processInputs(logPath + key, inputs);
+    this.recordPowerData();
   }
 
   /**
