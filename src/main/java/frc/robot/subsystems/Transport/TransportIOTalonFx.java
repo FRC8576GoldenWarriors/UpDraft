@@ -10,15 +10,20 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.EmptyControl;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DutyCycle;
+import frc.robot.subsystems.Transport.TransportIO.TransportIOInputs;
 import frc.robot.util.StatusSignalRefresher;
 
-public class TransportIOTalonFx {
+public class TransportIOTalonFx implements TransportIO{
     private final TalonFX transportMotorLeft;
     private final TalonFX transportMotorRight;
     private final TalonFXConfiguration transportMotorConfiguration;
@@ -28,12 +33,20 @@ public class TransportIOTalonFx {
 
     private final StatusSignal<Voltage> transportMotorLeftVoltage;
     private final StatusSignal<Current> transportMotorLeftSupplyCurrent;
+        private final StatusSignal<Current> transportMotorLeftStatorCurrent;
+
 
     private final BooleanSupplier transportMotorRightIsConnected;
       private final StatusSignal<AngularVelocity> transportAngularVelocityRight;
 
     private final StatusSignal<Voltage> transportMotorRightVoltage;
     private final StatusSignal<Current> transportMotorRightSupplyCurrent;
+        private final StatusSignal<Current> transportMotorRightStatorCurrent;
+
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+
+    private final DutyCycleOut dutyOut = new DutyCycleOut(0);
+    private final EmptyControl idleRequest = new EmptyControl();
 
     public TransportIOTalonFx() {
         transportMotorLeft = new TalonFX(transportConstants.TRANSPORT_LEFT_MOTOR_ID);
@@ -49,7 +62,7 @@ public class TransportIOTalonFx {
                     .withSupplyCurrentLimit(transportConstants.TRANSPORT_SUPPLY_CURRENT_LIMIT)
                     .withSupplyCurrentLimitEnable(transportConstants.TRANSPORT_SUPPLY_CURRENT_LIMIT_ENABLED)
             );
-        
+
         Slot0Configs slot0Configs = transportMotorConfiguration.Slot0;
         slot0Configs.kV = transportConstants.KV;
         slot0Configs.kP = transportConstants.KP;
@@ -59,11 +72,13 @@ public class TransportIOTalonFx {
         transportMotorLeftIsConnected = ()->transportMotorLeft.isConnected();
         transportMotorLeftVoltage = transportMotorLeft.getMotorVoltage();
         transportMotorLeftSupplyCurrent = transportMotorLeft.getSupplyCurrent();
+        transportMotorLeftStatorCurrent = transportMotorLeft.getStatorCurrent();
         transportAngularVelocityLeft   =    transportMotorLeft.getVelocity();
 
         transportMotorRightIsConnected= ()->transportMotorRight.isConnected();
         transportMotorRightVoltage = transportMotorRight.getMotorVoltage();
         transportMotorRightSupplyCurrent =   transportMotorRight.getSupplyCurrent();
+        transportMotorRightStatorCurrent = transportMotorRight.getStatorCurrent();
         transportAngularVelocityRight  =   transportMotorRight.getVelocity();
 
         transportMotorLeft.optimizeBusUtilization(Hertz.of(0));
@@ -86,9 +101,55 @@ public class TransportIOTalonFx {
             transportMotorRightSupplyCurrent,
             transportAngularVelocityRight);
 
-               transportMotorLeft.getConfigurator().apply(transportMotorConfiguration);
+        transportMotorLeft.getConfigurator().apply(transportMotorConfiguration);
         transportMotorConfiguration.MotorOutput.Inverted = transportConstants.TRANSPORT_RIGHT_INVERTED_VALUE;
-                       transportMotorRight.getConfigurator().apply(transportMotorConfiguration);
+        transportMotorRight.getConfigurator().apply(transportMotorConfiguration);
 
+    }
+
+
+    @Override
+    public void updateInputs(TransportIOInputs inputs) {
+ 
+         inputs.transportMotorLeftVoltage =   transportMotorLeftVoltage.getValue();
+         inputs.transportMotorRightVoltage =transportMotorRightVoltage.getValue();
+         inputs.transportMotorRightStatorCurrent = transportMotorRightStatorCurrent.getValue();
+         inputs.transportMotorLeftStatorCurrent = transportMotorLeftStatorCurrent.getValue();
+         inputs.transportMotorRightSupplyCurrent = transportMotorRightSupplyCurrent.getValue();
+         inputs.transportMotorLeftSupplyCurrent = transportMotorLeftSupplyCurrent.getValue();
+         inputs.transportAngularVelocityRight = transportAngularVelocityRight.getValue();
+         inputs.transportAngularVelocityLeft = transportAngularVelocityLeft.getValue();
+         inputs.transportAngularVelocityLeft = transportAngularVelocityLeft.getValue();
+
+
+        inputs.transportMotorLeftIsConnected = transportMotorLeftIsConnected.getAsBoolean();
+        inputs.transportMotorRightIsConnected=transportMotorRightIsConnected.getAsBoolean();
+
+
+
+    }
+
+    @Override
+    public void setTransportDutyCycle(double output) {
+        transportMotorLeft.setControl(dutyOut.withOutput(output));
+        transportMotorRight.setControl(dutyOut.withOutput(output));
+    }
+
+    @Override
+    public void setTransportDutyCycle(double leftOutput, double rightOutput) {
+        transportMotorLeft.setControl(dutyOut.withOutput(leftOutput));
+        transportMotorRight.setControl(dutyOut.withOutput(rightOutput));
+
+    }
+    @Override
+    public void idle(){
+        transportMotorLeft.setControl(idleRequest);
+        transportMotorRight.setControl(idleRequest);
+    }
+    
+    @Override
+    public void setTransportSpeed(AngularVelocity leftVelocity, AngularVelocity rightVelocity) {
+        transportMotorLeft.setControl(velocityRequest.withVelocity(leftVelocity));
+        transportMotorRight.setControl(velocityRequest.withVelocity(rightVelocity));
     }
 }

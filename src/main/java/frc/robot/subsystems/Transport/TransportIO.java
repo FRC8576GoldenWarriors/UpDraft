@@ -47,8 +47,12 @@ public interface TransportIO {
 
     default void updateInputs(TransportIOInputs inputs) {}
 
-    default void setTransportVoltage(double volts) {}
+    default void setTransportDutyCycle(double output) {}
+        default void setTransportDutyCycle(double leftOutput, double rightOutput
+) {}
 
+
+    default void idle(){}
 
     default void setTransportSpeed(AngularVelocity leftVelocity, AngularVelocity rightVelocity) {}
     
