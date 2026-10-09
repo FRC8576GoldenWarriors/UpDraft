@@ -54,7 +54,7 @@ public class Intake extends IntakeStateMachine {
 
     systemState = handleStateTransition();
     record("WantedState", wantedState);
-    record("SystemState", wantedState);
+    record("SystemState", systemState);
     record("IsHomed", isHomed);
 
     applyStates();
