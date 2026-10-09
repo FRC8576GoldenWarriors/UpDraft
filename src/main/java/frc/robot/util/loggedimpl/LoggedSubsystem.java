@@ -174,7 +174,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * "https://docs.advantagekit.org/getting-started/common-issues/multithreading">documentation</a>
    * for details.
    *
-   * @param value The wanted state to log.
+   * @param value The system state to log.
    */
   public <E extends Enum<E> & LoggedSystemState> void recordSystemState(E value) {
     this.record(logPath + "SystemState", value);
