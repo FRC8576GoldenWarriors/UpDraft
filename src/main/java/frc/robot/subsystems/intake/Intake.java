@@ -6,6 +6,8 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
 
+import frc.robot.util.loggedimpl.LoggedSystemState;
+import frc.robot.util.loggedimpl.LoggedWantedState;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
 
 public class Intake extends IntakeStateMachine {
@@ -21,7 +23,7 @@ public class Intake extends IntakeStateMachine {
 
   private boolean isHomed = false;
 
-  public enum WantedState {
+  public enum WantedState implements LoggedWantedState {
     IDLE,
     DEPLOY,
     RETRACT,
@@ -30,7 +32,7 @@ public class Intake extends IntakeStateMachine {
     POSITION_MANUALLY
   }
 
-  private enum SystemState {
+  private enum SystemState implements LoggedSystemState {
     IDLING,
     DEPLOYING,
     RETRACTING,
@@ -53,8 +55,8 @@ public class Intake extends IntakeStateMachine {
     processInputs(inputs);
 
     systemState = handleStateTransition();
-    record("WantedState", wantedState);
-    record("SystemState", systemState);
+    recordWantedState(wantedState);
+    recordSystemState(systemState);
     record("IsHomed", isHomed);
 
     applyStates();

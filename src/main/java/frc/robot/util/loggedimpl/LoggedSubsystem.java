@@ -159,6 +159,36 @@ public class LoggedSubsystem extends SubsystemBase {
    * "https://docs.advantagekit.org/getting-started/common-issues/multithreading">documentation</a>
    * for details.
    *
+   * @param value The wanted state to log.
+   */
+  public <E extends Enum<E> & LoggedWantedState> void recordWantedState(E value) {
+    this.record(logPath + "WantedState", value);
+  }
+
+  /**
+   * Records a single output field for easy access when viewing the log. On the simulator, use this
+   * method to record extra data based on the original inputs.
+   *
+   * <p>This method is <b>not thread-safe</b> and should only be called from the main thread. Check
+   * the <a href=
+   * "https://docs.advantagekit.org/getting-started/common-issues/multithreading">documentation</a>
+   * for details.
+   *
+   * @param value The wanted state to log.
+   */
+  public <E extends Enum<E> & LoggedSystemState> void recordSystemState(E value) {
+    this.record(logPath + "SystemState", value);
+  }
+
+  /**
+   * Records a single output field for easy access when viewing the log. On the simulator, use this
+   * method to record extra data based on the original inputs.
+   *
+   * <p>This method is <b>not thread-safe</b> and should only be called from the main thread. Check
+   * the <a href=
+   * "https://docs.advantagekit.org/getting-started/common-issues/multithreading">documentation</a>
+   * for details.
+   *
    * @param key The name of the field to record. It will be stored under the path specified by
    *     {@code logPath}.
    * @param value The value of the field.
