@@ -4,6 +4,8 @@ public class Arm extends ArmStateMachine {
 
   private ArmIO io;
 
+  private ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
+
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
 
@@ -51,6 +53,8 @@ public class Arm extends ArmStateMachine {
   @Override
   public void periodic() {
     // TODO update and process inputs
+    io.updateInputs(inputs);
+    processInputs(inputs);
 
     systemState = handleStateTransition();
     record("WantedState", wantedState);

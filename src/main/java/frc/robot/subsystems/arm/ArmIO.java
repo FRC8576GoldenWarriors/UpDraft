@@ -14,6 +14,8 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO extends LoggedIO {
 
+  void updateInputs(ArmIOInputs inputs);
+
   @AutoLog
   class ArmIOInputs {
     public boolean armConnected = false;
@@ -25,9 +27,13 @@ public interface ArmIO extends LoggedIO {
 
   void idle();
 
-  void setWantedArmPosition(Angle position);
+  default void setWantedArmPosition(Angle position) {}
 
-  boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity);
+  default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
+    return false;
+  }
 
-  boolean nearSetpoint();
+  default boolean nearSetpoint() {
+    return false;
+  }
 }
