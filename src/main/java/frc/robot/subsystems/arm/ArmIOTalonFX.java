@@ -6,7 +6,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 
 public class ArmIOTalonFX implements ArmIO {
-    
+
   @Override
   public StatusSignal<Current>[] getCurrentSignals() {
     // TODO Auto-generated method stub
@@ -37,9 +37,9 @@ public class ArmIOTalonFX implements ArmIO {
     throw new UnsupportedOperationException("Unimplemented method 'nearSetpoint'");
   }
 
-@Override
-public void updateInputs(ArmIOInputs inputs) {
+  @Override
+  public void updateInputs(ArmIOInputs inputs) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'updateInputs'");
-}
+  }
 }

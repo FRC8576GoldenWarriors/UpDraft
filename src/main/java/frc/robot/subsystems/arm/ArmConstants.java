@@ -10,6 +10,6 @@ public class ArmConstants {
   public static final int PIVOT_MOTOR = 60;
 
   public static final GravityTypeValue GRAVITY_TYPE_VALUE = GravityTypeValue.Arm_Cosine;
-  public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE = StaticFeedforwardSignValue.UseVelocitySign;
-
+  public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
+      StaticFeedforwardSignValue.UseVelocitySign;
 }
