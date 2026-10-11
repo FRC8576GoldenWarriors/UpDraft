@@ -28,11 +28,11 @@ import edu.wpi.first.units.measure.Voltage;
 public class IntakeConstants {
 
   public static final String LOG_PATH = "Intake/";
-  public static final String LOG_PATH_INTAKE_PIVOT = "IntakePivot";
-  public static final boolean INTAKE_TUNING_MODE_ENABLED = true;
+  public static final String PIVOT_TUNING_PATH = "Intake/Pivot";
+  public static final boolean TUNING_MODE_ENABLED = true;
 
-  public static final int INTAKE_ROLLER_MOTOR_ID = 20;
-  public static final int INTAKE_PIVOT_MOTOR_ID = 21;
+  public static final int ROLLER_MOTOR_ID = 20;
+  public static final int PIVOT_MOTOR_ID = 21;
 
   public static final GravityTypeValue GRAVITY_TYPE_VALUE = GravityTypeValue.Arm_Cosine;
   public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
@@ -80,17 +80,17 @@ public class IntakeConstants {
 
   public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.005);
 
-  public static final Angle INTAKE_DOWN_POSITION = Rotations.of(-0.1862);
-  public static final Angle INTAKE_EXPECTED_HOMING_ZERO = Rotations.of(0.4785);
-  public static final Angle INTAKE_UP_POSITION = Rotations.of(0.4785);
+  public static final Angle DOWN_POSITION = Rotations.of(-0.1862);
+  public static final Angle EXPECTED_HOMING_ZERO = Rotations.of(0.4785);
+  public static final Angle UP_POSITION = Rotations.of(0.4785);
 
-  public static final double INTAKE_DEPLOYING_DUTY_CYCLE = 0;
-  public static final double INTAKE_RETRACTING_DUTY_CYCLE = 0;
-  public static final double INTAKE_INTAKING_DUTY_CYCLE = -0.8;
+  public static final double DEPLOYING_DUTY_CYCLE = 0;
+  public static final double RETRACTING_DUTY_CYCLE = 0;
+  public static final double INTAKING_DUTY_CYCLE = -0.8;
 
   public static final double PIVOT_SENSOR_TO_MECHANISM_RATION = (60 / 18) * (32 / 12);
 
-  public static final TalonFXConfiguration INTAKE_PIVOT_CONFIG =
+  public static final TalonFXConfiguration PIVOT_CONFIG =
       new TalonFXConfiguration()
           .withSlot0(
               new Slot0Configs()
@@ -120,7 +120,7 @@ public class IntakeConstants {
           .withFeedback(
               new FeedbackConfigs().withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION));
 
-  public static final TalonFXConfiguration INTAKE_ROLLER_CONFIG =
+  public static final TalonFXConfiguration ROLLER_CONFIG =
       new TalonFXConfiguration()
           .withCurrentLimits(
               new CurrentLimitsConfigs()

@@ -20,21 +20,23 @@ public interface IntakeIO extends LoggedIO {
 
   @AutoLog
   class IntakeIOInputs {
-    public boolean intakePivotConnected = false;
-    public Angle intakePivotPosition = Rotations.zero();
-    public AngularVelocity intakePivotVelocity = RotationsPerSecond.zero();
-    public Voltage intakePivotVoltage = Volts.zero();
-    public Current intakePivotCurrent = Amps.zero();
+    public boolean pivotConnected = false;
+    public Angle pivotPosition = Rotations.zero();
+    public AngularVelocity pivotVelocity = RotationsPerSecond.zero();
+    public Voltage pivotVoltage = Volts.zero();
+    public Current pivotStatorCurrent = Amps.zero();
+    public Current pivotSupplyCurrent = Amps.zero();
 
-    public boolean intakeRollerConnected = false;
-    public AngularVelocity intakeRollerVelocity = RotationsPerSecond.zero();
-    public Voltage intakeRollerVoltage = Volts.zero();
-    public Current intakeRollerCurrent = Amps.zero();
+    public boolean rollerConnected = false;
+    public AngularVelocity rollerVelocity = RotationsPerSecond.zero();
+    public Voltage rollerVoltage = Volts.zero();
+    public Current rollerStatorCurrent = Amps.zero();
+    public Current rollerSupplyCurrent = Amps.zero();
   }
 
-  default void setWantedIntakePosition(Angle position) {}
+  default void setWantedPosition(Angle position) {}
 
-  default void setWantedIntakeRollerSpeed(double dutyCycleOutput) {}
+  default void setWantedRollerSpeed(double dutyCycleOutput) {}
 
   default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return false;

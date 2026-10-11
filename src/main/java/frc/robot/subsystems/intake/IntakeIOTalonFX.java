@@ -23,46 +23,46 @@ import java.util.function.BooleanSupplier;
 
 public class IntakeIOTalonFX implements IntakeIO {
 
-  private final TalonFX intakePivotTalonFX;
-  private final TalonFX intakeRollerTalonFX;
+  private final TalonFX pivotTalonFX;
+  private final TalonFX rollerTalonFX;
 
-  private final MotionMagicVoltage intakePivotPositionRequest =
-      new MotionMagicVoltage(Rotations.zero());
-  private final DutyCycleOut intakePivotHomingRequest =
+  private final MotionMagicVoltage pivotPositionRequest = new MotionMagicVoltage(Rotations.zero());
+  private final DutyCycleOut pivotHomingRequest =
       new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
-  private final DutyCycleOut intakeRollerDutyCycleRequest = new DutyCycleOut(0);
+  private final DutyCycleOut rollerDutyCycleRequest = new DutyCycleOut(0);
   private final EmptyControl intakeIdleRequest = new EmptyControl();
 
-  private final LoggedTunablePIDFConstants intakePivotLoggedTunablePIDFConstants;
+  private final LoggedTunablePIDFConstants pivotLoggedTunablePIDFConstants;
 
   // Status Signals
-  private final BooleanSupplier intakePivotConnectedSignal;
-  private final StatusSignal<Angle> intakePivotPositionSignal;
-  private final StatusSignal<AngularVelocity> intakePivotVelocitySignal;
-  private final StatusSignal<Voltage> intakePivotVoltageSignal;
-  private final StatusSignal<Current> intakePivotCurrentSignal;
+  private final BooleanSupplier pivotConnectedSignal;
+  private final StatusSignal<Angle> pivotPositionSignal;
+  private final StatusSignal<AngularVelocity> pivotVelocitySignal;
+  private final StatusSignal<Voltage> pivotVoltageSignal;
+  private final StatusSignal<Current> pivotStatorCurrentSignal;
+  private final StatusSignal<Current> pivotSupplyCurrentSignal;
 
-  private final BooleanSupplier intakeRollerConnectedSignal;
-  private final StatusSignal<AngularVelocity> intakeRollerVelocitySignal;
-  private final StatusSignal<Voltage> intakeRollerVoltageSignal;
-  private final StatusSignal<Current> intakeRollerCurrentSignal;
+  private final BooleanSupplier rollerConnectedSignal;
+  private final StatusSignal<AngularVelocity> rollerVelocitySignal;
+  private final StatusSignal<Voltage> rollerVoltageSignal;
+  private final StatusSignal<Current> rollerStatorCurrentSignal;
+  private final StatusSignal<Current> rollerSupplyCurrentSignal;
 
   private final HashSet<StatusSignal<Current>> intakeCurrentSignals = new HashSet<>();
 
   public IntakeIOTalonFX() {
-    intakePivotTalonFX = new TalonFX(IntakeConstants.INTAKE_PIVOT_MOTOR_ID, TunerConstants.kCANBus);
-    intakeRollerTalonFX =
-        new TalonFX(IntakeConstants.INTAKE_ROLLER_MOTOR_ID, TunerConstants.kCANBus);
+    pivotTalonFX = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, TunerConstants.kCANBus);
+    rollerTalonFX = new TalonFX(IntakeConstants.ROLLER_MOTOR_ID, TunerConstants.kCANBus);
 
-    intakePivotLoggedTunablePIDFConstants =
+    pivotLoggedTunablePIDFConstants =
         new LoggedTunablePIDFConstants(
-            IntakeConstants.LOG_PATH_INTAKE_PIVOT,
-            IntakeConstants.INTAKE_TUNING_MODE_ENABLED,
+            IntakeConstants.PIVOT_TUNING_PATH,
+            IntakeConstants.TUNING_MODE_ENABLED,
             (values) -> {
-              intakePivotTalonFX
+              pivotTalonFX
                   .getConfigurator()
                   .apply(
-                      IntakeConstants.INTAKE_PIVOT_CONFIG
+                      IntakeConstants.PIVOT_CONFIG
                           .Slot0
                           .withKP(values[0])
                           .withKI(values[1])
@@ -82,96 +82,104 @@ public class IntakeIOTalonFX implements IntakeIO {
               IntakeConstants.KA
             });
 
-    intakePivotConnectedSignal = () -> intakePivotTalonFX.isConnected();
-    intakePivotPositionSignal = intakePivotTalonFX.getPosition();
-    intakePivotVelocitySignal = intakePivotTalonFX.getVelocity();
-    intakePivotVoltageSignal = intakePivotTalonFX.getMotorVoltage();
-    intakePivotCurrentSignal = intakePivotTalonFX.getStatorCurrent();
-    intakeCurrentSignals.add(intakePivotCurrentSignal);
+    pivotConnectedSignal = () -> pivotTalonFX.isConnected();
+    pivotPositionSignal = pivotTalonFX.getPosition();
+    pivotVelocitySignal = pivotTalonFX.getVelocity();
+    pivotVoltageSignal = pivotTalonFX.getMotorVoltage();
+    pivotStatorCurrentSignal = pivotTalonFX.getStatorCurrent();
+    pivotSupplyCurrentSignal = pivotTalonFX.getSupplyCurrent();
+    intakeCurrentSignals.add(pivotSupplyCurrentSignal);
 
     AlertManager.getInstance()
         .registerAlert(
             new Alert("The Intake Pivot Motor is Disconnected.", AlertType.kError),
-            intakePivotConnectedSignal);
+            pivotConnectedSignal);
 
-    intakeRollerConnectedSignal = () -> intakeRollerTalonFX.isConnected();
-    intakeRollerVelocitySignal = intakeRollerTalonFX.getVelocity();
-    intakeRollerVoltageSignal = intakeRollerTalonFX.getMotorVoltage();
-    intakeRollerCurrentSignal = intakeRollerTalonFX.getStatorCurrent();
-    intakeCurrentSignals.add(intakeRollerCurrentSignal);
+    rollerConnectedSignal = () -> rollerTalonFX.isConnected();
+    rollerVelocitySignal = rollerTalonFX.getVelocity();
+    rollerVoltageSignal = rollerTalonFX.getMotorVoltage();
+    rollerStatorCurrentSignal = rollerTalonFX.getStatorCurrent();
+    rollerSupplyCurrentSignal = rollerTalonFX.getSupplyCurrent();
+    intakeCurrentSignals.add(rollerSupplyCurrentSignal);
 
     AlertManager.getInstance()
         .registerAlert(
             new Alert("The Intake Roller Motor is Disconnected.", AlertType.kError),
-            intakeRollerConnectedSignal);
+            rollerConnectedSignal);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         IntakeConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,
-        intakePivotPositionSignal,
-        intakePivotVelocitySignal,
-        intakePivotVoltageSignal,
-        intakePivotCurrentSignal,
-        intakeRollerVelocitySignal,
-        intakeRollerVoltageSignal,
-        intakeRollerCurrentSignal);
+        pivotPositionSignal,
+        pivotVelocitySignal,
+        pivotVoltageSignal,
+        pivotStatorCurrentSignal,
+        pivotSupplyCurrentSignal,
+        rollerVelocitySignal,
+        rollerVoltageSignal,
+        rollerStatorCurrentSignal,
+        rollerSupplyCurrentSignal);
 
     StatusSignalRefresher.getInstance()
         .addStatusSignals(
-            intakePivotPositionSignal,
-            intakePivotVelocitySignal,
-            intakePivotVoltageSignal,
-            intakePivotCurrentSignal,
-            intakeRollerVelocitySignal,
-            intakeRollerVoltageSignal,
-            intakeRollerCurrentSignal);
+            pivotPositionSignal,
+            pivotVelocitySignal,
+            pivotVoltageSignal,
+            pivotStatorCurrentSignal,
+            pivotSupplyCurrentSignal,
+            rollerVelocitySignal,
+            rollerVoltageSignal,
+            rollerStatorCurrentSignal,
+            rollerSupplyCurrentSignal);
 
-    intakePivotTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_PIVOT_CONFIG);
-    intakeRollerTalonFX.getConfigurator().apply(IntakeConstants.INTAKE_ROLLER_CONFIG);
+    pivotTalonFX.getConfigurator().apply(IntakeConstants.PIVOT_CONFIG);
+    rollerTalonFX.getConfigurator().apply(IntakeConstants.ROLLER_CONFIG);
   }
 
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.intakePivotConnected = intakePivotConnectedSignal.getAsBoolean();
-    inputs.intakePivotPosition = intakePivotPositionSignal.getValue();
-    inputs.intakePivotVelocity = intakePivotVelocitySignal.getValue();
-    inputs.intakePivotVoltage = intakePivotVoltageSignal.getValue();
-    inputs.intakePivotCurrent = intakePivotCurrentSignal.getValue();
+    inputs.pivotConnected = pivotConnectedSignal.getAsBoolean();
+    inputs.pivotPosition = pivotPositionSignal.getValue();
+    inputs.pivotVelocity = pivotVelocitySignal.getValue();
+    inputs.pivotVoltage = pivotVoltageSignal.getValue();
+    inputs.pivotStatorCurrent = pivotStatorCurrentSignal.getValue();
+    inputs.pivotSupplyCurrent = pivotSupplyCurrentSignal.getValue();
 
-    inputs.intakeRollerConnected = intakeRollerConnectedSignal.getAsBoolean();
-    inputs.intakeRollerVelocity = intakeRollerVelocitySignal.getValue();
-    inputs.intakeRollerVoltage = intakeRollerVoltageSignal.getValue();
-    inputs.intakeRollerCurrent = intakeRollerCurrentSignal.getValue();
+    inputs.rollerConnected = rollerConnectedSignal.getAsBoolean();
+    inputs.rollerVelocity = rollerVelocitySignal.getValue();
+    inputs.rollerVoltage = rollerVoltageSignal.getValue();
+    inputs.rollerStatorCurrent = rollerStatorCurrentSignal.getValue();
+    inputs.rollerSupplyCurrent = rollerSupplyCurrentSignal.getValue();
   }
 
   @Override
-  public void setWantedIntakePosition(Angle position) {
-    intakePivotTalonFX.setControl(intakePivotPositionRequest.withPosition(position));
+  public void setWantedPosition(Angle position) {
+    pivotTalonFX.setControl(pivotPositionRequest.withPosition(position));
   }
 
   @Override
-  public void setWantedIntakeRollerSpeed(double dutyCycleOutput) {
-    intakeRollerTalonFX.setControl(intakeRollerDutyCycleRequest.withOutput(dutyCycleOutput));
+  public void setWantedRollerSpeed(double dutyCycleOutput) {
+    rollerTalonFX.setControl(rollerDutyCycleRequest.withOutput(dutyCycleOutput));
   }
 
   @Override
   public void idle() {
-    intakePivotTalonFX.setControl(intakeIdleRequest);
-    intakeRollerTalonFX.setControl(intakeIdleRequest);
+    pivotTalonFX.setControl(intakeIdleRequest);
+    rollerTalonFX.setControl(intakeIdleRequest);
   }
 
   @Override
   public boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     if (!atUpperHomingHardstop(activeHomingCurrent, activeHomingVelocity)) {
-      intakePivotTalonFX.setControl(intakePivotHomingRequest);
+      pivotTalonFX.setControl(pivotHomingRequest);
       return false;
     }
-    intakePivotTalonFX.setPosition(IntakeConstants.INTAKE_EXPECTED_HOMING_ZERO);
+    pivotTalonFX.setPosition(IntakeConstants.EXPECTED_HOMING_ZERO);
     return true;
   }
 
   @Override
   public boolean nearSetpoint() {
-    return intakePivotPositionSignal.isNear(
-        intakePivotPositionRequest.getPositionMeasure(), IntakeConstants.PIVOT_POSITION_TOLERANCE);
+    return pivotPositionSignal.isNear(
+        pivotPositionRequest.getPositionMeasure(), IntakeConstants.PIVOT_POSITION_TOLERANCE);
   }
 
   @Override
@@ -181,9 +189,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private boolean atUpperHomingHardstop(
       Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
-    return intakePivotCurrentSignal.isNear(
+    return pivotStatorCurrentSignal.isNear(
             IntakeConstants.PIVOT_HOMING_CURRENT, IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE)
-        && intakePivotVelocitySignal.isNear(
+        && pivotVelocitySignal.isNear(
             IntakeConstants.PIVOT_HOMING_VELOCITY, IntakeConstants.PIVOT_HOMING_VELOCITY_TOLERANCE);
   }
 }

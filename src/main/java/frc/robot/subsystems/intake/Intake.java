@@ -46,7 +46,7 @@ public class Intake extends IntakeStateMachine {
     this.io = io;
     manualPositionSetpoint =
         newSubsystemLoggedTunableDouble(
-            "ManualSetpoint", (value) -> {}, IntakeConstants.INTAKE_TUNING_MODE_ENABLED);
+            "ManualSetpoint", (value) -> {}, IntakeConstants.TUNING_MODE_ENABLED);
   }
 
   @Override
@@ -93,31 +93,31 @@ public class Intake extends IntakeStateMachine {
 
   @Override
   protected void deploying() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_DEPLOYING_DUTY_CYCLE);
+    io.setWantedPosition(IntakeConstants.DOWN_POSITION);
+    io.setWantedRollerSpeed(IntakeConstants.DEPLOYING_DUTY_CYCLE);
   }
 
   @Override
   protected void retracting() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_UP_POSITION);
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_RETRACTING_DUTY_CYCLE);
+    io.setWantedPosition(IntakeConstants.UP_POSITION);
+    io.setWantedRollerSpeed(IntakeConstants.RETRACTING_DUTY_CYCLE);
   }
 
   @Override
   protected void intaking() {
-    io.setWantedIntakePosition(IntakeConstants.INTAKE_DOWN_POSITION);
-    io.setWantedIntakeRollerSpeed(IntakeConstants.INTAKE_INTAKING_DUTY_CYCLE);
+    io.setWantedPosition(IntakeConstants.DOWN_POSITION);
+    io.setWantedRollerSpeed(IntakeConstants.INTAKING_DUTY_CYCLE);
   }
 
   @Override
   protected void positioningManually() {
-    io.setWantedIntakePosition(Rotations.of(manualPositionSetpoint.get()));
-    io.setWantedIntakeRollerSpeed(0);
+    io.setWantedPosition(Rotations.of(manualPositionSetpoint.get()));
+    io.setWantedRollerSpeed(0);
   }
 
   @Override
   protected void homing() {
-    this.isHomed = io.home(inputs.intakePivotCurrent, inputs.intakePivotVelocity);
+    this.isHomed = io.home(inputs.pivotStatorCurrent, inputs.pivotVelocity);
     if (isHomed) {
       setWantedState(WantedState.IDLE);
     }
