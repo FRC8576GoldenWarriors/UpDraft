@@ -1,5 +1,6 @@
 package frc.robot.util.loggedtunable;
 
+import frc.robot.util.PIDFConstants;
 import java.util.function.Consumer;
 
 public class LoggedTunablePIDFConstants implements LoggedTunable {
@@ -38,6 +39,14 @@ public class LoggedTunablePIDFConstants implements LoggedTunable {
     if (tuningMode) {
       LoggedTunableUtil.registerLoggedTunable(this);
     }
+  }
+
+  public LoggedTunablePIDFConstants(
+      String dashboardKey,
+      boolean tuningMode,
+      Consumer<Double[]> onAnyChangeAction,
+      PIDFConstants pidfConstants) {
+    this(dashboardKey, tuningMode, onAnyChangeAction, PIDFConstants.toDoubleArray(pidfConstants));
   }
 
   @Override

@@ -1,5 +1,9 @@
 package frc.robot.subsystems.arm;
 
+import static edu.wpi.first.units.Units.Rotations;
+
+import frc.robot.util.loggedtunable.LoggedTunableDouble;
+
 public class Arm extends ArmStateMachine {
 
   private ArmIO io;
@@ -8,6 +12,8 @@ public class Arm extends ArmStateMachine {
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
+
+  private final LoggedTunableDouble manualPositionSetpoint;
 
   private boolean isHomed = false;
 
@@ -48,11 +54,13 @@ public class Arm extends ArmStateMachine {
   public Arm(ArmIO io) {
     super(ArmConstants.LOG_PATH, io.getCurrentSignals());
     this.io = io;
+    manualPositionSetpoint =
+        newSubsystemLoggedTunableDouble(
+            "ManualSetpoint", (value) -> {}, ArmConstants.TUNING_MODE_ENABLED);
   }
 
   @Override
   public void periodic() {
-    // TODO update and process inputs
     io.updateInputs(inputs);
     processInputs(inputs);
 
@@ -60,6 +68,7 @@ public class Arm extends ArmStateMachine {
     record("WantedState", wantedState);
     record("SystemState", systemState);
     record("isHomed", isHomed);
+
     applyStates();
   }
 
@@ -105,85 +114,90 @@ public class Arm extends ArmStateMachine {
 
   @Override
   protected void idling() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'idling'");
+    io.idle();
   }
 
   @Override
   protected void pickingUpCoral() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'pickingUpCoral'");
+    io.setWantedArmPosition(ArmConstants.PICKUP_CORAL_POSITION);
   }
 
   @Override
   protected void movingToCoralL1() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToCoralL1'");
+    io.setWantedArmPosition(ArmConstants.CORAL_L1_POSITION);
   }
 
   @Override
   protected void movingToCoralL2() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToCoralL2'");
+    io.setWantedArmPosition(ArmConstants.CORAL_L2_POSITION);
   }
 
   @Override
   protected void movingToCoralL3() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToCoralL3'");
+    io.setWantedArmPosition(ArmConstants.CORAL_L3_POSITION);
   }
 
   @Override
   protected void movingToCoralL4() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToCoralL4'");
+    io.setWantedArmPosition(ArmConstants.CORAL_L4_POSITION);
   }
 
   @Override
   protected void movingToAlageL1() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToAlageL1'");
+    io.setWantedArmPosition(ArmConstants.ALAGE_L1_POSITION);
   }
 
   @Override
   protected void movingToAlageL2() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToAlageL2'");
+    io.setWantedArmPosition(ArmConstants.ALAGE_L2_POSITION);
   }
 
   @Override
   protected void movingToAlageFloor() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToAlageFloor'");
+    io.setWantedArmPosition(ArmConstants.ALAGE_FLOOR_POSITION);
   }
 
   @Override
   protected void movingToAlageLolipop() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToAlageLolipop'");
+    io.setWantedArmPosition(ArmConstants.ALAGE_LOLIPOP_POSITION);
   }
 
   @Override
   protected void movingToBarge() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movingToBarge'");
-  }
-
-  @Override
-  protected void homing() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'homing'");
+    io.setWantedArmPosition(ArmConstants.BARGE_POSITION);
   }
 
   @Override
   protected void standingBy() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'standingBy'");
+    io.setWantedArmPosition(ArmConstants.STANDBY_POSITION);
+  }
+
+  @Override
+  protected void homing() {
+    isHomed = io.home(inputs.pivotCurrent, inputs.pivotVelocity);
+    if (isHomed) {
+      setWantedState(WantedState.IDLE);
+    }
   }
 
   @Override
   protected void positioningManually() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'positioningManually'");
+    io.setWantedArmPosition(Rotations.of(manualPositionSetpoint.get()));
+  }
+
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  public WantedState getWantedState() {
+    return wantedState;
+  }
+
+  public boolean isHomed() {
+    return isHomed;
+  }
+
+  public boolean nearSetpoint() {
+    return io.nearSetpoint();
   }
 }

@@ -18,11 +18,11 @@ public interface ArmIO extends LoggedIO {
 
   @AutoLog
   class ArmIOInputs {
-    public boolean armConnected = false;
-    public Angle armPosition = Rotations.zero();
-    public AngularVelocity armVelocity = RotationsPerSecond.zero();
-    public Voltage armVoltage = Volts.zero();
-    public Current armCurrent = Amps.zero();
+    public boolean pivotConnected = false;
+    public Angle pivotPosition = Rotations.zero();
+    public AngularVelocity pivotVelocity = RotationsPerSecond.zero();
+    public Voltage pivotVoltage = Volts.zero();
+    public Current pivotCurrent = Amps.zero();
   }
 
   void idle();
