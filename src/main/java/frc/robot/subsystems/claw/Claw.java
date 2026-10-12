@@ -1,5 +1,6 @@
 package frc.robot.subsystems.claw;
 
+import edu.wpi.first.math.Pair;
 import frc.robot.util.loggedimpl.LoggedSystemState;
 import frc.robot.util.loggedimpl.LoggedWantedState;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
@@ -30,6 +31,8 @@ public class Claw extends ClawStateMachine {
 
   private final ClawIO io;
 
+  private final ClawIOInputsAutoLogged inputs = new ClawIOInputsAutoLogged();
+
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
 
@@ -45,6 +48,9 @@ public class Claw extends ClawStateMachine {
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
+    processInputs(inputs);
+
     systemState = handleStateTransition();
 
     recordWantedState(wantedState);
@@ -127,5 +133,21 @@ public class Claw extends ClawStateMachine {
   @Override
   protected void dutyCycleManualing() {
     io.setWantedDutyCycle(manualDutyCycleSetpoint.get());
+  }
+
+  public boolean getCoralDetected() {
+    return inputs.digitalInputCoral;
+  }
+
+  public boolean getLeftReefDetected() {
+    return inputs.digitalInputReefLeft;
+  }
+
+  public boolean getRightReefDetected() {
+    return inputs.digitalInputReefRight;
+  }
+
+  public Pair<Boolean, Boolean> getLRReefDetected() {
+    return Pair.of(getLeftReefDetected(), getRightReefDetected());
   }
 }
