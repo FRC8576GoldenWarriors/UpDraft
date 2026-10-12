@@ -21,6 +21,10 @@ public class ClawConstants {
 
   public static final int ROLLER_MOTOR_ID = 70;
 
+  public static final int CORAL_DIGITAL_INPUT_ID = 0;
+  public static final int LEFT_REEF_DIGITAL_INPUT_ID = 1;
+  public static final int RIGHT_REEF_DIGITAL_INPUT_ID = 2;
+
   // ! CURRENT LIMIT NOT CONFIGURED YET
 
   public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(30);
@@ -36,9 +40,13 @@ public class ClawConstants {
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final double DEPLOYING_DUTY_CYCLE = 0;
-  public static final double RETRACTING_DUTY_CYCLE = 0;
-  public static final double INTAKING_DUTY_CYCLE = -0.8;
+  public static final double SCORE_CORAL_DUTY_CYCLE = 0;
+  public static final double SCORE_BARGE_ALAGE_DUTY_CYCLE = 0;
+  public static final double SCORE_PROCESSOR_ALAGE_DUTY_CYCLE = 0;
+
+  public static final double PICKUP_CORAL_DUTY_CYCLE = 0;
+  public static final double PICKUP_FLOOR_ALAGE_DUTY_CYCLE = 0;
+  public static final double PICKUP_REEF_ALAGE_DUTY_CYCLE = 0;
 
   public static final double ROLLER_SENSOR_TO_MECHANISM_RATION = (36 / 12) * (48 / 8);
 

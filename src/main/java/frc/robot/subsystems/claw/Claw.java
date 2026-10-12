@@ -96,43 +96,36 @@ public class Claw extends ClawStateMachine {
 
   @Override
   protected void scoringCoral() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'scoringCoral'");
+    io.setWantedDutyCycle(ClawConstants.SCORE_CORAL_DUTY_CYCLE);
   }
 
   @Override
   protected void scoreingBargeAlage() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'scoreingBargeAlage'");
+    io.setWantedDutyCycle(ClawConstants.SCORE_BARGE_ALAGE_DUTY_CYCLE);
   }
 
   @Override
   protected void scoreingProcessorAlage() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'scoreingProcessorAlage'");
+    io.setWantedDutyCycle(ClawConstants.SCORE_PROCESSOR_ALAGE_DUTY_CYCLE);
   }
 
   @Override
   protected void pickingUpCoral() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'pickingUpCoral'");
+    io.setWantedDutyCycle(ClawConstants.PICKUP_CORAL_DUTY_CYCLE);
   }
 
   @Override
   protected void pickingUpFloorAlgae() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'pickingUpFloorAlgae'");
+    io.setWantedDutyCycle(ClawConstants.PICKUP_FLOOR_ALAGE_DUTY_CYCLE);
   }
 
   @Override
   protected void pickingUpReefAlgae() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'pickingUpReefAlgae'");
+    io.setWantedDutyCycle(ClawConstants.PICKUP_REEF_ALAGE_DUTY_CYCLE);
   }
 
   @Override
   protected void dutyCycleManualing() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'dutyCycleManualing'");
+    io.setWantedDutyCycle(manualDutyCycleSetpoint.get());
   }
 }

@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -34,20 +33,4 @@ public interface ClawIO extends LoggedIO {
   void idle();
 
   default void setWantedDutyCycle(double dutyCycle) {}
-
-  default boolean coralDetected() {
-    return false;
-  }
-
-  default boolean leftReefDetected() {
-    return false;
-  }
-
-  default boolean rightReefDetected() {
-    return false;
-  }
-
-  default Pair<Boolean, Boolean> reefLRDetected() {
-    return Pair.of(leftReefDetected(), rightReefDetected());
-  }
 }
