@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ClawIOTalonFX;
 import frc.robot.subsystems.orca.Orca;
 import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
@@ -20,9 +22,11 @@ public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Orca orca;
   private final Swerve swerve;
+  private final Claw claw;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
+    claw = buildClawSubsystem();
     orca = buildOrcaSubsystem();
     configureBindings();
   }
@@ -127,6 +131,14 @@ public class RobotContainer {
 
   public Swerve getSwerveSubsystem() {
     return this.swerve;
+  }
+
+  private Claw buildClawSubsystem() {
+    return new Claw(new ClawIOTalonFX());
+  }
+
+  public Claw getClawSubsystem() {
+    return this.claw;
   }
 
   private Orca buildOrcaSubsystem() {

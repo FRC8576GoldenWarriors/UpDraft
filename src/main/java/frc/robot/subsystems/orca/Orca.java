@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import org.littletonrobotics.junction.Logger;
@@ -20,6 +21,7 @@ public class Orca extends SubsystemBase {
   private final RobotContainer robotContainer;
 
   private final Swerve swerve;
+  private final Claw claw;
 
   private Pose2d currentRobotPose = new Pose2d();
 
@@ -61,6 +63,7 @@ public class Orca extends SubsystemBase {
   public Orca(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
+    this.claw = robotContainer.getClawSubsystem();
   }
 
   public void setWantedState(WantedState state) {
