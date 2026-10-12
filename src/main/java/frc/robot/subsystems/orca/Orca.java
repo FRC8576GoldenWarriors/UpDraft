@@ -6,7 +6,6 @@ package frc.robot.subsystems.orca;
 
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.Intake.WantedState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.loggedimpl.LoggedSubsystem;
 

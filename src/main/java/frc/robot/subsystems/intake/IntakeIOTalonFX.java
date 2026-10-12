@@ -173,6 +173,7 @@ public class IntakeIOTalonFX implements IntakeIO {
       return false;
     }
     pivotTalonFX.setPosition(IntakeConstants.EXPECTED_HOMING_ZERO);
+    this.idle();
     return true;
   }
 
