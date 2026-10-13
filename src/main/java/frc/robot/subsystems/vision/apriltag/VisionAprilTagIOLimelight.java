@@ -211,6 +211,11 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
   }
 
   @Override
+  public void flush() {
+    NetworkTableInstance.getDefault().flush();
+  }
+
+  @Override
   public String getLimelightName() {
     return limelightName;
   }

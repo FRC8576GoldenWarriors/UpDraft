@@ -67,4 +67,6 @@ public interface VisionIO {
   default void setIMUMode(IMUMode imuMode) {}
 
   default void setIMUAssist(double assist) {}
+
+  default void flush() {}
 }
