@@ -131,8 +131,10 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
     inputs.visibleTargetArea = getVisibleTargetArea();
     inputs.pipelineLatency = getPipelineLatency();
     inputs.captureLatency = getCaptureLatency();
-    inputs.isConnected = (inputs.heartbeat != getHeartbeat());
-    inputs.heartbeat = getHeartbeat();
+    
+    double heartbeat = getHeartbeat();
+    inputs.isConnected = (inputs.heartbeat != heartbeat);
+    inputs.heartbeat = heartbeat;
 
     inputs.cpuTemperature = getCPUTemperature();
     inputs.cpuUsage = getCPUUsage();
