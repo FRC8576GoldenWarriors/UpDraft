@@ -30,6 +30,7 @@ public interface VisionAprilTagIO extends VisionIO {
       int id,
       Angle horizontalAngle,
       Angle verticalAngle,
+      Dimensionless tagArea,
       Distance distToCamera,
       Distance distToRobot,
       Dimensionless ambiguity) {}
@@ -54,8 +55,6 @@ public interface VisionAprilTagIO extends VisionIO {
       Angle pitchDev,
       Angle yawDev,
       Time timestamp) {}
-
-  default void setCameraPoseInRobotSpace(Pose3d robotRelativeCameraPose3d) {}
 
   default void setRobotOrientation(Rotation3d robotRotation, Rotation3d robotAngularVelocities) {}
 }

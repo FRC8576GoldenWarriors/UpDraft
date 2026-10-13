@@ -11,8 +11,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -41,13 +44,19 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
   private final DoubleArraySubscriber hardwareDataSubscriber;
   private final DoubleArraySubscriber imuDataSubscriber;
   private final DoubleArraySubscriber rawCornersSubscriber;
-
   private final DoubleArraySubscriber mt1RobotPoseSubscriber;
   private final DoubleArraySubscriber mt2RobotPoseSubscriber;
-
   private final DoubleArraySubscriber megaTagStddevsSubscriber;
-  private final IntegerSubscriber mainTagIDSubscriber;
   private final DoubleArraySubscriber rawAprilTagsSubscriber;
+  private final DoubleArraySubscriber captureRewindSubscriber;
+
+  private final DoubleArrayPublisher setCameraPoseInRobotSpacePublisher;
+  private final DoubleArrayPublisher cropCameraFOVPublisher;
+  private final IntegerPublisher setThrottlePublisher;
+  private final DoublePublisher enableRewindPublisher;
+  private final DoubleArrayPublisher captureRewindPublisher;
+  private final IntegerPublisher setIMUModePublisher;
+  private final DoublePublisher setIMUAssistPublisher;
 
   private Optional<double[]> hardwareDataArray = Optional.empty();
   private Optional<double[]> imuDataArray = Optional.empty();
@@ -58,7 +67,7 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
   private Optional<TimestampedDoubleArray[]> megaTagStddevsArray = Optional.empty();
   private Optional<double[]> rawAprilTagsArray = Optional.empty();
 
-  private ArrayList<AprilTag> aprilTagsObservations = new ArrayList<>();
+  private ArrayList<AprilTag> aprilTagObservations = new ArrayList<>();
   private ArrayList<PoseObservation> poseObservations = new ArrayList<>();
   private ArrayList<StandardDeviation> standardDeviations = new ArrayList<>();
 
@@ -84,14 +93,126 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
         limelightTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
     this.megaTagStddevsSubscriber =
         limelightTable.getDoubleArrayTopic("stddevs").subscribe(new double[] {});
-    this.mainTagIDSubscriber = limelightTable.getIntegerTopic("tid").subscribe(0);
     this.rawAprilTagsSubscriber =
         limelightTable.getDoubleArrayTopic("rawfiducials").subscribe(new double[] {});
+    this.captureRewindSubscriber =
+        limelightTable.getDoubleArrayTopic("capture_rewind").subscribe(new double[] {0, 0});
+
+    this.setCameraPoseInRobotSpacePublisher =
+        limelightTable.getDoubleArrayTopic("camerapose_robotspace").publish();
+    this.cropCameraFOVPublisher = limelightTable.getDoubleArrayTopic("crop").publish();
+    this.setThrottlePublisher = limelightTable.getIntegerTopic("throttle_set").publish();
+    this.enableRewindPublisher = limelightTable.getDoubleTopic("rewind_enable_set").publish();
+    this.captureRewindPublisher = limelightTable.getDoubleArrayTopic("capture_rewind").publish();
+    this.setIMUModePublisher = limelightTable.getIntegerTopic("imumode_set").publish();
+    this.setIMUAssistPublisher = limelightTable.getDoubleTopic("imuassistalpha_set").publish();
   }
 
   @Override
   public void updateInputs(VisionAprilTagIOInputs inputs) {
     updateCachedData();
+
+    aprilTagObservations.clear();
+    poseObservations.clear();
+    standardDeviations.clear();
+
+    updateMegaTag1Observations();
+    updateMegaTag2Observations();
+    updateStandardDeviations();
+    updateAprilTagObservations();
+
+    inputs.aprilTagsDetected = aprilTagObservations.toArray(AprilTag[]::new);
+    inputs.poseObservations = poseObservations.toArray(PoseObservation[]::new);
+    inputs.standardDeviations = standardDeviations.toArray(StandardDeviation[]::new);
+
+    inputs.hasTarget = hasTarget();
+    inputs.horizontalAngle = getHorizontalAngle();
+    inputs.verticalAngle = getVerticalAngle();
+    inputs.visibleTargetArea = getVisibleTargetArea();
+    inputs.pipelineLatency = getPipelineLatency();
+    inputs.captureLatency = getCaptureLatency();
+    inputs.isConnected = (inputs.heartbeat != getHeartbeat());
+    inputs.heartbeat = getHeartbeat();
+
+    inputs.cpuTemperature = getCPUTemperature();
+    inputs.cpuUsage = getCPUUsage();
+    inputs.ramUsage = getRAMUsage();
+    inputs.framesPerSecond = getFPS();
+
+    inputs.suppliedRobotYaw = getSuppliedRobotYaw();
+    inputs.limelightRotation3d = getLimelightRotation3d();
+    inputs.limelightRotationalVelocity3d = getLimelightRotationalVelocity3d();
+    inputs.limelightAcceleration3d = getLimelightAcceleration3d();
+
+    inputs.rawCorners = getRawCorners();
+  }
+
+  @Override
+  public void setCameraPoseInRobotSpace(Pose3d robotRelativeCameraPose3d) {
+    double[] cameraPoseRobotspace = new double[6];
+    cameraPoseRobotspace[0] = robotRelativeCameraPose3d.getX();
+    cameraPoseRobotspace[1] = robotRelativeCameraPose3d.getY();
+    cameraPoseRobotspace[2] = robotRelativeCameraPose3d.getZ();
+
+    var cameraRotRobotspace = robotRelativeCameraPose3d.getRotation();
+
+    cameraPoseRobotspace[3] = cameraRotRobotspace.getMeasureX().in(Degrees);
+    cameraPoseRobotspace[4] = cameraRotRobotspace.getMeasureY().in(Degrees);
+    cameraPoseRobotspace[5] = cameraRotRobotspace.getMeasureZ().in(Degrees);
+
+    setCameraPoseInRobotSpacePublisher.accept(cameraPoseRobotspace);
+  }
+
+  @Override
+  public void cropCameraFOV(double x0, double x1, double y0, double y1) {
+    double[] boundingBox = new double[4];
+    boundingBox[0] = Math.min(x0, x1);
+    boundingBox[1] = Math.max(x0, x1);
+    boundingBox[2] = Math.min(y0, y1);
+    boundingBox[3] = Math.max(y0, y1);
+    cropCameraFOVPublisher.accept(boundingBox);
+  }
+
+  @Override
+  public void setThrottle(int throttle) {
+    setThrottlePublisher.accept(throttle);
+  }
+
+  @Override
+  public void enableRewind(boolean enabledRewind) {
+    enableRewindPublisher.accept((enabledRewind) ? 1.0 : 0.0);
+  }
+
+  @Override
+  public void captureRewind(int durationSeconds) {
+    var currentRewindStatus = getCaptureRewindData();
+    currentRewindStatus[0] += 1;
+    currentRewindStatus[1] = Math.min(165, durationSeconds);
+    captureRewindPublisher.accept(currentRewindStatus);
+  }
+
+  @Override
+  public void setIMUMode(IMUMode imuMode) {
+    int imuModeInt =
+        switch (imuMode) {
+          case USE_EXTERNAL_IMU -> 0;
+          case USE_EXTERNAL_TO_SEED_INTERNAL_IMU -> 1;
+          case USE_INTERNAL_IMU -> 2;
+          case USE_INTERNAL_IMU_WITH_MT1_ASSISTANCE -> 3;
+          case USE_INTERNAL_IMU_WITH_EXTERNAL_ASSISTANCE -> 4;
+          default -> 0;
+        };
+    setIMUModePublisher.accept(imuModeInt);
+  }
+
+  @Override
+  public void setIMUAssist(double assist) {
+    setIMUAssistPublisher.accept(assist);
+  }
+
+  @Override
+  public String getLimelightName() {
+    return limelightName;
   }
 
   private void updateCachedData() {
@@ -150,7 +271,7 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
     return Milliseconds.of(captureLatencySubscriber.get());
   }
 
-  private double getHearbeat() {
+  private double getHeartbeat() {
     return isConnectedSubscriber.get();
   }
 
@@ -312,5 +433,37 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
               Degrees.of(checkedStddev.value[5]),
               Microseconds.of(checkedStddev.timestamp)));
     }
+  }
+
+  private void updateAprilTagObservations() {
+    if (rawAprilTagsArray.isEmpty()) return;
+
+    var checkedAprilTagArray = rawAprilTagsArray.get();
+
+    int iterateTo = checkedAprilTagArray.length / 7;
+
+    for (int i = 0; i < iterateTo; i += 7) {
+      int id = (int) checkedAprilTagArray[i];
+      Angle horizontalAngle = Degrees.of(checkedAprilTagArray[i + 1]);
+      Angle verticalAngle = Degrees.of(checkedAprilTagArray[i + 2]);
+      Dimensionless tagArea = Percent.of(checkedAprilTagArray[i + 3]);
+      Distance distanceToCamera = Meters.of(checkedAprilTagArray[i + 4]);
+      Distance distanceToRobot = Meters.of(checkedAprilTagArray[i + 5]);
+      Dimensionless tagAmbiguity = Percent.of(checkedAprilTagArray[i + 6]);
+
+      aprilTagObservations.add(
+          new AprilTag(
+              id,
+              horizontalAngle,
+              verticalAngle,
+              tagArea,
+              distanceToCamera,
+              distanceToRobot,
+              tagAmbiguity));
+    }
+  }
+
+  private double[] getCaptureRewindData() {
+    return captureRewindSubscriber.get();
   }
 }

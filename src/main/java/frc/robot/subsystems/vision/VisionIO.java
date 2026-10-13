@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Dimensionless;
@@ -13,6 +15,14 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 
 public interface VisionIO {
+
+  public enum IMUMode {
+    USE_EXTERNAL_IMU,
+    USE_EXTERNAL_TO_SEED_INTERNAL_IMU,
+    USE_INTERNAL_IMU,
+    USE_INTERNAL_IMU_WITH_MT1_ASSISTANCE,
+    USE_INTERNAL_IMU_WITH_EXTERNAL_ASSISTANCE
+  }
 
   default void updateInputs(VisionIOInputs inputs) {}
 
@@ -27,7 +37,7 @@ public interface VisionIO {
     public Dimensionless visibleTargetArea = Percent.zero();
     public Time pipelineLatency = Milliseconds.zero();
     public Time captureLatency = Milliseconds.zero();
-    public double hearbeat = 0;
+    public double heartbeat = 0;
     public boolean isConnected = false;
 
     public Temperature cpuTemperature = Celsius.zero();
@@ -39,11 +49,12 @@ public interface VisionIO {
 
     public Rotation3d limelightRotation3d = Rotation3d.kZero;
     public Rotation3d limelightRotationalVelocity3d = Rotation3d.kZero;
-
     public Translation3d limelightAcceleration3d = Translation3d.kZero;
 
-    public double[] rawCorners = new double[0];
+    public Translation2d[] rawCorners = new Translation2d[0];
   }
+
+  default void setCameraPoseInRobotSpace(Pose3d robotRelativeCameraPose3d) {}
 
   default void cropCameraFOV(double minX, double maxX, double minY, double maxY) {}
 
@@ -53,7 +64,7 @@ public interface VisionIO {
 
   default void captureRewind(int durationSeconds) {}
 
-  default void setIMUMode(int mode) {}
+  default void setIMUMode(IMUMode imuMode) {}
 
   default void setIMUAssist(double assist) {}
 }
