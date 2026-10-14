@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision.object;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.subsystems.vision.VisionIO;
@@ -7,23 +8,27 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionObjectIO extends VisionIO {
 
+  public enum GamePiece {
+    ALAGE,
+    CORAL,
+    NONE
+  }
+
+  default void updateInputs(VisionObjectIOInputs inputs) {};
+
   @AutoLog
   class VisionObjectIOInputs extends VisionIO.VisionIOInputs {
     public String objectClass = "";
-    public Detection[] objectDetections = new Detection[0];
+    public ObjectDetection[] objectDetections = new ObjectDetection[0];
   }
 
-  public record Detection(
-      int id,
+  public record ObjectDetection(
+      GamePiece gamePiece,
       Angle horizontalAngle,
       Angle verticalAngle,
       Dimensionless targetArea,
-      double corner0X,
-      double corner0Y,
-      double corner1X,
-      double corner1Y,
-      double corner2X,
-      double corner2Y,
-      double corner3X,
-      double corner3Y) {}
+      Translation2d corner1,
+      Translation2d corner2,
+      Translation2d corner3,
+      Translation2d corner4) {}
 }

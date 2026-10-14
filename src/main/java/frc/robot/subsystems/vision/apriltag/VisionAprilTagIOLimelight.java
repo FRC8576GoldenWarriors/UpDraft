@@ -131,7 +131,7 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
     inputs.visibleTargetArea = getVisibleTargetArea();
     inputs.pipelineLatency = getPipelineLatency();
     inputs.captureLatency = getCaptureLatency();
-    
+
     double heartbeat = getHeartbeat();
     inputs.isConnected = (inputs.heartbeat != heartbeat);
     inputs.heartbeat = heartbeat;
@@ -447,9 +447,7 @@ public class VisionAprilTagIOLimelight implements VisionAprilTagIO {
 
     var checkedAprilTagArray = rawAprilTagsArray.get();
 
-    int iterateTo = checkedAprilTagArray.length / 7;
-
-    for (int i = 0; i < iterateTo; i += 7) {
+    for (int i = 0; i + 6 < checkedAprilTagArray.length; i += 7) {
       int id = (int) checkedAprilTagArray[i];
       Angle horizontalAngle = Degrees.of(checkedAprilTagArray[i + 1]);
       Angle verticalAngle = Degrees.of(checkedAprilTagArray[i + 2]);
