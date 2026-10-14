@@ -334,4 +334,11 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   public void setVisionStandardDeviations(Matrix<N3, N1> standardDeviations) {
     super.setVisionMeasurementStdDevs(standardDeviations);
   }
+
+  @Override
+  public void addVisionMeasurement(
+      Pose2d pose, double timestampSeconds, Matrix<N3, N1> standardDeviations) {
+    this.setVisionMeasurementStdDevs(standardDeviations);
+    this.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(timestampSeconds));
+  }
 }

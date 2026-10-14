@@ -113,6 +113,9 @@ public interface SwerveIO {
 
   default void addVisionMeasurement(Pose2d pose, double timestamp) {}
 
+  default void addVisionMeasurement(
+      Pose2d pose, double timestamp, Matrix<N3, N1> standardDeviations) {}
+
   default void setDrivetrainStandardDeviations(Matrix<N3, N1> standardDeviations) {}
 
   default void setVisionStandardDeviations(Matrix<N3, N1> standardDeviations) {}
