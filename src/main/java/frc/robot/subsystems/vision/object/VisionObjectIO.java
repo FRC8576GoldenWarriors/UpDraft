@@ -14,7 +14,8 @@ public interface VisionObjectIO extends VisionIO {
     NONE
   }
 
-  default void updateInputs(VisionObjectIOInputs inputs) {};
+  default void updateInputs(VisionObjectIOInputs inputs) {}
+  ;
 
   @AutoLog
   class VisionObjectIOInputs extends VisionIO.VisionIOInputs {

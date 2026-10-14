@@ -7,6 +7,5 @@ public class Vision extends LoggedSubsystem {
 
   public Vision(CameraConfig... cameraConfigs) {
     super(VisionConstants.LOG_PATH, null, true);
-    
   }
 }
