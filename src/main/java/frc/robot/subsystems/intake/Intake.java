@@ -12,9 +12,9 @@ import frc.robot.util.loggedtunable.LoggedTunableDouble;
 
 public class Intake extends IntakeStateMachine {
 
-  private IntakeIO io;
+  private final IntakeIO io;
 
-  private IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
