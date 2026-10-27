@@ -38,7 +38,9 @@ public interface IntakeIO extends LoggedIO {
 
   default void setWantedRollerSpeed(double dutyCycleOutput) {}
 
-  default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
+  default void zero() {}
+
+  default boolean home() {
     return false;
   }
 

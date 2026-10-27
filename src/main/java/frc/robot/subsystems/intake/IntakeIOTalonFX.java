@@ -167,8 +167,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
-    if (!atUpperHomingHardstop(activeHomingCurrent, activeHomingVelocity)) {
+  public boolean home() {
+    if (!atUpperHomingHardstop()) {
       pivotTalonFX.setControl(pivotHomingRequest);
       return false;
     }
@@ -184,12 +184,16 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
+  public void zero() {
+    pivotTalonFX.setPosition(0);
+  }
+
+  @Override
   public StatusSignal<Current>[] getCurrentSignals() {
     return intakeCurrentSignals.toArray(StatusSignal[]::new);
   }
 
-  private boolean atUpperHomingHardstop(
-      Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
+  private boolean atUpperHomingHardstop() {
     return pivotStatorCurrentSignal.isNear(
             IntakeConstants.PIVOT_HOMING_CURRENT, IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE)
         && pivotVelocitySignal.isNear(

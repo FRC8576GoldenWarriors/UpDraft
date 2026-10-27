@@ -29,10 +29,11 @@ public class LoggedTunablePIDFConstants implements LoggedTunable {
     for (int i = 0; i < loggedTunablePIDFValues.length; i++) {
       loggedTunablePIDFValues[i] =
           new LoggedTunableDouble(
-              dashboardKey + "/" + logKey + "/" + pidfKeys[i],
+              dashboardKey + "/" + logKey + pidfKeys[i],
               kPIDSGVA[i],
               (value) -> {},
-              tuningMode);
+              tuningMode,
+              false);
     }
 
     if (tuningMode) {
@@ -44,10 +45,12 @@ public class LoggedTunablePIDFConstants implements LoggedTunable {
   public void checkForChange() {
     if (!isSubsystemTunable) return;
     // This automatically fires the correct Consumer for whichever specific value changed
+    boolean anyChanged = false;
     for (LoggedTunableDouble tunable : loggedTunablePIDFValues) {
-      if (tunable.hasChanged()) {
-        onAnyChangeAction.accept(getPIDSGVA());
-      }
+      anyChanged |= tunable.hasChanged();
+    }
+    if (anyChanged) {
+      onAnyChangeAction.accept(getPIDSGVA());
     }
   }
 

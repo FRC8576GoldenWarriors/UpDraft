@@ -29,7 +29,8 @@ public class Intake extends IntakeStateMachine {
     RETRACT,
     INTAKE,
     HOME,
-    POSITION_MANUALLY
+    POSITION_MANUALLY,
+    ZERO
   }
 
   private enum SystemState implements LoggedSystemState {
@@ -38,7 +39,8 @@ public class Intake extends IntakeStateMachine {
     RETRACTING,
     INTAKING,
     HOMING,
-    POSITIONING_MANUALLY
+    POSITIONING_MANUALLY,
+    ZEROING
   }
 
   public Intake(IntakeIO io) {
@@ -68,8 +70,14 @@ public class Intake extends IntakeStateMachine {
       case DEPLOY -> SystemState.DEPLOYING;
       case RETRACT -> SystemState.RETRACTING;
       case INTAKE -> SystemState.INTAKING;
-      case HOME -> SystemState.HOMING;
+      case HOME -> {
+        if (systemState != SystemState.HOMING) {
+          isHomed = false;
+        }
+        yield SystemState.HOMING;
+      }
       case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
+      case ZERO -> SystemState.ZEROING;
       default -> SystemState.IDLING;
     };
   }
@@ -82,6 +90,7 @@ public class Intake extends IntakeStateMachine {
       case INTAKING -> intaking();
       case HOMING -> homing();
       case POSITIONING_MANUALLY -> positioningManually();
+      case ZEROING -> zeroing();
       default -> idling();
     }
   }
@@ -115,9 +124,14 @@ public class Intake extends IntakeStateMachine {
     io.setWantedRollerSpeed(0);
   }
 
+  protected void zeroing() {
+    io.zero();
+    setWantedState(WantedState.IDLE);
+  }
+
   @Override
   protected void homing() {
-    this.isHomed = io.home(inputs.pivotStatorCurrent, inputs.pivotVelocity);
+    this.isHomed = io.home();
     if (isHomed) {
       setWantedState(WantedState.IDLE);
     }

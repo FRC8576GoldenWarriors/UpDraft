@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.StatusSignal;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Current;
@@ -17,8 +16,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
-import java.util.ArrayList;
+import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -162,7 +162,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param value The wanted state to log.
    */
   public <E extends Enum<E> & LoggedWantedState> void recordWantedState(E value) {
-    this.record(logPath + "WantedState", value);
+    this.record("WantedState", value);
   }
 
   /**
@@ -177,7 +177,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param value The system state to log.
    */
   public <E extends Enum<E> & LoggedSystemState> void recordSystemState(E value) {
-    this.record(logPath + "SystemState", value);
+    this.record("SystemState", value);
   }
 
   /**
@@ -927,7 +927,10 @@ public class LoggedSubsystem extends SubsystemBase {
    *     {@code logPath}.
    * @param value The value of the field.
    */
-  public <T extends StructSerializable> void recordOutput(String key, ArrayList<T> value) {
-    Logger.recordOutput(logPath + key, value.toArray(new Pose2d[value.size()]));
+  public <T extends StructSerializable> void record(String key, Class<T> classType, List<T> value) {
+    @SuppressWarnings("unchecked")
+    T[] toArray = (T[]) Array.newInstance(classType, value.size());
+
+    Logger.recordOutput(logPath + key, value.toArray(toArray));
   }
 }

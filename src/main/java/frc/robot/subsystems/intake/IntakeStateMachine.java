@@ -21,4 +21,6 @@ abstract class IntakeStateMachine extends LoggedSubsystem {
   protected abstract void homing();
 
   protected abstract void positioningManually();
+
+  protected abstract void zeroing();
 }

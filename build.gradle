@@ -62,6 +62,7 @@ task(replayWatch, type: JavaExec) {
 tasks.register('setupGitHooks', Exec) {
     description = 'Configures Git to use custom hooks located in .githooks'
     group = 'git hooks'
+    onlyIf {file('.git').exists()}
 
     // Commands work across Windows, macOS, and Linux
     commandLine 'git', 'config', 'core.hooksPath', '.githooks'

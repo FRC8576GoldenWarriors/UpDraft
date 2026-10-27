@@ -28,7 +28,8 @@ public class Orca extends LoggedSubsystem {
     SYS_ID_STEER,
     SYS_ID_ROTATION,
     WHEEL_RADIUS_CHARACTERIZATION,
-    HOME_INTAKE
+    HOME_INTAKE,
+    ZERO
   }
 
   private enum SystemState {
@@ -43,7 +44,8 @@ public class Orca extends LoggedSubsystem {
     SYS_ID_STEER,
     SYS_ID_ROTATION,
     WHEEL_RADIUS_CHARACTERIZATION,
-    HOMING_INTAKE
+    HOMING_INTAKE,
+    ZEROING
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -91,6 +93,7 @@ public class Orca extends LoggedSubsystem {
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
       case HOME_INTAKE -> SystemState.HOMING_INTAKE;
+      case ZERO -> SystemState.ZEROING;
       default -> SystemState.IDLE;
     };
   }
@@ -108,6 +111,7 @@ public class Orca extends LoggedSubsystem {
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
       case HOMING_INTAKE -> home();
+      case ZEROING -> zeroing();
       default -> idling();
     }
   }
@@ -127,6 +131,10 @@ public class Orca extends LoggedSubsystem {
   private void idling() {
     swerve.setWantedState(Swerve.WantedState.IDLE);
     intake.setWantedState(Intake.WantedState.IDLE);
+  }
+
+  private void zeroing() {
+    intake.setWantedState(Intake.WantedState.ZERO);
   }
 
   private void intake() {

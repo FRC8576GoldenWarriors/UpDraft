@@ -63,6 +63,11 @@ public class RobotContainer {
             Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TELEOP))
                 .withName("Drive Teleop"));
 
+    driverController
+        .povDown()
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ZERO)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+
     if (OrcaConstants.USE_SYS_ID_MODE) {
       driverController
           .rightBumper()

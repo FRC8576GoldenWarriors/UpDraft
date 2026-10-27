@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.GearRatio;
 
 public class IntakeConstants {
 
@@ -41,8 +42,8 @@ public class IntakeConstants {
   public static final double KP = 0.0;
   public static final double KI = 0.0;
   public static final double KD = 0.0;
-  public static final double KS = 0.0;
-  public static final double KG = 0.0;
+  public static final double KS = 0.1704;
+  public static final double KG = 1.5313;
   public static final double KV = 0.0;
   public static final double KA = 0.0;
 
@@ -80,15 +81,16 @@ public class IntakeConstants {
 
   public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.005);
 
-  public static final Angle DOWN_POSITION = Rotations.of(-0.1862);
-  public static final Angle EXPECTED_HOMING_ZERO = Rotations.of(0.4785);
-  public static final Angle UP_POSITION = Rotations.of(0.4785);
+  public static final Angle DOWN_POSITION = Rotations.of(-0.1433);
+  public static final Angle EXPECTED_HOMING_ZERO = Rotations.of(0.4982);
+  public static final Angle UP_POSITION = Rotations.of(0.4982);
 
   public static final double DEPLOYING_DUTY_CYCLE = 0;
   public static final double RETRACTING_DUTY_CYCLE = 0;
   public static final double INTAKING_DUTY_CYCLE = -0.8;
 
-  public static final double PIVOT_SENSOR_TO_MECHANISM_RATION = (60 / 18) * (32 / 12);
+  public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
+      new GearRatio().withStage(18, 60).withStage(12, 32);
 
   public static final TalonFXConfiguration PIVOT_CONFIG =
       new TalonFXConfiguration()
@@ -101,7 +103,7 @@ public class IntakeConstants {
                   .withKD(KD)
                   .withKS(KS)
                   .withKG(KG)
-                  .withKS(KV)
+                  .withKV(KV)
                   .withKA(KA))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
@@ -118,7 +120,8 @@ public class IntakeConstants {
                   .withMotionMagicCruiseVelocity(MOTION_MAGIC_ANGULAR_VELOCITY)
                   .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION))
           .withFeedback(
-              new FeedbackConfigs().withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION));
+              new FeedbackConfigs()
+                  .withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION.getRatio()));
 
   public static final TalonFXConfiguration ROLLER_CONFIG =
       new TalonFXConfiguration()
