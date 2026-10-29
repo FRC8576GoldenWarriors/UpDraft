@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -41,6 +42,9 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Voltage> pivotVoltageSignal;
   private final StatusSignal<Current> pivotStatorCurrentSignal;
   private final StatusSignal<Current> pivotSupplyCurrentSignal;
+
+  private final StatusSignal<Double> pivotPositionSetpointSignal;
+  private final StatusSignal<Double> pivotVelocitySetpointSignal;
 
   private final BooleanSupplier rollerConnectedSignal;
   private final StatusSignal<AngularVelocity> rollerVelocitySignal;
@@ -90,6 +94,9 @@ public class IntakeIOTalonFX implements IntakeIO {
     pivotSupplyCurrentSignal = pivotTalonFX.getSupplyCurrent();
     intakeCurrentSignals.add(pivotSupplyCurrentSignal);
 
+    pivotPositionSetpointSignal = pivotTalonFX.getClosedLoopReference();
+    pivotVelocitySetpointSignal = pivotTalonFX.getClosedLoopReferenceSlope();
+
     AlertManager.getInstance()
         .registerAlert(
             new Alert("The Intake Pivot Motor is Disconnected.", AlertType.kError),
@@ -117,7 +124,9 @@ public class IntakeIOTalonFX implements IntakeIO {
         rollerVelocitySignal,
         rollerVoltageSignal,
         rollerStatorCurrentSignal,
-        rollerSupplyCurrentSignal);
+        rollerSupplyCurrentSignal,
+        pivotPositionSetpointSignal,
+        pivotVelocitySetpointSignal);
 
     StatusSignalRefresher.getInstance()
         .addStatusSignals(
@@ -129,7 +138,9 @@ public class IntakeIOTalonFX implements IntakeIO {
             rollerVelocitySignal,
             rollerVoltageSignal,
             rollerStatorCurrentSignal,
-            rollerSupplyCurrentSignal);
+            rollerSupplyCurrentSignal,
+            pivotPositionSetpointSignal,
+            pivotVelocitySetpointSignal);
 
     pivotTalonFX.getConfigurator().apply(IntakeConstants.PIVOT_CONFIG);
     rollerTalonFX.getConfigurator().apply(IntakeConstants.ROLLER_CONFIG);
@@ -142,6 +153,10 @@ public class IntakeIOTalonFX implements IntakeIO {
     inputs.pivotVoltage = pivotVoltageSignal.getValue();
     inputs.pivotStatorCurrent = pivotStatorCurrentSignal.getValue();
     inputs.pivotSupplyCurrent = pivotSupplyCurrentSignal.getValue();
+
+    inputs.pivotPositionSetpoint = Rotations.of(pivotPositionSetpointSignal.getValueAsDouble());
+    inputs.pivotVelocitySetpoint =
+        RotationsPerSecond.of(pivotVelocitySetpointSignal.getValueAsDouble());
 
     inputs.rollerConnected = rollerConnectedSignal.getAsBoolean();
     inputs.rollerVelocity = rollerVelocitySignal.getValue();

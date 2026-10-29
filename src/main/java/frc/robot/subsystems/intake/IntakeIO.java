@@ -27,6 +27,9 @@ public interface IntakeIO extends LoggedIO {
     public Current pivotStatorCurrent = Amps.zero();
     public Current pivotSupplyCurrent = Amps.zero();
 
+    public Angle pivotPositionSetpoint = Rotations.zero();
+    public AngularVelocity pivotVelocitySetpoint = RotationsPerSecond.zero();
+
     public boolean rollerConnected = false;
     public AngularVelocity rollerVelocity = RotationsPerSecond.zero();
     public Voltage rollerVoltage = Volts.zero();
