@@ -39,14 +39,6 @@ public class IntakeConstants {
   public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
       StaticFeedforwardSignValue.UseVelocitySign;
 
-  public static final double KP = 0.0;
-  public static final double KI = 0.0;
-  public static final double KD = 0.0;
-  public static final double KS = 0.1704;
-  public static final double KG = 1.5313;
-  public static final double KV = 0.0;
-  public static final double KA = 0.0;
-
   // ! CURRENT LIMIT NOT CONFIGURED YET
   public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
@@ -91,6 +83,17 @@ public class IntakeConstants {
 
   public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
       new GearRatio().withStage(18, 60).withStage(12, 32);
+
+  public static final double KP = 0.0;
+  public static final double KI = 0.0;
+  public static final double KD = 0.0;
+  public static final double KS = 0.1704;
+  public static final double KG = 1.5313;
+  public static final double KV =
+      Volts.of(12)
+          .div(IntakeConstants.MOTION_MAGIC_ANGULAR_VELOCITY)
+          .in(Volts.per(RotationsPerSecond));
+  public static final double KA = 0.0;
 
   public static final TalonFXConfiguration PIVOT_CONFIG =
       new TalonFXConfiguration()
