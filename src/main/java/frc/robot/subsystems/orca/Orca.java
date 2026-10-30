@@ -7,12 +7,16 @@ package frc.robot.subsystems.orca;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
+import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 public class Orca extends SubsystemBase {
@@ -67,8 +71,21 @@ public class Orca extends SubsystemBase {
     this.wantedState = state;
   }
 
+  public Command commandWantedState(WantedState state) {
+    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of());
+  }
+
+  public Command commandWantedState(WantedState state, String commandName) {
+    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of())
+        .withName(commandName);
+  }
+
   public WantedState getWantedState() {
     return this.wantedState;
+  }
+
+  public boolean stateEquals(WantedState state) {
+    return getWantedState() == state;
   }
 
   @Override
@@ -150,5 +167,17 @@ public class Orca extends SubsystemBase {
 
   private void wheelRadiusCharacterization() {
     swerve.setWantedState(Swerve.WantedState.WHEEL_RADIUS_CHARACTERIZATION);
+  }
+
+  public void resetSwerveHeading() {
+    swerve.zeroHeading();
+  }
+
+  public Command characterizeWheelRadius() {
+    return swerve.getWheelRadiusCharacterizationCommand();
+  }
+
+  public void setWantedRotation(Rotation2d wantedRotation) {
+    swerve.setWantedRotation(wantedRotation);
   }
 }

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.orca.Orca;
+import frc.robot.subsystems.orca.Orca.WantedState;
 import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
@@ -29,84 +30,69 @@ public class RobotContainer {
 
   private void configureBindings() {
 
+    configureDefaultBindings();
+
+    if (OrcaConstants.USE_SYS_ID_MODE) {
+      configureSysIDBindings();
+    } else {
+      configureOrcaBindings();
+    }
+  }
+
+  private void configureDefaultBindings() {
     swerve.setDefaultCommand(
         swerve
             .runEnd(
                 () ->
                     swerve.acceptControllerInput(
-                        controller.getLeftY(), controller.getLeftX(), controller.getRightX()),
+                        -controller.getLeftY(), -controller.getLeftX(), -controller.getRightX()),
                 () -> swerve.acceptControllerInput(0, 0, 0))
-            .withName("Accept Teleop Input"));
+            .withName("AcceptTeleopInput"));
 
-    controller.start().onTrue(Commands.runOnce(swerve::zeroHeading).withName("Reset Heading"));
+    controller.start().onTrue(Commands.runOnce(orca::resetSwerveHeading).withName("ResetHeading"));
 
     RobotModeTriggers.disabled()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE))
-                .ignoringDisable(true)
-                .withName("Idle"));
+        .onTrue(orca.commandWantedState(WantedState.IDLE, "Idle").ignoringDisable(true));
 
     RobotModeTriggers.teleop()
-        .and(
-            () ->
-                orca.getWantedState() == Orca.WantedState.IDLE
-                    || orca.getWantedState() == Orca.WantedState.TELEOP)
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TELEOP))
-                .withName("Drive Teleop"));
+        .and(() -> orca.stateEquals(WantedState.IDLE) || orca.stateEquals(WantedState.TELEOP))
+        .onTrue(orca.commandWantedState(WantedState.TELEOP, "DriveTeleop"));
+  }
 
-    if (OrcaConstants.USE_SYS_ID_MODE) {
-      controller
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(
-                  () ->
-                      orca.setWantedState(
-                          OrcaConstants
-                              .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or not
-      controller.x().and(controller.a()).whileTrue(swerve.getDynamicForwardCommand());
-      controller.a().and(controller.b()).whileTrue(swerve.getDynamicReverseCommand());
-      controller.b().and(controller.y()).whileTrue(swerve.getQuasistaticForwardCommand());
-      controller.y().and(controller.x()).whileTrue(swerve.getQuasistaticReverseCommand());
-      controller
-          .leftBumper()
-          .whileTrue(
-              swerve
-                  .getWheelRadiusCharacterizationCommand()
-                  .beforeStarting(
-                      () -> orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
-      return;
-    }
+  private void configureSysIDBindings() {
+    controller
+        .rightBumper()
+        .onTrue(orca.commandWantedState(OrcaConstants.WANTED_SYS_ID_STATE, "SysID"));
 
+    controller
+        .leftBumper()
+        .onTrue(orca.commandWantedState(WantedState.WHEEL_RADIUS_CHARACTERIZATION, "WheelRadius"))
+        .whileTrue(orca.characterizeWheelRadius().withName("CharacterizeWheelRadius"));
+
+    controller.povRight().whileTrue(swerve.getDynamicForwardCommand());
+    controller.povUp().whileTrue(swerve.getDynamicReverseCommand());
+    controller.povLeft().whileTrue(swerve.getQuasistaticForwardCommand());
+    controller.povDown().whileTrue(swerve.getQuasistaticReverseCommand());
+  }
+
+  private void configureOrcaBindings() {
     controller
         .a()
         .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ROTATION_LOCK))
-                .beforeStarting(() -> swerve.setWantedRotation(new Rotation2d(Math.PI / 4)))
-                .withName("Rotation Lock"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+            Commands.sequence(
+                Commands.runOnce(() -> orca.setWantedRotation(Rotation2d.k180deg)),
+                orca.commandWantedState(WantedState.ROTATION_LOCK, "RotationLock")))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
 
     controller
         .b()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.WHEEL_LOCK_WITH_X))
-                .withName("Wheel Lock With X"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+        .onTrue(orca.commandWantedState(WantedState.WHEEL_LOCK_WITH_X, "WheelLockWithX"))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
 
     controller
         .x()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TAXI))
-                .withName("Drive Taxi"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
-    // // Run SysId routines when holding back/start and X/Y.
-    // // Note that each routine should be run exactly once in a single log.
-    // controller.back().and(controller.y()).whileTrue(swerve.sysIdDynamic(Direction.kForward));
-    // controller.back().and(controller.x()).whileTrue(swerve.sysIdDynamic(Direction.kReverse));
-    // controller.start().and(controller.y()).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
-    // controller.start().and(controller.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
-
+        .onTrue(orca.commandWantedState(WantedState.TAXI, "DriveTaxi"))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
   }
 
   public Command getAutonomousCommand() {
