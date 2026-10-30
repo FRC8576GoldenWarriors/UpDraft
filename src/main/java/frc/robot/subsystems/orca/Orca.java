@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
-import java.util.Set;
+import java.util.Arrays;
 import org.littletonrobotics.junction.Logger;
 
 public class Orca extends SubsystemBase {
@@ -72,12 +72,11 @@ public class Orca extends SubsystemBase {
   }
 
   public Command commandWantedState(WantedState state) {
-    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of());
+    return Commands.runOnce(() -> setWantedState(state));
   }
 
   public Command commandWantedState(WantedState state, String commandName) {
-    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of())
-        .withName(commandName);
+    return Commands.runOnce(() -> setWantedState(state)).withName(commandName);
   }
 
   public WantedState getWantedState() {
@@ -86,6 +85,10 @@ public class Orca extends SubsystemBase {
 
   public boolean stateEquals(WantedState state) {
     return getWantedState() == state;
+  }
+
+  public boolean stateEqualsAny(WantedState... states) {
+    return Arrays.stream(states).anyMatch(this::stateEquals);
   }
 
   @Override

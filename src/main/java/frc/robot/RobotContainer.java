@@ -55,7 +55,7 @@ public class RobotContainer {
         .onTrue(orca.commandWantedState(WantedState.IDLE, "Idle").ignoringDisable(true));
 
     RobotModeTriggers.teleop()
-        .and(() -> orca.stateEquals(WantedState.IDLE) || orca.stateEquals(WantedState.TELEOP))
+        .and(() -> orca.stateEqualsAny(WantedState.IDLE, WantedState.TELEOP))
         .onTrue(orca.commandWantedState(WantedState.TELEOP, "DriveTeleop"));
   }
 
