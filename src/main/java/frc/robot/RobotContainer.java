@@ -15,6 +15,7 @@ import frc.robot.subsystems.orca.Orca;
 import frc.robot.subsystems.orca.Orca.WantedState;
 import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
 
 public class RobotContainer {
@@ -93,6 +94,15 @@ public class RobotContainer {
         .x()
         .onTrue(orca.commandWantedState(WantedState.TAXI, "DriveTaxi"))
         .onFalse(orca.commandWantedState(WantedState.IDLE));
+
+    controller
+        .povLeft()
+        .onTrue(orca.commandWantedState(OrcaConstants.WANTED_SYS_ID_STATE, "SysID"))
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    swerve.setWantedAbsoluteModuleRotations(
+                        SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION)));
   }
 
   public Command getAutonomousCommand() {

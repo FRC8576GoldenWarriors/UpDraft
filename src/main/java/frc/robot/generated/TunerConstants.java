@@ -89,7 +89,7 @@ public class TunerConstants {
   private static final Pigeon2Configuration pigeonConfigs =
       new Pigeon2Configuration()
           .withGyroTrim(new GyroTrimConfigs().withGyroScalarZ(0))
-          .withMountPose(new MountPoseConfigs().withMountPoseYaw(Rotation2d.k180deg.getMeasure()));
+          .withMountPose(new MountPoseConfigs().withMountPoseYaw(Rotation2d.kZero.getMeasure()));
 
   // CAN bus that the devices are located on;
   // All swerve devices must share the same CAN bus

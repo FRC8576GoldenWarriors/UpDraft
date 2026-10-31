@@ -225,8 +225,8 @@ public class Swerve extends SubsystemBase {
 
       case SET_MODULE_ROTATIONS -> {
         if (areModulesAtRotation()) {
-          setWantedState(WantedState.IDLE);
-          yield SystemState.IDLING;
+          setWantedState(SwerveConstants.WANTED_SYS_ID_STATE_SWERVE);
+          yield SystemState.SYS_ID;
         }
 
         yield SystemState.SETTING_MODULE_ROTATIONS;
