@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.orca.OrcaConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.stream.IntStream;
@@ -225,7 +226,7 @@ public class Swerve extends SubsystemBase {
 
       case SET_MODULE_ROTATIONS -> {
         if (areModulesAtRotation()) {
-          setWantedState(SwerveConstants.WANTED_SYS_ID_STATE_SWERVE);
+          setWantedState(OrcaConstants.WANTED_SYS_ID_STATE_SWERVE);
           yield SystemState.SYS_ID;
         }
 

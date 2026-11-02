@@ -74,6 +74,15 @@ public class RobotContainer {
     controller.povUp().whileTrue(swerve.getDynamicReverseCommand());
     controller.povLeft().whileTrue(swerve.getQuasistaticForwardCommand());
     controller.povDown().whileTrue(swerve.getQuasistaticReverseCommand());
+
+    controller
+        .x()
+        .onTrue(orca.commandWantedState(OrcaConstants.WANTED_SYS_ID_STATE, "SysID"))
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    swerve.setWantedAbsoluteModuleRotations(
+                        SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION)));
   }
 
   private void configureOrcaBindings() {
@@ -94,15 +103,6 @@ public class RobotContainer {
         .x()
         .onTrue(orca.commandWantedState(WantedState.TAXI, "DriveTaxi"))
         .onFalse(orca.commandWantedState(WantedState.IDLE));
-
-    controller
-        .povLeft()
-        .onTrue(orca.commandWantedState(OrcaConstants.WANTED_SYS_ID_STATE, "SysID"))
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    swerve.setWantedAbsoluteModuleRotations(
-                        SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION)));
   }
 
   public Command getAutonomousCommand() {

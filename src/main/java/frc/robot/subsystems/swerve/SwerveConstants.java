@@ -26,7 +26,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.orca.Orca.WantedState;
 
 public class SwerveConstants {
 
@@ -126,11 +125,6 @@ public class SwerveConstants {
   // SysId Characterization & Tuning Constants
   // =====================================
   public static final boolean USE_SYS_ID_MODE = true;
-
-  public static final WantedState WANTED_SYS_ID_STATE = WantedState.SYS_ID_TRANSLATION;
-
-  public static final Swerve.WantedState WANTED_SYS_ID_STATE_SWERVE =
-      Swerve.WantedState.SYS_ID_TRANSLATION;
 
   public static final boolean USE_TUNING_MODE = false;
 
