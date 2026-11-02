@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.StatusSignal;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Current;
@@ -19,6 +20,8 @@ import frc.robot.util.loggedtunable.LoggedTunableDouble;
 import java.lang.reflect.Array;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -129,7 +132,6 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param inputs The inputs to log or update.
    */
   public void processInputs(String key, LoggableInputs inputs) {
-
     String path = logPath;
 
     if (key.equals("")) path = path.substring(0, logPath.length() - 1);
