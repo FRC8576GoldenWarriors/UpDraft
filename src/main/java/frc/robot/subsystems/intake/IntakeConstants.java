@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
+import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -40,17 +42,20 @@ public class IntakeConstants {
       StaticFeedforwardSignValue.UseVelocitySign;
 
   // ! CURRENT LIMIT NOT CONFIGURED YET
-  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(120);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
   public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(60);
   public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
   public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
   public static final NeutralModeValue PIVOT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+  public static final GainSchedBehaviorValue PIVOT_TOLERANCE_MODE_VALUE =
+      GainSchedBehaviorValue.ZeroOutput;
 
-  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(9.563);
+  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY =
+      RotationsPerSecond.of(10.1775000001);
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
-      RotationsPerSecondPerSecond.of(60);
+      RotationsPerSecondPerSecond.of(4.89448525276);
 
   public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(30);
   public static final boolean ROLLER_STATOR_CURRENT_LIMIT_ENABLED = false;
@@ -58,41 +63,41 @@ public class IntakeConstants {
   public static final boolean ROLLER_SUPPLY_CURRENT_LIMIT_ENABLED = false;
 
   public static final InvertedValue ROLLER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
-  public static final NeutralModeValue ROLLER_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
+  public static final NeutralModeValue ROLLER_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
   public static final Voltage PEAK_FORWARD_VOLTAGE = Volts.of(12);
   public static final Voltage PEAK_REVERSE_VOLTAGE = Volts.of(-12);
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final double PIVOT_HOMING_DUTY_CYCLE = 0.15;
-  public static final Current PIVOT_HOMING_CURRENT = Amps.of(89);
-  public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(2);
+  public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
+  public static final Current PIVOT_HOMING_CURRENT =
+      Amps.of(75); // swap to make it so the pivot curent is greater than this value then home is
+  // complete
+  public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(1);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
-  public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.1);
+  public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.02);
 
-  public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.005);
+  public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.003);
 
-  public static final Angle DOWN_POSITION = Rotations.of(-0.1433);
-  public static final Angle EXPECTED_HOMING_ZERO = Rotations.of(0.4982);
-  public static final Angle UP_POSITION = Rotations.of(0.4982);
+  public static final Angle DOWN_POSITION = Rotations.of(-0.104004);
+  public static final Angle EXPECTED_HOMING_ZERO = Rotations.of(-0.104004);
+  public static final Angle RETRACT_POSITION = Rotations.of(0.304);
+  public static final Angle UP_POSITION = Rotations.of(0.3388);
 
   public static final double DEPLOYING_DUTY_CYCLE = 0;
   public static final double RETRACTING_DUTY_CYCLE = 0;
-  public static final double INTAKING_DUTY_CYCLE = -0.8;
+  public static final double INTAKING_DUTY_CYCLE = 0.8;
 
   public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
       new GearRatio().withStage(18, 60).withStage(12, 32);
 
-  public static final double KP = 0.0;
+  public static final double KP = 64.4;
   public static final double KI = 0.0;
-  public static final double KD = 0.0;
-  public static final double KS = 0.1704;
-  public static final double KG = 1.5313;
-  public static final double KV =
-      Volts.of(12)
-          .div(IntakeConstants.MOTION_MAGIC_ANGULAR_VELOCITY)
-          .in(Volts.per(RotationsPerSecond));
+  public static final double KD = 1.05;
+  public static final double KS = 0.1781;
+  public static final double KG = 1.4561;
+  public static final double KV = 1.1336;
   public static final double KA = 0.0;
 
   public static final TalonFXConfiguration PIVOT_CONFIG =
@@ -101,6 +106,7 @@ public class IntakeConstants {
               new Slot0Configs()
                   .withGravityType(GRAVITY_TYPE_VALUE)
                   .withStaticFeedforwardSign(STATIC_FEEDFORWARD_SIGN_VALUE)
+                  .withGainSchedBehavior(PIVOT_TOLERANCE_MODE_VALUE)
                   .withKP(KP)
                   .withKI(KI)
                   .withKD(KD)
@@ -108,6 +114,8 @@ public class IntakeConstants {
                   .withKG(KG)
                   .withKV(KV)
                   .withKA(KA))
+          .withClosedLoopGeneral(
+              new ClosedLoopGeneralConfigs().withGainSchedErrorThreshold(PIVOT_POSITION_TOLERANCE))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
                   .withStatorCurrentLimit(PIVOT_STATOR_CURRENT_LIMIT)

@@ -43,6 +43,8 @@ public interface IntakeIO extends LoggedIO {
 
   default void zero() {}
 
+  default void setVoltage(Voltage volts) {}
+
   default boolean home() {
     return false;
   }

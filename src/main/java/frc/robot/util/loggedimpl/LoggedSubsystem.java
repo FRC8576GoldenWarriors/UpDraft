@@ -129,7 +129,12 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param inputs The inputs to log or update.
    */
   public void processInputs(String key, LoggableInputs inputs) {
-    Logger.processInputs(logPath + key, inputs);
+
+    String path = logPath;
+
+    if (key.equals("")) path = path.substring(0, logPath.length() - 1);
+
+    Logger.processInputs(path + key, inputs);
     this.recordPowerData();
   }
 

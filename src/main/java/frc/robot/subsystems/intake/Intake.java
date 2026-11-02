@@ -5,7 +5,12 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.loggedimpl.LoggedSystemState;
 import frc.robot.util.loggedimpl.LoggedWantedState;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
@@ -22,6 +27,15 @@ public class Intake extends IntakeStateMachine {
   private final LoggedTunableDouble manualPositionSetpoint;
 
   private boolean isHomed = false;
+
+  public final SysIdRoutine pivot =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              Volts.of(1).per(Second),
+              Volts.of(4),
+              Seconds.of(4),
+              (state) -> record("IntakeSysIdState", state.toString())),
+          new SysIdRoutine.Mechanism(this::voltageIn, null, this));
 
   public enum WantedState implements LoggedWantedState {
     IDLE,
@@ -108,7 +122,7 @@ public class Intake extends IntakeStateMachine {
 
   @Override
   protected void retracting() {
-    io.setWantedPosition(IntakeConstants.UP_POSITION);
+    io.setWantedPosition(IntakeConstants.RETRACT_POSITION);
     io.setWantedRollerSpeed(IntakeConstants.RETRACTING_DUTY_CYCLE);
   }
 
@@ -127,6 +141,10 @@ public class Intake extends IntakeStateMachine {
   protected void zeroing() {
     io.zero();
     setWantedState(WantedState.IDLE);
+  }
+
+  protected void voltageIn(Voltage volts) {
+    io.setVoltage(volts);
   }
 
   @Override

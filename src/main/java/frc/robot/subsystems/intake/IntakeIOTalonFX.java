@@ -2,12 +2,14 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -28,8 +30,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final TalonFX rollerTalonFX;
 
   private final MotionMagicVoltage pivotPositionRequest = new MotionMagicVoltage(Rotations.zero());
-  private final DutyCycleOut pivotHomingRequest =
-      new DutyCycleOut(IntakeConstants.PIVOT_HOMING_DUTY_CYCLE);
+  private final VoltageOut pivotHomingRequest =
+      new VoltageOut(IntakeConstants.PIVOT_HOMING_VOLTAGE_OUT);
   private final DutyCycleOut rollerDutyCycleRequest = new DutyCycleOut(0);
   private final EmptyControl intakeIdleRequest = new EmptyControl();
 
@@ -176,6 +178,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
+  public void setVoltage(Voltage volts) {
+    pivotTalonFX.setVoltage(volts.in(Volts));
+  }
+
+  @Override
   public void idle() {
     pivotTalonFX.setControl(intakeIdleRequest);
     rollerTalonFX.setControl(intakeIdleRequest);
@@ -209,8 +216,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   private boolean atUpperHomingHardstop() {
-    return pivotStatorCurrentSignal.isNear(
-            IntakeConstants.PIVOT_HOMING_CURRENT, IntakeConstants.PIVOT_HOMING_CURRENT_TOLERANCE)
+    return pivotStatorCurrentSignal.getValue().gt(IntakeConstants.PIVOT_HOMING_CURRENT)
         && pivotVelocitySignal.isNear(
             IntakeConstants.PIVOT_HOMING_VELOCITY, IntakeConstants.PIVOT_HOMING_VELOCITY_TOLERANCE);
   }

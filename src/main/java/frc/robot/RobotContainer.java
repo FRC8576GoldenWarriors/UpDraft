@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
@@ -69,31 +70,39 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
 
     if (OrcaConstants.USE_SYS_ID_MODE) {
-      driverController
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(
-                  () ->
-                      orca.setWantedState(
-                          OrcaConstants
-                              .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or not
-      driverController.x().and(driverController.a()).whileTrue(swerve.getDynamicForwardCommand());
-      driverController.a().and(driverController.b()).whileTrue(swerve.getDynamicReverseCommand());
-      driverController
-          .b()
-          .and(driverController.y())
-          .whileTrue(swerve.getQuasistaticForwardCommand());
-      driverController
-          .y()
-          .and(driverController.x())
-          .whileTrue(swerve.getQuasistaticReverseCommand());
-      driverController
-          .leftBumper()
-          .whileTrue(
-              swerve
-                  .getWheelRadiusCharacterizationCommand()
-                  .beforeStarting(
-                      () -> orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
+
+      driverController.a().whileTrue(intake.pivot.quasistatic(Direction.kForward));
+      driverController.b().whileTrue(intake.pivot.quasistatic(Direction.kReverse));
+      driverController.y().whileTrue(intake.pivot.dynamic(Direction.kForward));
+      driverController.x().whileTrue(intake.pivot.dynamic(Direction.kReverse));
+
+      // driverController
+      //     .rightBumper()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () ->
+      //                 orca.setWantedState(
+      //                     OrcaConstants
+      //                         .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or
+      // not
+      // driverController.x().and(driverController.a()).whileTrue(swerve.getDynamicForwardCommand());
+      // driverController.a().and(driverController.b()).whileTrue(swerve.getDynamicReverseCommand());
+      // driverController
+      //     .b()
+      //     .and(driverController.y())
+      //     .whileTrue(swerve.getQuasistaticForwardCommand());
+      // driverController
+      //     .y()
+      //     .and(driverController.x())
+      //     .whileTrue(swerve.getQuasistaticReverseCommand());
+      // driverController
+      //     .leftBumper()
+      //     .whileTrue(
+      //         swerve
+      //             .getWheelRadiusCharacterizationCommand()
+      //             .beforeStarting(
+      //                 () ->
+      // orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
       return;
     }
 
@@ -134,6 +143,18 @@ public class RobotContainer {
     // driverController.start().and(driverController.y()).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
     // driverController.start().and(driverController.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
 
+    driverController
+        .leftTrigger()
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
+    driverController
+        .x()
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+    driverController
+        .y()
+        .onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.POSITION_MANUALLY)))
+        .onFalse(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
   }
 
   public Command getAutonomousCommand() {
