@@ -5,12 +5,11 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.loggedimpl.LoggedSysIdRoutine;
 import frc.robot.util.loggedimpl.LoggedSystemState;
 import frc.robot.util.loggedimpl.LoggedWantedState;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
@@ -28,14 +27,8 @@ public class Intake extends IntakeStateMachine {
 
   private boolean isHomed = false;
 
-  public final SysIdRoutine pivot =
-      new SysIdRoutine(
-          new SysIdRoutine.Config(
-              Volts.of(1).per(Second),
-              Volts.of(4),
-              Seconds.of(4),
-              (state) -> record("IntakeSysIdState", state.toString())),
-          new SysIdRoutine.Mechanism(this::voltageIn, null, this));
+  public final LoggedSysIdRoutine pivotRoutine =
+      this.newSubsystemLoggedSysIdRoutine(Volts.per(Seconds).of(1), Volts.of(4), Seconds.of(4));
 
   public enum WantedState implements LoggedWantedState {
     IDLE,

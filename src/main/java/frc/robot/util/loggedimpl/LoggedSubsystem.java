@@ -7,7 +7,11 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.WPISerializable;
 import edu.wpi.first.util.protobuf.Protobuf;
 import edu.wpi.first.util.struct.Struct;
@@ -61,6 +65,15 @@ public class LoggedSubsystem extends SubsystemBase {
     return new LoggedTunableDouble(logPath + dashboardKey, onChangeAction, subsystemTuningMode);
   }
 
+  public LoggedSysIdRoutine newSubsystemLoggedSysIdRoutineDefault() {
+    return new LoggedSysIdRoutine(this);
+  }
+
+  public LoggedSysIdRoutine newSubsystemLoggedSysIdRoutine(
+      Velocity<VoltageUnit> voltageRampRate, Voltage voltageStep, Time timeoutTime) {
+    return new LoggedSysIdRoutine(voltageRampRate, voltageStep, timeoutTime, this);
+  }
+
   private void addToPowerLogging(StatusSignal<Current>[] signals) {
     for (StatusSignal<Current> signal : signals) {
       subsystemSupplyCurrentSignals.add(signal);
@@ -98,6 +111,10 @@ public class LoggedSubsystem extends SubsystemBase {
         allSubsystemSupplyCurrent
             .times(Volts.of(RobotController.getBatteryVoltage()))
             .times(Seconds.of(LoggedRobot.defaultPeriodSecs)));
+  }
+
+  protected void voltageIn(Voltage voltageIn) {
+    record("VoltageIn", voltageIn);
   }
 
   /**

@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.Time;
 
-public class transportConstants {
+public class TransportConstants {
   public static final String LOG_PATH = "Transport/";
   public static final Frequency updateFrequency = Hertz.of(50);
   public static final Time debounceTime = Seconds.of(0.2);

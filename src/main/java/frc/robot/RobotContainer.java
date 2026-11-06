@@ -9,8 +9,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Transport.Transport;
+import frc.robot.subsystems.Transport.TransportIOTalonFx;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.orca.Orca;
@@ -24,10 +25,12 @@ public class RobotContainer {
   private final Orca orca;
   private final Swerve swerve;
   private final Intake intake;
+  private final Transport transport;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
     intake = buildIntakeSubsystem();
+    transport = buildTransportSubsystem();
     orca = buildOrcaSubsystem();
     configureBindings();
   }
@@ -71,10 +74,10 @@ public class RobotContainer {
 
     if (OrcaConstants.USE_SYS_ID_MODE) {
 
-      driverController.a().whileTrue(intake.pivot.quasistatic(Direction.kForward));
-      driverController.b().whileTrue(intake.pivot.quasistatic(Direction.kReverse));
-      driverController.y().whileTrue(intake.pivot.dynamic(Direction.kForward));
-      driverController.x().whileTrue(intake.pivot.dynamic(Direction.kReverse));
+      driverController.a().whileTrue(intake.pivotRoutine.getForwardQuasistaticCommand());
+      driverController.b().whileTrue(intake.pivotRoutine.getBackwardQuasistaticCommand());
+      driverController.y().whileTrue(intake.pivotRoutine.getForwardDynamicCommand());
+      driverController.x().whileTrue(intake.pivotRoutine.getBackwardDynamicCommand());
 
       // driverController
       //     .rightBumper()
@@ -148,6 +151,12 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)))
         .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
     driverController
+        .rightTrigger()
+        .and(() -> intake.getWantedState() == Intake.WantedState.RETRACT && intake.nearSetpoint())
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.OUTTAKE)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+
+    driverController
         .x()
         .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)))
         .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
@@ -191,5 +200,13 @@ public class RobotContainer {
 
   public Intake getIntakeSubsystem() {
     return this.intake;
+  }
+
+  private Transport buildTransportSubsystem() {
+    return new Transport(new TransportIOTalonFx());
+  }
+
+  public Transport getTransportSubsystem() {
+    return this.transport;
   }
 }

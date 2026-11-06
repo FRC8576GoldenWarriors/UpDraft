@@ -32,7 +32,7 @@ public class Transport extends TransportStateMachine {
   }
 
   public Transport(TransportIO io) {
-    super(transportConstants.LOG_PATH, io.getCurrentSignals());
+    super(TransportConstants.LOG_PATH, io.getCurrentSignals());
     this.io = io;
     manualPositionSetpoint =
         newSubsystemLoggedTunableDouble("ManualSetpoint", (value) -> {}, false);
@@ -85,11 +85,11 @@ public class Transport extends TransportStateMachine {
 
   @Override
   protected void transportingIn() {
-    io.setTransportDutyCycle(transportConstants.IN_SPEED_LEFT, transportConstants.IN_SPEED_RIGHT);
+    io.setTransportDutyCycle(TransportConstants.IN_SPEED_LEFT, TransportConstants.IN_SPEED_RIGHT);
   }
 
   @Override
   protected void transportingOut() {
-    io.setTransportDutyCycle(-transportConstants.IN_SPEED_LEFT, -transportConstants.IN_SPEED_RIGHT);
+    io.setTransportDutyCycle(-TransportConstants.IN_SPEED_LEFT, -TransportConstants.IN_SPEED_RIGHT);
   }
 }
