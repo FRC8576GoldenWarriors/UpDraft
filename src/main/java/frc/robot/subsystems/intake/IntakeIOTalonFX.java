@@ -207,7 +207,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public void zero() {
-    pivotTalonFX.setPosition(0);
+    pivotTalonFX.setPosition(0.25);
   }
 
   @Override

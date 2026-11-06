@@ -143,8 +143,8 @@ public class Intake extends IntakeStateMachine {
     setWantedState(WantedState.IDLE);
   }
 
-  protected void voltageIn(Voltage volts) {
-    io.setVoltage(volts);
+  protected void voltageIn(Voltage voltageIn) {
+    io.setVoltage(voltageIn);
   }
 
   @Override
