@@ -5,6 +5,7 @@
 package frc.robot.subsystems.orca;
 
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Transport.Transport;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.loggedimpl.LoggedSubsystem;
@@ -15,6 +16,7 @@ public class Orca extends LoggedSubsystem {
 
   private final Swerve swerve;
   private final Intake intake;
+  private final Transport transport;
 
   public enum WantedState {
     // Swerve States
@@ -31,7 +33,8 @@ public class Orca extends LoggedSubsystem {
     HOME_INTAKE,
     ZERO,
     INTAKE,
-    RETRACT
+    RETRACT,
+    OUTTAKE
   }
 
   private enum SystemState {
@@ -49,7 +52,8 @@ public class Orca extends LoggedSubsystem {
     HOMING_INTAKE,
     ZEROING,
     INTAKING,
-    RETRACTING
+    RETRACTING,
+    OUTTAKING
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -61,6 +65,7 @@ public class Orca extends LoggedSubsystem {
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
     this.intake = robotContainer.getIntakeSubsystem();
+    this.transport = robotContainer.getTransportSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -100,6 +105,7 @@ public class Orca extends LoggedSubsystem {
       case ZERO -> SystemState.ZEROING;
       case INTAKE -> SystemState.INTAKING;
       case RETRACT -> SystemState.RETRACTING;
+      case OUTTAKE -> SystemState.OUTTAKING;
       default -> SystemState.IDLE;
     };
   }
@@ -120,6 +126,7 @@ public class Orca extends LoggedSubsystem {
       case ZEROING -> zeroing();
       case INTAKING -> intaking();
       case RETRACTING -> retracting();
+      case OUTTAKING -> outtaking();
       default -> idling();
     }
   }
@@ -139,6 +146,7 @@ public class Orca extends LoggedSubsystem {
   private void idling() {
     swerve.setWantedState(Swerve.WantedState.IDLE);
     intake.setWantedState(Intake.WantedState.IDLE);
+    transport.setWantedState(Transport.WantedState.IDLE);
   }
 
   private void zeroing() {
@@ -187,9 +195,16 @@ public class Orca extends LoggedSubsystem {
 
   private void intaking() {
     intake.setWantedState(Intake.WantedState.INTAKE);
+    transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
   }
 
   private void retracting() {
     intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.IDLE);
+  }
+
+  private void outtaking() {
+    intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.TRANSPORT_OUT);
   }
 }

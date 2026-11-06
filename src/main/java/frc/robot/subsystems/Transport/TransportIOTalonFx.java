@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Transport;
 
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -10,11 +11,12 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Transport.TransportIO.TransportIOInputs;
 import frc.robot.util.StatusSignalRefresher;
 import java.util.HashSet;
@@ -39,7 +41,7 @@ public class TransportIOTalonFx implements TransportIO {
   private final StatusSignal<Current> transportMotorRightSupplyCurrent;
   private final StatusSignal<Current> transportMotorRightStatorCurrent;
 
-  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+  private final VoltageOut voltageRequest = new VoltageOut(0);
 
   private final DutyCycleOut dutyOut = new DutyCycleOut(0);
   private final EmptyControl idleRequest = new EmptyControl();
@@ -47,8 +49,10 @@ public class TransportIOTalonFx implements TransportIO {
   private final HashSet<StatusSignal<Current>> transportCurrentSignals = new HashSet<>();
 
   public TransportIOTalonFx() {
-    transportMotorLeft = new TalonFX(transportConstants.TRANSPORT_LEFT_MOTOR_ID);
-    transportMotorRight = new TalonFX(transportConstants.TRANSPORT_RIGHT_MOTOR_ID);
+    transportMotorLeft =
+        new TalonFX(transportConstants.TRANSPORT_LEFT_MOTOR_ID, TunerConstants.kCANBus);
+    transportMotorRight =
+        new TalonFX(transportConstants.TRANSPORT_RIGHT_MOTOR_ID, TunerConstants.kCANBus);
     transportMotorConfiguration =
         new TalonFXConfiguration()
             .withMotorOutput(
@@ -133,20 +137,14 @@ public class TransportIOTalonFx implements TransportIO {
 
   @Override
   public void setTransportDutyCycle(double leftOutput, double rightOutput) {
-    transportMotorLeft.setControl(dutyOut.withOutput(leftOutput));
-    transportMotorRight.setControl(dutyOut.withOutput(rightOutput));
+    transportMotorLeft.setControl(voltageRequest.withOutput(Volts.of(12 * leftOutput)));
+    transportMotorRight.setControl(voltageRequest.withOutput(Volts.of(12 * rightOutput)));
   }
 
   @Override
   public void idle() {
     transportMotorLeft.setControl(idleRequest);
     transportMotorRight.setControl(idleRequest);
-  }
-
-  @Override
-  public void setTransportSpeed(AngularVelocity leftVelocity, AngularVelocity rightVelocity) {
-    transportMotorLeft.setControl(velocityRequest.withVelocity(leftVelocity));
-    transportMotorRight.setControl(velocityRequest.withVelocity(rightVelocity));
   }
 
   @Override

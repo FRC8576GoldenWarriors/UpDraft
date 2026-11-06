@@ -51,6 +51,14 @@ public class Transport extends TransportStateMachine {
     applyStates();
   }
 
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  public WantedState getWantedState() {
+    return this.wantedState;
+  }
+
   private SystemState handleStateTransition() {
     return switch (wantedState) {
       case IDLE -> SystemState.IDLING;
@@ -77,14 +85,11 @@ public class Transport extends TransportStateMachine {
 
   @Override
   protected void transportingIn() {
-    io.setTransportSpeed(transportConstants.transportInSpeed, transportConstants.transportInSpeed);
-    ;
+    io.setTransportDutyCycle(transportConstants.IN_SPEED_LEFT, transportConstants.IN_SPEED_RIGHT);
   }
 
   @Override
   protected void transportingOut() {
-    io.setTransportSpeed(
-        transportConstants.transportOutSpeed, transportConstants.transportOutSpeed);
-    ;
+    io.setTransportDutyCycle(-transportConstants.IN_SPEED_LEFT, -transportConstants.IN_SPEED_RIGHT);
   }
 }
