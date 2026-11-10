@@ -5,10 +5,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -17,7 +13,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Transport.TransportIO.TransportIOInputs;
 import frc.robot.util.StatusSignalRefresher;
 import java.util.HashSet;
 import java.util.function.BooleanSupplier;
@@ -25,7 +20,6 @@ import java.util.function.BooleanSupplier;
 public class TransportIOTalonFx implements TransportIO {
   private final TalonFX transportMotorLeft;
   private final TalonFX transportMotorRight;
-  private final TalonFXConfiguration transportMotorConfiguration;
 
   private final BooleanSupplier transportMotorLeftIsConnected;
   private final StatusSignal<AngularVelocity> transportAngularVelocityLeft;
@@ -42,7 +36,6 @@ public class TransportIOTalonFx implements TransportIO {
   private final StatusSignal<Current> transportMotorRightStatorCurrent;
 
   private final VoltageOut voltageRequest = new VoltageOut(0);
-
   private final DutyCycleOut dutyOut = new DutyCycleOut(0);
   private final EmptyControl idleRequest = new EmptyControl();
 
@@ -53,23 +46,6 @@ public class TransportIOTalonFx implements TransportIO {
         new TalonFX(TransportConstants.TRANSPORT_LEFT_MOTOR_ID, TunerConstants.kCANBus);
     transportMotorRight =
         new TalonFX(TransportConstants.TRANSPORT_RIGHT_MOTOR_ID, TunerConstants.kCANBus);
-    transportMotorConfiguration =
-        new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withNeutralMode(TransportConstants.TRANSPORT_RIGHT_NEUTRAL_MODE_VALUE)
-                    .withInverted(TransportConstants.TRANSPORT_LEFT_INVERTED_VALUE))
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withSupplyCurrentLimit(TransportConstants.TRANSPORT_SUPPLY_CURRENT_LIMIT)
-                    .withSupplyCurrentLimitEnable(
-                        TransportConstants.TRANSPORT_SUPPLY_CURRENT_LIMIT_ENABLED));
-
-    Slot0Configs slot0Configs = transportMotorConfiguration.Slot0;
-    slot0Configs.kV = TransportConstants.KV;
-    slot0Configs.kP = TransportConstants.KP;
-    slot0Configs.kI = TransportConstants.KI;
-    slot0Configs.kD = TransportConstants.KD;
 
     transportMotorLeftIsConnected = () -> transportMotorLeft.isConnected();
     transportMotorLeftVoltage = transportMotorLeft.getMotorVoltage();
@@ -83,11 +59,12 @@ public class TransportIOTalonFx implements TransportIO {
     transportMotorRightStatorCurrent = transportMotorRight.getStatorCurrent();
     transportAngularVelocityRight = transportMotorRight.getVelocity();
 
-    transportCurrentSignals.add(transportMotorRightStatorCurrent);
-    transportCurrentSignals.add(transportMotorLeftStatorCurrent);
+    transportCurrentSignals.add(transportMotorLeftSupplyCurrent);
+    transportCurrentSignals.add(transportMotorRightSupplyCurrent);
 
     transportMotorLeft.optimizeBusUtilization(Hertz.of(0));
     transportMotorRight.optimizeBusUtilization(Hertz.of(0));
+
     BaseStatusSignal.setUpdateFrequencyForAll(
         TransportConstants.updateFrequency,
         transportMotorLeftVoltage,
@@ -106,10 +83,8 @@ public class TransportIOTalonFx implements TransportIO {
             transportMotorRightSupplyCurrent,
             transportAngularVelocityRight);
 
-    transportMotorLeft.getConfigurator().apply(transportMotorConfiguration);
-    transportMotorConfiguration.MotorOutput.Inverted =
-        TransportConstants.TRANSPORT_RIGHT_INVERTED_VALUE;
-    transportMotorRight.getConfigurator().apply(transportMotorConfiguration);
+    transportMotorLeft.getConfigurator().apply(TransportConstants.LEFT_MOTOR_CONFIGURATION);
+    transportMotorRight.getConfigurator().apply(TransportConstants.RIGHT_MOTOR_CONFIGURATION);
   }
 
   @Override
@@ -123,22 +98,21 @@ public class TransportIOTalonFx implements TransportIO {
     inputs.transportMotorLeftSupplyCurrent = transportMotorLeftSupplyCurrent.getValue();
     inputs.transportAngularVelocityRight = transportAngularVelocityRight.getValue();
     inputs.transportAngularVelocityLeft = transportAngularVelocityLeft.getValue();
-    inputs.transportAngularVelocityLeft = transportAngularVelocityLeft.getValue();
 
     inputs.transportMotorLeftIsConnected = transportMotorLeftIsConnected.getAsBoolean();
     inputs.transportMotorRightIsConnected = transportMotorRightIsConnected.getAsBoolean();
   }
 
   @Override
-  public void setTransportDutyCycle(double output) {
-    transportMotorLeft.setControl(dutyOut.withOutput(output));
-    transportMotorRight.setControl(dutyOut.withOutput(output));
+  public void setTransportDutyCycle(double leftOutput, double rightOutput) {
+    transportMotorLeft.setControl(dutyOut.withOutput(leftOutput));
+    transportMotorRight.setControl(dutyOut.withOutput(rightOutput));
   }
 
   @Override
-  public void setTransportDutyCycle(double leftOutput, double rightOutput) {
-    transportMotorLeft.setControl(voltageRequest.withOutput(Volts.of(12 * leftOutput)));
-    transportMotorRight.setControl(voltageRequest.withOutput(Volts.of(12 * rightOutput)));
+  public void setTransportPercentVoltage(double leftPercentVoltage, double rightPercentVoltage) {
+    transportMotorLeft.setControl(voltageRequest.withOutput(Volts.of(12 * leftPercentVoltage)));
+    transportMotorRight.setControl(voltageRequest.withOutput(Volts.of(12 * rightPercentVoltage)));
   }
 
   @Override

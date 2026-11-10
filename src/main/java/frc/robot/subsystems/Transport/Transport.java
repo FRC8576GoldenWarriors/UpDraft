@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Transport;
 
+import frc.robot.util.loggedimpl.LoggedSystemState;
+import frc.robot.util.loggedimpl.LoggedWantedState;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
 
 public class Transport extends TransportStateMachine {
@@ -19,13 +21,13 @@ public class Transport extends TransportStateMachine {
 
   private boolean isHomed = false;
 
-  public enum WantedState {
+  public enum WantedState implements LoggedWantedState {
     IDLE,
     TRANSPORT_IN,
     TRANSPORT_OUT
   }
 
-  private enum SystemState {
+  private enum SystemState implements LoggedSystemState {
     IDLING,
     TRANSPORTING_IN,
     TRANSPORTING_OUT
@@ -44,8 +46,8 @@ public class Transport extends TransportStateMachine {
     processInputs(inputs);
 
     systemState = handleStateTransition();
-    record("WantedState", wantedState);
-    record("SystemState", wantedState);
+    recordWantedState(wantedState);
+    recordSystemState(systemState);
     record("IsHomed", isHomed);
 
     applyStates();
@@ -79,17 +81,18 @@ public class Transport extends TransportStateMachine {
 
   @Override
   protected void idling() {
-    // TODO Auto-generated method stub
     io.idle();
   }
 
   @Override
   protected void transportingIn() {
-    io.setTransportDutyCycle(TransportConstants.IN_SPEED_LEFT, TransportConstants.IN_SPEED_RIGHT);
+    io.setTransportPercentVoltage(
+        TransportConstants.IN_DUTY_CYCLE_LEFT, TransportConstants.IN_DUTY_CYLE_RIGHT);
   }
 
   @Override
   protected void transportingOut() {
-    io.setTransportDutyCycle(-TransportConstants.IN_SPEED_LEFT, -TransportConstants.IN_SPEED_RIGHT);
+    io.setTransportPercentVoltage(
+        TransportConstants.OUT_DUTY_CYCLE_LEFT, TransportConstants.OUT_DUTY_CYLE_RIGHT);
   }
 }

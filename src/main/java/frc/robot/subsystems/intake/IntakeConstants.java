@@ -42,7 +42,7 @@ public class IntakeConstants {
       StaticFeedforwardSignValue.UseVelocitySign;
 
   // ! CURRENT LIMIT NOT CONFIGURED YET
-  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(60);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
   public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(40);
   public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
@@ -53,26 +53,13 @@ public class IntakeConstants {
       GainSchedBehaviorValue.Inactive;
 
   public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY =
-      RotationsPerSecond.of(10.1775000001);
+      RotationsPerSecond.of(2.636718); // 10.1775000001);
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
-      RotationsPerSecondPerSecond.of(4.89448525276);
-
-  public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(50);
-  public static final boolean ROLLER_STATOR_CURRENT_LIMIT_ENABLED = true;
-  public static final Current ROLLER_SUPPLY_CURRENT_LIMIT = Amps.of(30);
-  public static final boolean ROLLER_SUPPLY_CURRENT_LIMIT_ENABLED = true;
-
-  public static final InvertedValue ROLLER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
-  public static final NeutralModeValue ROLLER_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
-
-  public static final Voltage PEAK_FORWARD_VOLTAGE = Volts.of(12);
-  public static final Voltage PEAK_REVERSE_VOLTAGE = Volts.of(-12);
-
-  public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
+      RotationsPerSecondPerSecond.of(13.694285); // 4.89448525276);
 
   public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
   public static final Current PIVOT_HOMING_CURRENT =
-      Amps.of(75); // swap to make it so the pivot curent is greater than this value then home is
+      Amps.of(45); // swap to make it so the pivot curent is greater than this value then home is
   // complete
   public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(1);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
@@ -80,24 +67,18 @@ public class IntakeConstants {
 
   public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.003);
 
-  public static final Angle DOWN_POSITION = Rotations.of(-0.10376);
+  public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
+      new GearRatio().withStage(1, 4).withStage(18, 60).withStage(12, 32);
+
+  public static final Angle DOWN_POSITION = Rotations.of(-0.10327);
   public static final Angle EXPECTED_HOMING_ZERO = DOWN_POSITION;
   public static final Angle RETRACT_POSITION = Rotations.of(0.304);
   public static final Angle UP_POSITION = Rotations.of(0.3356);
 
-  public static final double DEPLOYING_DUTY_CYCLE = 0;
-  public static final double RETRACTING_DUTY_CYCLE = 0;
-  public static final double INTAKING_DUTY_CYCLE = 0.8;
-
-  public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
-      new GearRatio().withStage(1, 3).withStage(18, 60).withStage(12, 32);
-
-  public static final GearRatio ROLLER_SENSOR_TO_MECHANISM_RATIO = new GearRatio().withStage(1, 3);
-
   public static final double KP = 64.4;
   public static final double KI = 0.0;
   public static final double KD = 1.05;
-  public static final double KS = 0.240313;
+  public static final double KS = 0.185; // 0.240313;
   public static final double KG = 1.04695;
   public static final double KV = 1.1336;
   public static final double KA = 0.0;
@@ -135,6 +116,25 @@ public class IntakeConstants {
           .withFeedback(
               new FeedbackConfigs()
                   .withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION.getRatio()));
+
+  public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(50);
+  public static final boolean ROLLER_STATOR_CURRENT_LIMIT_ENABLED = true;
+  public static final Current ROLLER_SUPPLY_CURRENT_LIMIT = Amps.of(30);
+  public static final boolean ROLLER_SUPPLY_CURRENT_LIMIT_ENABLED = true;
+
+  public static final InvertedValue ROLLER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+  public static final NeutralModeValue ROLLER_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+
+  public static final Voltage PEAK_FORWARD_VOLTAGE = Volts.of(12);
+  public static final Voltage PEAK_REVERSE_VOLTAGE = Volts.of(-12);
+
+  public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
+
+  public static final double DEPLOYING_DUTY_CYCLE = 0;
+  public static final double RETRACTING_DUTY_CYCLE = 0;
+  public static final double INTAKING_DUTY_CYCLE = 0.8;
+
+  public static final GearRatio ROLLER_SENSOR_TO_MECHANISM_RATIO = new GearRatio().withStage(1, 3);
 
   public static final TalonFXConfiguration ROLLER_CONFIG =
       new TalonFXConfiguration()

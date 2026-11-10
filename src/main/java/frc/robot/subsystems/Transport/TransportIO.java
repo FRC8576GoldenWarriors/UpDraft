@@ -33,11 +33,9 @@ public interface TransportIO extends LoggedIO {
 
   default void updateInputs(TransportIOInputs inputs) {}
 
-  default void setTransportDutyCycle(double output) {}
-
   default void setTransportDutyCycle(double leftOutput, double rightOutput) {}
 
-  default void idle() {}
+  default void setTransportPercentVoltage(double leftPercentVoltage, double rightPercentVoltage) {}
 
-  default void setTransportSpeed(AngularVelocity leftVelocity, AngularVelocity rightVelocity) {}
+  default void idle() {}
 }

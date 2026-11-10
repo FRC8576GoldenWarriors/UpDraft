@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -143,6 +144,9 @@ public class IntakeIOTalonFX implements IntakeIO {
             rollerSupplyCurrentSignal,
             pivotPositionSetpointSignal,
             pivotVelocitySetpointSignal);
+
+    pivotTalonFX.optimizeBusUtilization(Hertz.zero());
+    rollerTalonFX.optimizeBusUtilization(Hertz.zero());
 
     pivotTalonFX.getConfigurator().apply(IntakeConstants.PIVOT_CONFIG);
     rollerTalonFX.getConfigurator().apply(IntakeConstants.ROLLER_CONFIG);
