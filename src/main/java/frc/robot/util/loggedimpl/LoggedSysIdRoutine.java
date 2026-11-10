@@ -41,31 +41,33 @@ public class LoggedSysIdRoutine extends SysIdRoutine {
 
   public Command getForwardDynamicCommand() {
     Command forwardDynamicCommand = this.dynamic(SysIdRoutine.Direction.kForward);
-    for (BooleanSupplier endCondition : endConditions) forwardDynamicCommand.until(endCondition);
+    for (BooleanSupplier endCondition : endConditions)
+      forwardDynamicCommand = forwardDynamicCommand.until(endCondition);
     return forwardDynamicCommand;
   }
 
   public Command getBackwardDynamicCommand() {
     Command backwardDynamicCommand = this.dynamic(SysIdRoutine.Direction.kReverse);
-    for (BooleanSupplier endCondition : endConditions) backwardDynamicCommand.until(endCondition);
+    for (BooleanSupplier endCondition : endConditions)
+      backwardDynamicCommand = backwardDynamicCommand.until(endCondition);
     return backwardDynamicCommand;
   }
 
   public Command getForwardQuasistaticCommand() {
     Command forwardQuasistaticCommand = this.quasistatic(SysIdRoutine.Direction.kForward);
     for (BooleanSupplier endCondition : endConditions)
-      forwardQuasistaticCommand.until(endCondition);
+      forwardQuasistaticCommand = forwardQuasistaticCommand.until(endCondition);
     return forwardQuasistaticCommand;
   }
 
   public Command getBackwardQuasistaticCommand() {
     Command backwardQuasistaticCommand = this.quasistatic(SysIdRoutine.Direction.kReverse);
     for (BooleanSupplier endCondition : endConditions)
-      backwardQuasistaticCommand.until(endCondition);
+      backwardQuasistaticCommand = backwardQuasistaticCommand.until(endCondition);
     return backwardQuasistaticCommand;
   }
 
-  public SysIdRoutine withEndCondition(BooleanSupplier endCondition) {
+  public LoggedSysIdRoutine withEndCondition(BooleanSupplier endCondition) {
     this.endConditions.add(endCondition);
     return this;
   }

@@ -68,7 +68,7 @@ public class LoggedTunableDouble implements DoubleSupplier, LoggedTunable {
 
   public boolean hasChanged() {
     currentValue = get();
-    if (!MathUtil.isNear(lastValue, currentValue, 1e-6)) {
+    if (!MathUtil.isNear(lastValue, currentValue, 1e-8)) {
       lastValue = currentValue;
       return true;
     }

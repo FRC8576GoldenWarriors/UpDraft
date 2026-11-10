@@ -38,8 +38,8 @@ public class GearRatio {
     return mechanismRotation.times(getRatio());
   }
 
-  public Pair<Double, Double> geStage(int stageIndex) {
-    if (stageIndex >= drivenGears.size()) {
+  public Pair<Double, Double> getStage(int stageIndex) {
+    if (stageIndex >= drivenGears.size() || stageIndex < 0) {
       return Pair.of(Double.valueOf(1), Double.valueOf(1));
     }
 

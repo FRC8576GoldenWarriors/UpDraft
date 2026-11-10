@@ -69,18 +69,22 @@ public class TransportIOTalonFx implements TransportIO {
         TransportConstants.updateFrequency,
         transportMotorLeftVoltage,
         transportMotorLeftSupplyCurrent,
+        transportMotorLeftStatorCurrent,
         transportAngularVelocityLeft,
         transportMotorRightVoltage,
         transportMotorRightSupplyCurrent,
+        transportMotorRightStatorCurrent,
         transportAngularVelocityRight);
 
     StatusSignalRefresher.getInstance()
         .addStatusSignals(
             transportMotorLeftVoltage,
             transportMotorLeftSupplyCurrent,
+            transportMotorLeftStatorCurrent,
             transportAngularVelocityLeft,
             transportMotorRightVoltage,
             transportMotorRightSupplyCurrent,
+            transportMotorRightStatorCurrent,
             transportAngularVelocityRight);
 
     transportMotorLeft.getConfigurator().apply(TransportConstants.LEFT_MOTOR_CONFIGURATION);

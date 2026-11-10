@@ -137,7 +137,10 @@ public class RobotContainer {
             Commands.runEnd(
                     () -> orca.setWantedState(WantedState.HOME_INTAKE),
                     () -> orca.setWantedState(WantedState.IDLE))
-                .until(() -> intake.isIntakeHomed()));
+                .until(
+                    () ->
+                        intake.isIntakeHomed()
+                            && intake.getWantedState() == Intake.WantedState.HOME));
 
     // // Run SysId routines when holding back/start and X/Y.
     // // Note that each routine should be run exactly once in a single log.
