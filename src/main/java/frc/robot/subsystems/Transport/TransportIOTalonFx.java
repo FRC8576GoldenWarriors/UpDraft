@@ -23,14 +23,12 @@ public class TransportIOTalonFx implements TransportIO {
 
   private final BooleanSupplier transportMotorLeftIsConnected;
   private final StatusSignal<AngularVelocity> transportAngularVelocityLeft;
-
   private final StatusSignal<Voltage> transportMotorLeftVoltage;
   private final StatusSignal<Current> transportMotorLeftSupplyCurrent;
   private final StatusSignal<Current> transportMotorLeftStatorCurrent;
 
   private final BooleanSupplier transportMotorRightIsConnected;
   private final StatusSignal<AngularVelocity> transportAngularVelocityRight;
-
   private final StatusSignal<Voltage> transportMotorRightVoltage;
   private final StatusSignal<Current> transportMotorRightSupplyCurrent;
   private final StatusSignal<Current> transportMotorRightStatorCurrent;
@@ -49,12 +47,14 @@ public class TransportIOTalonFx implements TransportIO {
 
     transportMotorLeftIsConnected = () -> transportMotorLeft.isConnected();
     transportMotorLeftVoltage = transportMotorLeft.getMotorVoltage();
+
     transportMotorLeftSupplyCurrent = transportMotorLeft.getSupplyCurrent();
     transportMotorLeftStatorCurrent = transportMotorLeft.getStatorCurrent();
     transportAngularVelocityLeft = transportMotorLeft.getVelocity();
 
     transportMotorRightIsConnected = () -> transportMotorRight.isConnected();
     transportMotorRightVoltage = transportMotorRight.getMotorVoltage();
+
     transportMotorRightSupplyCurrent = transportMotorRight.getSupplyCurrent();
     transportMotorRightStatorCurrent = transportMotorRight.getStatorCurrent();
     transportAngularVelocityRight = transportMotorRight.getVelocity();

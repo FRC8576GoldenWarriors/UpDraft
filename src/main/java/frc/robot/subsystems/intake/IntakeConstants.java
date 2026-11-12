@@ -53,14 +53,15 @@ public class IntakeConstants {
       GainSchedBehaviorValue.Inactive;
 
   public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY =
-      RotationsPerSecond.of(2.636718); // 10.1775000001);
+      RotationsPerSecond.of(2.636718);
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
-      RotationsPerSecondPerSecond.of(13.694285); // 4.89448525276);
+      RotationsPerSecondPerSecond.of(13.694285);
 
   public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
-  public static final Current PIVOT_HOMING_CURRENT =
-      Amps.of(45); // swap to make it so the pivot curent is greater than this value then home is
+  public static final Current PIVOT_HOMING_CURRENT = Amps.of(45);
+  // swap to make it so the pivot curent is greater than this value then home is
   // complete
+
   public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(1);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.02);
@@ -79,7 +80,7 @@ public class IntakeConstants {
   public static final double KI = 0.0;
   public static final double KD = 1.05;
   public static final double KS = 0.185; // 0.240313;
-  public static final double KG = 1.04695;
+  public static final double KG = 0.4063; // 1.04695;
   public static final double KV = 1.1336;
   public static final double KA = 0.0;
 

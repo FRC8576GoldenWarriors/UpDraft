@@ -153,6 +153,7 @@ public class RobotContainer {
         .leftTrigger()
         .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)))
         .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
+
     driverController
         .rightTrigger()
         .and(() -> intake.getWantedState() == Intake.WantedState.RETRACT && intake.nearSetpoint())
