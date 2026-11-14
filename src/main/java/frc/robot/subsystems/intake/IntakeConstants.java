@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -42,7 +41,7 @@ public class IntakeConstants {
       StaticFeedforwardSignValue.UseVelocitySign;
 
   // ! CURRENT LIMIT NOT CONFIGURED YET
-  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(60);
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(80);
   public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
   public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(40);
   public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
@@ -52,10 +51,9 @@ public class IntakeConstants {
   public static final GainSchedBehaviorValue PIVOT_TOLERANCE_MODE_VALUE =
       GainSchedBehaviorValue.Inactive;
 
-  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY =
-      RotationsPerSecond.of(2.636718);
+  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(2.5584);
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
-      RotationsPerSecondPerSecond.of(13.694285);
+      RotationsPerSecondPerSecond.of(11.1266);
 
   public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
   public static final Current PIVOT_HOMING_CURRENT = Amps.of(45);
@@ -71,18 +69,18 @@ public class IntakeConstants {
   public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
       new GearRatio().withStage(1, 4).withStage(18, 60).withStage(12, 32);
 
-  public static final Angle DOWN_POSITION = Rotations.of(-0.10327);
+  public static final Angle DOWN_POSITION = Rotations.of(-0.08742);
   public static final Angle EXPECTED_HOMING_ZERO = DOWN_POSITION;
   public static final Angle RETRACT_POSITION = Rotations.of(0.304);
   public static final Angle UP_POSITION = Rotations.of(0.3356);
 
-  public static final double KP = 64.4;
+  public static final double KP = 78.281;
   public static final double KI = 0.0;
-  public static final double KD = 1.05;
-  public static final double KS = 0.185; // 0.240313;
-  public static final double KG = 0.4063; // 1.04695;
-  public static final double KV = 1.1336;
-  public static final double KA = 0.0;
+  public static final double KD = 10;
+  public static final double KS = 0.18457; // Check for accuracy (Might be too high) // 0.240313;
+  public static final double KG = 0.295; // Check for accuracy // 1.04695;
+  public static final double KV = 4.189; // 1.1336;
+  public static final double KA = 0.0469; // 0.0;
 
   public static final TalonFXConfiguration PIVOT_CONFIG =
       new TalonFXConfiguration()
@@ -90,7 +88,6 @@ public class IntakeConstants {
               new Slot0Configs()
                   .withGravityType(GRAVITY_TYPE_VALUE)
                   .withStaticFeedforwardSign(STATIC_FEEDFORWARD_SIGN_VALUE)
-                  .withGainSchedBehavior(PIVOT_TOLERANCE_MODE_VALUE)
                   .withKP(KP)
                   .withKI(KI)
                   .withKD(KD)
@@ -98,8 +95,6 @@ public class IntakeConstants {
                   .withKG(KG)
                   .withKV(KV)
                   .withKA(KA))
-          .withClosedLoopGeneral(
-              new ClosedLoopGeneralConfigs().withGainSchedErrorThreshold(PIVOT_POSITION_TOLERANCE))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
                   .withStatorCurrentLimit(PIVOT_STATOR_CURRENT_LIMIT)

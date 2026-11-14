@@ -252,17 +252,15 @@ public class Swerve extends SwerveStateMachine {
   }
 
   private void applyOperatorForwardPerspective() {
-    if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-      DriverStation.getAlliance()
-          .ifPresent(
-              allianceColor -> {
-                io.setOperatorPerspectiveForward(
-                    (allianceColor == Alliance.Red)
-                        ? SwerveConstants.RED_PERSPECTIVE_ROTATION
-                        : SwerveConstants.BLUE_PERSPECTIVE_ROTATION);
-                hasAppliedOperatorPerspective = true;
-              });
-    }
+    DriverStation.getAlliance()
+        .ifPresent(
+            allianceColor -> {
+              io.setOperatorPerspectiveForward(
+                  (allianceColor == Alliance.Red)
+                      ? SwerveConstants.RED_PERSPECTIVE_ROTATION
+                      : SwerveConstants.BLUE_PERSPECTIVE_ROTATION);
+              hasAppliedOperatorPerspective = true;
+            });
   }
 
   // Apply States Methods
