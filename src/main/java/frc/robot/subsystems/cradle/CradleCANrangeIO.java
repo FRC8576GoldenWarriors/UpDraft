@@ -41,6 +41,7 @@ public class CradleCANrangeIO implements CradleIO {
         .registerAlert(
             new Alert("Front CANrange disconnected.", AlertType.kError),
             frontCANrangeConnectedSignal);
+
     AlertManager.getInstance()
         .registerAlert(
             new Alert("Back CANrange disconnected.", AlertType.kError),
@@ -59,6 +60,9 @@ public class CradleCANrangeIO implements CradleIO {
             frontCANrangeDistanceSignal,
             backCANrangeDetectedSignal,
             backCANrangeDistanceSignal);
+
+    frontCANrange.getConfigurator().apply(CradleConstants.FRONT_CANRANGE_PROXIMITY_PARAMS_CONFIG);
+    backCANrange.getConfigurator().apply(CradleConstants.BACK_CANRANGE_PROXIMITY_PARAMS_CONFIG);
   }
 
   @Override

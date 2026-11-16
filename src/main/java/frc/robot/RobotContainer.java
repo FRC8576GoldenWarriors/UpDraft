@@ -109,28 +109,6 @@ public class RobotContainer {
       return;
     }
 
-    // driverController
-    //     .a()
-    //     .onTrue(
-    //         Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ROTATION_LOCK))
-    //             .beforeStarting(() -> swerve.setWantedRotation(new Rotation2d(Math.PI / 4)))
-    //             .withName("Rotation Lock"))
-    //     .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
-    // driverController
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.WHEEL_LOCK_WITH_X))
-    //             .withName("Wheel Lock With X"))
-    //     .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
-    // driverController
-    //     .x()
-    //     .onTrue(
-    //         Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TAXI))
-    //             .withName("Drive Taxi"))
-    //     .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
     driverController
         .a()
         .onTrue(
@@ -141,13 +119,6 @@ public class RobotContainer {
                     () ->
                         intake.isIntakeHomed()
                             && intake.getWantedState() == Intake.WantedState.HOME));
-
-    // // Run SysId routines when holding back/start and X/Y.
-    // // Note that each routine should be run exactly once in a single log.
-    // driverController.back().and(driverController.y()).whileTrue(swerve.sysIdDynamic(Direction.kForward));
-    // driverController.back().and(driverController.x()).whileTrue(swerve.sysIdDynamic(Direction.kReverse));
-    // driverController.start().and(driverController.y()).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
-    // driverController.start().and(driverController.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
 
     driverController
         .leftTrigger()
