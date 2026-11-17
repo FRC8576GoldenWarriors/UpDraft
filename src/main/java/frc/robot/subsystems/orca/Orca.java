@@ -153,18 +153,6 @@ public class Orca extends LoggedSubsystem {
     intake.setWantedState(Intake.WantedState.ZERO);
   }
 
-  private void intake() {
-    intake.setWantedState(Intake.WantedState.INTAKE);
-  }
-
-  private void retract() {
-    intake.setWantedState(Intake.WantedState.RETRACT);
-  }
-
-  private void deploy() {
-    intake.setWantedState(Intake.WantedState.DEPLOY);
-  }
-
   private void home() {
     intake.setWantedState(Intake.WantedState.HOME);
   }
@@ -194,16 +182,19 @@ public class Orca extends LoggedSubsystem {
   }
 
   private void intaking() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
     intake.setWantedState(Intake.WantedState.INTAKE);
     transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
   }
 
   private void retracting() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
     intake.setWantedState(Intake.WantedState.RETRACT);
     transport.setWantedState(Transport.WantedState.IDLE);
   }
 
   private void outtaking() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
     intake.setWantedState(Intake.WantedState.RETRACT);
     transport.setWantedState(Transport.WantedState.TRANSPORT_OUT);
   }

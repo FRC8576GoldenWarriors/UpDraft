@@ -71,24 +71,24 @@ public interface SwerveIO extends LoggedIO {
   @AutoLog
   class ModuleIOInputs {
     public boolean driveConnected = false;
-    public Angle drivePositionRad = Rotations.of(0.0);
-    public AngularVelocity driveVelocityRadPerSec = RotationsPerSecond.of(0.0);
+    public Angle drivePositionRads = Rotations.of(0.0);
+    public AngularVelocity driveVelocity = RotationsPerSecond.of(0.0);
     public Voltage driveAppliedVolts = Volts.of(0.0);
-    public Current driveSupplyCurrentAmps = Amps.of(0.0);
-    public Current driveStatorCurrentAmps = Amps.of(0.0);
-    public Temperature driveTemperatureCelsius = Celsius.of(0.0);
+    public Current driveSupplyCurrent = Amps.of(0.0);
+    public Current driveStatorCurrent = Amps.of(0.0);
+    public Temperature driveTemperature = Celsius.of(0.0);
 
     public boolean steerConnected = false;
     public Angle steerPositionRads = Rotations.of(0.0);
     public Rotation2d steerPosition = Rotation2d.kZero;
-    public AngularVelocity steerVelocityRadPerSec = RotationsPerSecond.of(0.0);
+    public AngularVelocity steerVelocity = RotationsPerSecond.of(0.0);
     public Voltage steerAppliedVolts = Volts.of(0.0);
-    public Current steerSupplyCurrentAmps = Amps.of(0.0);
-    public Current steerStatorCurrentAmps = Amps.of(0.0);
-    public Temperature steerTemperatureCelsius = Celsius.of(0.0);
+    public Current steerSupplyCurrent = Amps.of(0.0);
+    public Current steerStatorCurrent = Amps.of(0.0);
+    public Temperature steerTemperature = Celsius.of(0.0);
 
     public boolean canCoderConnected = false;
-    public Angle canCoderSteerPositionRads = Rotations.of(0);
+    public Angle canCoderSteerPosition = Rotations.of(0);
     public Rotation2d steerAbsolutePosition = Rotation2d.kZero;
 
     public SwerveModuleState currentState = new SwerveModuleState();
