@@ -17,6 +17,7 @@ import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
+import frc.robot.util.PoseUtil;
 
 public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -46,11 +47,16 @@ public class RobotContainer {
             .runEnd(
                 () ->
                     swerve.acceptControllerInput(
-                        -controller.getLeftY(), -controller.getLeftX(), -controller.getRightX()),
+                        -controller.getLeftY(), -controller.getLeftX(), controller.getRightX()),
                 () -> swerve.acceptControllerInput(0, 0, 0))
             .withName("AcceptTeleopInput"));
 
-    controller.start().onTrue(Commands.runOnce(orca::resetSwerveHeading).withName("ResetHeading"));
+    controller
+        .start()
+        .onTrue(
+            Commands.runOnce(orca::resetSwerveHeading)
+                .ignoringDisable(true)
+                .withName("ResetHeading"));
 
     RobotModeTriggers.disabled()
         .onTrue(orca.commandWantedState(WantedState.IDLE, "Idle").ignoringDisable(true));
@@ -68,7 +74,8 @@ public class RobotContainer {
     controller
         .leftBumper()
         .onTrue(orca.commandWantedState(WantedState.WHEEL_RADIUS_CHARACTERIZATION, "WheelRadius"))
-        .whileTrue(orca.characterizeWheelRadius().withName("CharacterizeWheelRadius"));
+        .whileTrue(orca.characterizeWheelRadius().withName("CharacterizeWheelRadius"))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
 
     controller.povRight().whileTrue(swerve.getDynamicForwardCommand());
     controller.povUp().whileTrue(swerve.getDynamicReverseCommand());
@@ -82,7 +89,19 @@ public class RobotContainer {
             Commands.runOnce(
                 () ->
                     swerve.setWantedAbsoluteModuleRotations(
-                        SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION)));
+                        SwerveConstants.MODULE_ROTATIONS_FOR_ROTATION)));
+
+    controller
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    swerve.resetTranslation(
+                        PoseUtil.getAllianceRelativeZeroPose().getTranslation())));
+    controller
+        .leftTrigger()
+        .onTrue(orca.commandWantedState(WantedState.SYS_ID_TRANSLATION, "OdometryTest"))
+        .whileTrue(orca.commandWantedState(WantedState.TAXI));
   }
 
   private void configureOrcaBindings() {

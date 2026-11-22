@@ -13,6 +13,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -24,9 +25,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.loggedimpl.LoggedIO;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface SwerveIO {
+public interface SwerveIO extends LoggedIO {
 
   @AutoLog
   class SwerveIOInputs extends SwerveDriveState {
@@ -108,6 +110,8 @@ public interface SwerveIO {
   default void resetToRotation(Rotation2d rotation) {}
 
   default void resetTranslation() {}
+
+  default void resetTranslation(Translation2d translation2d) {}
 
   default void setOperatorPerspectiveForward(Rotation2d rotation2d) {}
 

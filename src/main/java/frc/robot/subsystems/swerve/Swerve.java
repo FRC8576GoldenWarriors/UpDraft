@@ -15,6 +15,7 @@ import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -22,17 +23,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.orca.OrcaConstants;
+import frc.robot.util.loggedimpl.LoggedSubsystem;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.stream.IntStream;
 import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends SubsystemBase {
+public class Swerve extends LoggedSubsystem {
 
   private final SwerveIO io;
 
@@ -125,6 +126,7 @@ public class Swerve extends SubsystemBase {
   private final SysIdRoutine m_sysIdRoutineRotation;
 
   public Swerve(SwerveIO io) {
+    super(SwerveConstants.LOG_PATH, io.getCurrentSignals());
     this.io = io;
 
     rotationLockRequest.HeadingController =
@@ -263,7 +265,7 @@ public class Swerve extends SubsystemBase {
   }
 
   private void applyOperatorForwardPerspective() {
-    if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+    if (DriverStation.isDisabled() || !hasAppliedOperatorPerspective)
       DriverStation.getAlliance()
           .ifPresent(
               allianceColor -> {
@@ -273,7 +275,6 @@ public class Swerve extends SubsystemBase {
                         : SwerveConstants.BLUE_PERSPECTIVE_ROTATION);
                 hasAppliedOperatorPerspective = true;
               });
-    }
   }
 
   // Apply States Methods
@@ -316,6 +317,10 @@ public class Swerve extends SubsystemBase {
     this.xController = xController;
     this.yController = yController;
     this.omegaController = omegaController;
+  }
+
+  public void resetTranslation(Translation2d resetTranslation) {
+    io.resetTranslation(resetTranslation);
   }
 
   public void setWantedRotation(Rotation2d wantedRotation) {
@@ -466,7 +471,7 @@ public class Swerve extends SubsystemBase {
                     state.positions[i] =
                         moduleInputs[i]
                             .drivePositionRad
-                            .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
+                            .div(TunerConstants.FrontRight.DriveMotorGearRatio)
                             .in(Radians);
                   }
 
@@ -491,7 +496,7 @@ public class Swerve extends SubsystemBase {
                         positions[i] =
                             moduleInputs[i]
                                 .drivePositionRad
-                                .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
+                                .div(TunerConstants.FrontRight.DriveMotorGearRatio)
                                 .in(Radians);
                       }
 

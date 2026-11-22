@@ -72,7 +72,7 @@ public class Orca extends SubsystemBase {
   }
 
   public Command commandWantedState(WantedState state) {
-    return Commands.runOnce(() -> setWantedState(state));
+    return Commands.runOnce(() -> setWantedState(state)).withName(state.toString());
   }
 
   public Command commandWantedState(WantedState state, String commandName) {

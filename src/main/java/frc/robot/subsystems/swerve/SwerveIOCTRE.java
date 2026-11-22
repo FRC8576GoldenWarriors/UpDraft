@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Hertz;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -21,11 +22,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.util.StatusSignalRefresher;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -44,6 +47,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   private final Alert[] canCoderAlerts;
 
   private final Field2d fieldViz;
+
+  private final HashSet<StatusSignal<Current>> currentSignals = new HashSet<>();
 
   public SwerveIOCTRE(
       SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>[] moduleConstants) {
@@ -178,6 +183,9 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       var steerAbsolutePositionSignal = steerCANCoder.getAbsolutePosition();
       var canCoderSteerPositionRads = steerCANCoder.getPosition();
 
+      currentSignals.add(driveSupplyCurrentSignal);
+      currentSignals.add(steerSupplyCurrentSignal);
+
       Consumer<ModuleIOInputs> moduleInput =
           (ModuleIOInputs moduleInputs) -> {
             // Update Drive Motor Inputs
@@ -297,7 +305,9 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
 
   @Override
   public void resetRotation() {
-    super.resetRotation(getOperatorForwardDirection());
+    Rotation2d operatorForward = getOperatorForwardDirection();
+    this.resetRotation(operatorForward);
+    this.setOperatorPerspectiveForward(operatorForward);
   }
 
   @Override
@@ -333,5 +343,10 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   @Override
   public void setVisionStandardDeviations(Matrix<N3, N1> standardDeviations) {
     super.setVisionMeasurementStdDevs(standardDeviations);
+  }
+
+  @Override
+  public StatusSignal<Current>[] getCurrentSignals() {
+    return currentSignals.toArray(new StatusSignal[0]);
   }
 }
