@@ -15,7 +15,7 @@ public class CradleConstants {
 
   public static final Distance CANRANGE_PROXIMITY_THRESHOLD = Meters.of(0.05);
 
-  public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
+  public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(100);
 
   public static final ProximityParamsConfigs FRONT_CANRANGE_PROXIMITY_PARAMS_CONFIG =
       new ProximityParamsConfigs().withProximityThreshold(CANRANGE_PROXIMITY_THRESHOLD);
