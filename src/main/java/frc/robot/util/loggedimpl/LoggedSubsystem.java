@@ -5,10 +5,13 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.StatusSignal;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.WPISerializable;
 import edu.wpi.first.util.protobuf.Protobuf;
 import edu.wpi.first.util.struct.Struct;
@@ -17,8 +20,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.loggedtunable.LoggedTunableDouble;
-import java.util.ArrayList;
+import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -61,6 +65,15 @@ public class LoggedSubsystem extends SubsystemBase {
     return new LoggedTunableDouble(logPath + dashboardKey, onChangeAction, subsystemTuningMode);
   }
 
+  public LoggedSysIdRoutine newSubsystemLoggedSysIdRoutineDefault() {
+    return new LoggedSysIdRoutine(this);
+  }
+
+  public LoggedSysIdRoutine newSubsystemLoggedSysIdRoutine(
+      Velocity<VoltageUnit> voltageRampRate, Voltage voltageStep, Time timeoutTime) {
+    return new LoggedSysIdRoutine(voltageRampRate, voltageStep, timeoutTime, this);
+  }
+
   private void addToPowerLogging(StatusSignal<Current>[] signals) {
     for (StatusSignal<Current> signal : signals) {
       subsystemSupplyCurrentSignals.add(signal);
@@ -100,6 +113,10 @@ public class LoggedSubsystem extends SubsystemBase {
             .times(Seconds.of(LoggedRobot.defaultPeriodSecs)));
   }
 
+  protected void voltageIn(Voltage voltageIn) {
+    record("VoltageIn", voltageIn);
+  }
+
   /**
    * Processes a set of inputs, logging them on the real robot or updating them in the simulator.
    * This should be called every loop cycle after updating the inputs from the hardware (if
@@ -129,7 +146,11 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param inputs The inputs to log or update.
    */
   public void processInputs(String key, LoggableInputs inputs) {
-    Logger.processInputs(logPath + key, inputs);
+    String path = logPath;
+
+    if (key.equals("")) path = path.substring(0, logPath.length() - 1);
+
+    Logger.processInputs(path + key, inputs);
     this.recordPowerData();
   }
 
@@ -162,7 +183,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param value The wanted state to log.
    */
   public <E extends Enum<E> & LoggedWantedState> void recordWantedState(E value) {
-    this.record(logPath + "WantedState", value);
+    this.record("WantedState", value);
   }
 
   /**
@@ -177,7 +198,7 @@ public class LoggedSubsystem extends SubsystemBase {
    * @param value The system state to log.
    */
   public <E extends Enum<E> & LoggedSystemState> void recordSystemState(E value) {
-    this.record(logPath + "SystemState", value);
+    this.record("SystemState", value);
   }
 
   /**
@@ -927,7 +948,10 @@ public class LoggedSubsystem extends SubsystemBase {
    *     {@code logPath}.
    * @param value The value of the field.
    */
-  public <T extends StructSerializable> void recordOutput(String key, ArrayList<T> value) {
-    Logger.recordOutput(logPath + key, value.toArray(new Pose2d[value.size()]));
+  public <T extends StructSerializable> void record(String key, Class<T> classType, List<T> value) {
+    @SuppressWarnings("unchecked")
+    T[] toArray = (T[]) Array.newInstance(classType, value.size());
+
+    Logger.recordOutput(logPath + key, value.toArray(toArray));
   }
 }

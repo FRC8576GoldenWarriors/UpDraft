@@ -5,24 +5,37 @@
 package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Transport.Transport;
+import frc.robot.subsystems.Transport.TransportIOTalonFx;
+import frc.robot.subsystems.cradle.Cradle;
+import frc.robot.subsystems.cradle.CradleCANrangeIO;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.orca.Orca;
+import frc.robot.subsystems.orca.Orca.WantedState;
 import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
 
 public class RobotContainer {
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController driverController = new CommandXboxController(0);
   private final Orca orca;
   private final Swerve swerve;
+  private final Intake intake;
+  private final Transport transport;
+  private final Cradle cradle;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
+    intake = buildIntakeSubsystem();
+    transport = buildTransportSubsystem();
+    cradle = buildCradleSubsystem();
+
     orca = buildOrcaSubsystem();
     configureBindings();
   }
@@ -34,11 +47,15 @@ public class RobotContainer {
             .runEnd(
                 () ->
                     swerve.acceptControllerInput(
-                        controller.getLeftY(), controller.getLeftX(), controller.getRightX()),
+                        driverController.getLeftY(),
+                        driverController.getLeftX(),
+                        driverController.getRightX()),
                 () -> swerve.acceptControllerInput(0, 0, 0))
             .withName("Accept Teleop Input"));
 
-    controller.start().onTrue(Commands.runOnce(swerve::zeroHeading).withName("Reset Heading"));
+    driverController
+        .start()
+        .onTrue(Commands.runOnce(swerve::zeroHeading).withName("Reset Heading"));
 
     RobotModeTriggers.disabled()
         .onTrue(
@@ -55,58 +72,79 @@ public class RobotContainer {
             Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TELEOP))
                 .withName("Drive Teleop"));
 
+    driverController
+        .povDown()
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ZERO)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+
     if (OrcaConstants.USE_SYS_ID_MODE) {
-      controller
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(
-                  () ->
-                      orca.setWantedState(
-                          OrcaConstants
-                              .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or not
-      controller.x().and(controller.a()).whileTrue(swerve.getDynamicForwardCommand());
-      controller.a().and(controller.b()).whileTrue(swerve.getDynamicReverseCommand());
-      controller.b().and(controller.y()).whileTrue(swerve.getQuasistaticForwardCommand());
-      controller.y().and(controller.x()).whileTrue(swerve.getQuasistaticReverseCommand());
-      controller
-          .leftBumper()
-          .whileTrue(
-              swerve
-                  .getWheelRadiusCharacterizationCommand()
-                  .beforeStarting(
-                      () -> orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
+
+      driverController.a().whileTrue(intake.pivotRoutine.getForwardQuasistaticCommand());
+      driverController.b().whileTrue(intake.pivotRoutine.getBackwardQuasistaticCommand());
+      driverController.y().whileTrue(intake.pivotRoutine.getForwardDynamicCommand());
+      driverController.x().whileTrue(intake.pivotRoutine.getBackwardDynamicCommand());
+
+      // driverController
+      //     .rightBumper()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () ->
+      //                 orca.setWantedState(
+      //                     OrcaConstants
+      //                         .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or
+      // not
+      // driverController.x().and(driverController.a()).whileTrue(swerve.getDynamicForwardCommand());
+      // driverController.a().and(driverController.b()).whileTrue(swerve.getDynamicReverseCommand());
+      // driverController
+      //     .b()
+      //     .and(driverController.y())
+      //     .whileTrue(swerve.getQuasistaticForwardCommand());
+      // driverController
+      //     .y()
+      //     .and(driverController.x())
+      //     .whileTrue(swerve.getQuasistaticReverseCommand());
+      // driverController
+      //     .leftBumper()
+      //     .whileTrue(
+      //         swerve
+      //             .getWheelRadiusCharacterizationCommand()
+      //             .beforeStarting(
+      //                 () ->
+      // orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
       return;
     }
 
-    controller
+    driverController
         .a()
         .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ROTATION_LOCK))
-                .beforeStarting(() -> swerve.setWantedRotation(new Rotation2d(Math.PI / 4)))
-                .withName("Rotation Lock"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+            Commands.runEnd(
+                    () -> orca.setWantedState(WantedState.HOME_INTAKE),
+                    () -> orca.setWantedState(WantedState.IDLE))
+                .until(
+                    () ->
+                        intake.isIntakeHomed()
+                            && intake.getWantedState() == Intake.WantedState.HOME));
 
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.WHEEL_LOCK_WITH_X))
-                .withName("Wheel Lock With X"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+    driverController
+        .leftTrigger()
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)));
+    // .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
 
-    controller
+    driverController
+        .rightTrigger(0.25)
+        .and(() -> intake.getWantedState() == Intake.WantedState.RETRACT)
+        .and(() -> intake.nearSetpoint())
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.OUTTAKE)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+
+    driverController
         .x()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TAXI))
-                .withName("Drive Taxi"))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
-    // // Run SysId routines when holding back/start and X/Y.
-    // // Note that each routine should be run exactly once in a single log.
-    // controller.back().and(controller.y()).whileTrue(swerve.sysIdDynamic(Direction.kForward));
-    // controller.back().and(controller.x()).whileTrue(swerve.sysIdDynamic(Direction.kReverse));
-    // controller.start().and(controller.y()).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
-    // controller.start().and(controller.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
-
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)))
+        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+    driverController
+        .y()
+        .onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.POSITION_MANUALLY)))
+        .onFalse(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
   }
 
   public Command getAutonomousCommand() {
@@ -135,5 +173,29 @@ public class RobotContainer {
 
   public Orca getOrcaSubsystem() {
     return this.orca;
+  }
+
+  private Intake buildIntakeSubsystem() {
+    return new Intake(new IntakeIOTalonFX());
+  }
+
+  public Intake getIntakeSubsystem() {
+    return this.intake;
+  }
+
+  private Transport buildTransportSubsystem() {
+    return new Transport(new TransportIOTalonFx());
+  }
+
+  public Transport getTransportSubsystem() {
+    return this.transport;
+  }
+
+  private Cradle buildCradleSubsystem() {
+    return new Cradle(new CradleCANrangeIO());
+  }
+
+  public Cradle getCradleSubsystem() {
+    return this.cradle;
   }
 }

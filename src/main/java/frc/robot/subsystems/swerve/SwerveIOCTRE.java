@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Hertz;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -21,13 +22,16 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.util.StatusSignalRefresher;
+import frc.robot.util.alertmanager.AlertManager;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements SwerveIO {
 
@@ -35,15 +39,9 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
 
   private final HashMap<Integer, Consumer<ModuleIOInputs>> moduleInputUpdater;
 
-  private final Alert pigeonAlert;
-
-  private final Alert[] driveMotorAlerts;
-
-  private final Alert[] steerMotorAlerts;
-
-  private final Alert[] canCoderAlerts;
-
   private final Field2d fieldViz;
+
+  private final HashSet<StatusSignal<Current>> currenStatusSignals = new HashSet<>();
 
   public SwerveIOCTRE(
       SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>[] moduleConstants) {
@@ -63,7 +61,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
 
     var pigeon = getPigeon2();
 
-    Supplier<Boolean> pigeonConnectedSupplier = () -> pigeon.isConnected();
+    BooleanSupplier pigeonConnectedSupplier = () -> pigeon.isConnected();
 
     var yawSignal = pigeon.getYaw();
     var rollSignal = pigeon.getRoll();
@@ -77,13 +75,15 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
     var yAccelerationSignal = pigeon.getAccelerationY();
     var zAccelerationSignal = pigeon.getAccelerationZ();
 
-    pigeonAlert = new Alert("The Pigeon is disconnected", AlertType.kError);
+    AlertManager.getInstance()
+        .registerAlert(
+            new Alert("The Pigeon is disconnected", AlertType.kError),
+            () -> pigeonConnectedSupplier.getAsBoolean() && yawSignal.getStatus().isOK());
 
     gyroInputUpdater =
         (GyroIOInputs gyroInputs) -> {
           gyroInputs.pigeonConnected =
-              pigeonConnectedSupplier.get() && yawSignal.getStatus().isOK();
-          pigeonAlert.set(!gyroInputs.pigeonConnected);
+              pigeonConnectedSupplier.getAsBoolean() && yawSignal.getStatus().isOK();
 
           gyroInputs.yaw = yawSignal.getValue();
           gyroInputs.roll = rollSignal.getValue();
@@ -132,12 +132,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
 
     final int moduleCount = getModules().length;
 
-    driveMotorAlerts = new Alert[moduleCount];
-    steerMotorAlerts = new Alert[moduleCount];
-    canCoderAlerts = new Alert[moduleCount];
-
     for (int i = 0; i < moduleCount; i++) {
-      final int moduleIndex = i;
 
       final var module = getModule(i);
 
@@ -145,20 +140,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       final TalonFX steerMotor = module.getSteerMotor();
       final CANcoder steerCANCoder = module.getEncoder();
 
-      driveMotorAlerts[moduleIndex] =
-          new Alert(
-              "The " + SwerveConstants.MODULE_NAMES[i] + " Drive motor is disconnected.",
-              AlertType.kError);
-      steerMotorAlerts[moduleIndex] =
-          new Alert(
-              "The " + SwerveConstants.MODULE_NAMES[i] + " Steer motor is disconnected.",
-              AlertType.kError);
-      canCoderAlerts[moduleIndex] =
-          new Alert(
-              "The " + SwerveConstants.MODULE_NAMES[i] + " CANCoder is disconnected.",
-              AlertType.kError);
-
-      Supplier<Boolean> driveConnectedSupplier = () -> driveMotor.isConnected();
+      BooleanSupplier driveConnectedSupplier = () -> driveMotor.isConnected();
       var drivePositionSignal = driveMotor.getPosition();
       var driveVelocitySignal = driveMotor.getVelocity();
       var driveAppliedVoltsSignal = driveMotor.getMotorVoltage();
@@ -166,7 +148,9 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       var driveStatorCurrentSignal = driveMotor.getStatorCurrent();
       var driveTemperatureSignal = driveMotor.getDeviceTemp();
 
-      Supplier<Boolean> steerConnectedSupplier = () -> steerMotor.isConnected();
+      currenStatusSignals.add(driveSupplyCurrentSignal);
+
+      BooleanSupplier steerConnectedSupplier = () -> steerMotor.isConnected();
       var steerPositionSignal = steerMotor.getPosition();
       var steerVelocitySignal = steerMotor.getVelocity();
       var steerAppliedVoltsSignal = steerMotor.getMotorVoltage();
@@ -174,41 +158,59 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
       var steerStatorCurrentSignal = steerMotor.getStatorCurrent();
       var steerTemperatureSignal = steerMotor.getDeviceTemp();
 
-      Supplier<Boolean> canCoderConnectedSupplier = () -> steerCANCoder.isConnected();
+      currenStatusSignals.add(steerSupplyCurrentSignal);
+
+      BooleanSupplier canCoderConnectedSupplier = () -> steerCANCoder.isConnected();
       var steerAbsolutePositionSignal = steerCANCoder.getAbsolutePosition();
       var canCoderSteerPositionRads = steerCANCoder.getPosition();
+
+      AlertManager.getInstance()
+          .registerAlert(
+              new Alert(
+                  "The " + SwerveConstants.MODULE_NAMES[i] + " Drive motor is disconnected.",
+                  AlertType.kError),
+              () ->
+                  driveConnectedSupplier.getAsBoolean() && drivePositionSignal.getStatus().isOK());
+      AlertManager.getInstance()
+          .registerAlert(
+              new Alert(
+                  "The " + SwerveConstants.MODULE_NAMES[i] + " Steer motor is disconnected.",
+                  AlertType.kError),
+              () ->
+                  steerConnectedSupplier.getAsBoolean() && steerPositionSignal.getStatus().isOK());
+      AlertManager.getInstance()
+          .registerAlert(
+              new Alert(
+                  "The " + SwerveConstants.MODULE_NAMES[i] + " CANCoder is disconnected.",
+                  AlertType.kError),
+              canCoderConnectedSupplier);
 
       Consumer<ModuleIOInputs> moduleInput =
           (ModuleIOInputs moduleInputs) -> {
             // Update Drive Motor Inputs
             moduleInputs.driveConnected =
-                driveConnectedSupplier.get() && drivePositionSignal.getStatus().isOK();
-            moduleInputs.drivePositionRad = drivePositionSignal.getValue();
-            moduleInputs.driveVelocityRadPerSec = driveVelocitySignal.getValue();
+                driveConnectedSupplier.getAsBoolean() && drivePositionSignal.getStatus().isOK();
+            moduleInputs.drivePositionRads = drivePositionSignal.getValue();
+            moduleInputs.driveVelocity = driveVelocitySignal.getValue();
             moduleInputs.driveAppliedVolts = driveAppliedVoltsSignal.getValue();
-            moduleInputs.driveSupplyCurrentAmps = driveSupplyCurrentSignal.getValue();
-            moduleInputs.driveStatorCurrentAmps = driveStatorCurrentSignal.getValue();
-            moduleInputs.driveTemperatureCelsius = driveTemperatureSignal.getValue();
+            moduleInputs.driveSupplyCurrent = driveSupplyCurrentSignal.getValue();
+            moduleInputs.driveStatorCurrent = driveStatorCurrentSignal.getValue();
+            moduleInputs.driveTemperature = driveTemperatureSignal.getValue();
             // Update Steer Motor Inputs
             moduleInputs.steerConnected =
-                steerConnectedSupplier.get() && steerPositionSignal.getStatus().isOK();
+                steerConnectedSupplier.getAsBoolean() && steerPositionSignal.getStatus().isOK();
             moduleInputs.steerPositionRads = steerPositionSignal.getValue();
             moduleInputs.steerPosition = new Rotation2d(moduleInputs.steerPositionRads);
-            moduleInputs.steerVelocityRadPerSec = steerVelocitySignal.getValue();
+            moduleInputs.steerVelocity = steerVelocitySignal.getValue();
             moduleInputs.steerAppliedVolts = steerAppliedVoltsSignal.getValue();
-            moduleInputs.steerSupplyCurrentAmps = steerSupplyCurrentSignal.getValue();
-            moduleInputs.steerStatorCurrentAmps = steerStatorCurrentSignal.getValue();
-            moduleInputs.steerTemperatureCelsius = steerTemperatureSignal.getValue();
+            moduleInputs.steerSupplyCurrent = steerSupplyCurrentSignal.getValue();
+            moduleInputs.steerStatorCurrent = steerStatorCurrentSignal.getValue();
+            moduleInputs.steerTemperature = steerTemperatureSignal.getValue();
 
-            moduleInputs.canCoderConnected = canCoderConnectedSupplier.get();
-            moduleInputs.canCoderSteerPositionRads = canCoderSteerPositionRads.getValue();
+            moduleInputs.canCoderConnected = canCoderConnectedSupplier.getAsBoolean();
+            moduleInputs.canCoderSteerPosition = canCoderSteerPositionRads.getValue();
             moduleInputs.steerAbsolutePosition =
                 new Rotation2d(steerAbsolutePositionSignal.getValue());
-
-            // Update the Alerts
-            driveMotorAlerts[moduleIndex].set(!moduleInputs.driveConnected);
-            steerMotorAlerts[moduleIndex].set(!moduleInputs.steerConnected);
-            canCoderAlerts[moduleIndex].set(!moduleInputs.canCoderConnected);
           };
 
       moduleInputUpdater.put(i, moduleInput);
@@ -318,6 +320,11 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   @Override
   public void setOperatorPerspectiveForward(Rotation2d rotation2d) {
     super.setOperatorPerspectiveForward(rotation2d);
+  }
+
+  @Override
+  public StatusSignal<Current>[] getCurrentSignals() {
+    return currenStatusSignals.toArray(StatusSignal[]::new);
   }
 
   @Override

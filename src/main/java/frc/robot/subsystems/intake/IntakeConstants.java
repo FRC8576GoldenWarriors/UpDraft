@@ -1,0 +1,154 @@
+package frc.robot.subsystems.intake;
+
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
+import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Frequency;
+import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.GearRatio;
+
+public class IntakeConstants {
+
+  public static final String LOG_PATH = "Intake/";
+  public static final String PIVOT_TUNING_PATH = "Intake/Pivot";
+  public static final boolean TUNING_MODE_ENABLED = true;
+
+  public static final int ROLLER_MOTOR_ID = 20;
+  public static final int PIVOT_MOTOR_ID = 21;
+
+  public static final GravityTypeValue GRAVITY_TYPE_VALUE = GravityTypeValue.Arm_Cosine;
+  public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
+      StaticFeedforwardSignValue.UseVelocitySign;
+
+  // ! CURRENT LIMIT NOT CONFIGURED YET
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(80);
+  public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
+  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(40);
+  public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
+
+  public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+  public static final NeutralModeValue PIVOT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+  public static final GainSchedBehaviorValue PIVOT_TOLERANCE_MODE_VALUE =
+      GainSchedBehaviorValue.Inactive;
+
+  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(2.5584);
+  public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
+      RotationsPerSecondPerSecond.of(11.1266);
+
+  public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
+  public static final Current PIVOT_HOMING_CURRENT = Amps.of(45);
+  // swap to make it so the pivot curent is greater than this value then home is
+  // complete
+
+  public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(1);
+  public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);
+  public static final AngularVelocity PIVOT_HOMING_VELOCITY_TOLERANCE = RotationsPerSecond.of(0.02);
+
+  public static final Angle PIVOT_POSITION_TOLERANCE = Rotations.of(0.003);
+
+  public static final GearRatio PIVOT_SENSOR_TO_MECHANISM_RATION =
+      new GearRatio().withStage(1, 4).withStage(18, 60).withStage(12, 32);
+
+  public static final Angle DOWN_POSITION = Rotations.of(-0.08742);
+  public static final Angle EXPECTED_HOMING_ZERO = DOWN_POSITION;
+  public static final Angle RETRACT_POSITION = Rotations.of(0.304);
+  public static final Angle UP_POSITION = Rotations.of(0.3356);
+
+  public static final double KP = 78.281;
+  public static final double KI = 0.0;
+  public static final double KD = 10;
+  public static final double KS = 0.18457; // Check for accuracy (Might be too high) // 0.240313;
+  public static final double KG = 0.295; // Check for accuracy // 1.04695;
+  public static final double KV = 4.189; // 1.1336;
+  public static final double KA = 0.0469; // 0.0;
+
+  public static final TalonFXConfiguration PIVOT_CONFIG =
+      new TalonFXConfiguration()
+          .withSlot0(
+              new Slot0Configs()
+                  .withGravityType(GRAVITY_TYPE_VALUE)
+                  .withStaticFeedforwardSign(STATIC_FEEDFORWARD_SIGN_VALUE)
+                  .withKP(KP)
+                  .withKI(KI)
+                  .withKD(KD)
+                  .withKS(KS)
+                  .withKG(KG)
+                  .withKV(KV)
+                  .withKA(KA))
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(PIVOT_STATOR_CURRENT_LIMIT)
+                  .withStatorCurrentLimitEnable(PIVOT_STATOR_CURRENT_LIMIT_ENABLED)
+                  .withSupplyCurrentLimit(PIVOT_SUPPLY_CURRENT_LIMIT)
+                  .withSupplyCurrentLimitEnable(PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED))
+          .withMotorOutput(
+              new MotorOutputConfigs()
+                  .withInverted(PIVOT_INVERTED_VALUE)
+                  .withNeutralMode(PIVOT_NEUTRAL_MODE_VALUE))
+          .withMotionMagic(
+              new MotionMagicConfigs()
+                  .withMotionMagicCruiseVelocity(MOTION_MAGIC_ANGULAR_VELOCITY)
+                  .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION))
+          .withFeedback(
+              new FeedbackConfigs()
+                  .withSensorToMechanismRatio(PIVOT_SENSOR_TO_MECHANISM_RATION.getRatio()));
+
+  public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(50);
+  public static final boolean ROLLER_STATOR_CURRENT_LIMIT_ENABLED = true;
+  public static final Current ROLLER_SUPPLY_CURRENT_LIMIT = Amps.of(30);
+  public static final boolean ROLLER_SUPPLY_CURRENT_LIMIT_ENABLED = true;
+
+  public static final InvertedValue ROLLER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+  public static final NeutralModeValue ROLLER_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+
+  public static final Voltage PEAK_FORWARD_VOLTAGE = Volts.of(12);
+  public static final Voltage PEAK_REVERSE_VOLTAGE = Volts.of(-12);
+
+  public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
+
+  public static final double DEPLOYING_DUTY_CYCLE = 0;
+  public static final double RETRACTING_DUTY_CYCLE = 0;
+  public static final double INTAKING_DUTY_CYCLE = 0.8;
+
+  public static final GearRatio ROLLER_SENSOR_TO_MECHANISM_RATIO = new GearRatio().withStage(1, 3);
+
+  public static final TalonFXConfiguration ROLLER_CONFIG =
+      new TalonFXConfiguration()
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(ROLLER_STATOR_CURRENT_LIMIT)
+                  .withStatorCurrentLimitEnable(ROLLER_STATOR_CURRENT_LIMIT_ENABLED)
+                  .withSupplyCurrentLimit(ROLLER_SUPPLY_CURRENT_LIMIT)
+                  .withSupplyCurrentLimitEnable(ROLLER_SUPPLY_CURRENT_LIMIT_ENABLED))
+          .withMotorOutput(
+              new MotorOutputConfigs()
+                  .withInverted(ROLLER_INVERTED_VALUE)
+                  .withNeutralMode(ROLLER_NEUTRAL_MODE_VALUE))
+          .withVoltage(
+              new VoltageConfigs()
+                  .withPeakForwardVoltage(PEAK_FORWARD_VOLTAGE)
+                  .withPeakReverseVoltage(PEAK_REVERSE_VOLTAGE))
+          .withFeedback(
+              new FeedbackConfigs()
+                  .withSensorToMechanismRatio(ROLLER_SENSOR_TO_MECHANISM_RATIO.getRatio()));
+}

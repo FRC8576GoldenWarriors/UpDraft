@@ -4,27 +4,21 @@
 
 package frc.robot.subsystems.orca;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Transport.Transport;
+import frc.robot.subsystems.cradle.Cradle;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveConstants;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.util.loggedimpl.LoggedSubsystem;
 
-public class Orca extends SubsystemBase {
+public class Orca extends LoggedSubsystem {
   /** Creates a new Orca. */
   private final RobotContainer robotContainer;
 
   private final Swerve swerve;
-
-  private Pose2d currentRobotPose = new Pose2d();
-
-  private ChassisSpeeds currentChassisSpeeds = SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
-  private LinearVelocity chassisSpeedMagnitude = MetersPerSecond.zero();
+  private final Intake intake;
+  private final Transport transport;
+  private final Cradle cradle;
 
   public enum WantedState {
     // Swerve States
@@ -37,7 +31,13 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    HOME_INTAKE,
+    ZERO,
+    INTAKE,
+    RETRACT,
+    OUTTAKE,
+    HOLD
   }
 
   private enum SystemState {
@@ -51,7 +51,13 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    HOMING_INTAKE,
+    ZEROING,
+    INTAKING,
+    RETRACTING,
+    OUTTAKING,
+    HOLDING
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -59,8 +65,12 @@ public class Orca extends SubsystemBase {
   private SystemState systemState = SystemState.IDLE;
 
   public Orca(RobotContainer robotContainer) {
+    super(OrcaConstants.LOG_PATH, null, true);
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
+    this.intake = robotContainer.getIntakeSubsystem();
+    this.transport = robotContainer.getTransportSubsystem();
+    this.cradle = robotContainer.getCradleSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -79,8 +89,8 @@ public class Orca extends SubsystemBase {
 
     systemState = handleStateTransitions();
 
-    Logger.recordOutput(OrcaConstants.LOG_PATH + "WantedState", wantedState);
-    Logger.recordOutput(OrcaConstants.LOG_PATH + "CurrentState", systemState);
+    record("WantedState", wantedState);
+    record("CurrentState", systemState);
 
     applyStates();
   }
@@ -96,6 +106,12 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> SystemState.SYS_ID_STEER;
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
+      case HOME_INTAKE -> SystemState.HOMING_INTAKE;
+      case ZERO -> SystemState.ZEROING;
+      case INTAKE -> SystemState.INTAKING;
+      case RETRACT -> SystemState.RETRACTING;
+      case OUTTAKE -> SystemState.OUTTAKING;
+      case HOLD -> SystemState.HOLDING;
       default -> SystemState.IDLE;
     };
   }
@@ -112,6 +128,12 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> sysIdSteer();
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
+      case HOMING_INTAKE -> home();
+      case ZEROING -> zeroing();
+      case INTAKING -> intaking();
+      case RETRACTING -> retracting();
+      case OUTTAKING -> outtaking();
+      case HOLDING -> holding();
       default -> idling();
     }
   }
@@ -130,6 +152,20 @@ public class Orca extends SubsystemBase {
 
   private void idling() {
     swerve.setWantedState(Swerve.WantedState.IDLE);
+    intake.setWantedState(Intake.WantedState.IDLE);
+    transport.setWantedState(Transport.WantedState.IDLE);
+  }
+
+  private void zeroing() {
+    intake.setWantedState(Intake.WantedState.ZERO);
+  }
+
+  private void home() {
+    intake.setWantedState(Intake.WantedState.HOME);
+  }
+
+  private void setpoint() {
+    intake.setWantedState(Intake.WantedState.POSITION_MANUALLY);
   }
 
   private void taxi() {
@@ -150,5 +186,32 @@ public class Orca extends SubsystemBase {
 
   private void wheelRadiusCharacterization() {
     swerve.setWantedState(Swerve.WantedState.WHEEL_RADIUS_CHARACTERIZATION);
+  }
+
+  private void intaking() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.INTAKE);
+    transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
+    if (cradle.isHoldingPartially()) {
+      setWantedState(WantedState.HOLD);
+    }
+  }
+
+  private void holding() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.IDLE);
+  }
+
+  private void retracting() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.IDLE);
+  }
+
+  private void outtaking() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.TRANSPORT_OUT);
   }
 }

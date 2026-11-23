@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.CommandSchedulerLogger;
 import frc.robot.util.StatusSignalRefresher;
+import frc.robot.util.alertmanager.AlertManager;
+import frc.robot.util.loggedtunable.LoggedTunableUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -21,6 +23,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
   private final StatusSignalRefresher refresher;
   private final CommandSchedulerLogger schedulerLogger;
+  private final AlertManager alertManager;
 
   public Robot() {
     Logger.recordMetadata("ProjectName", "CTREIOSwerveDrive"); // Set a metadata value
@@ -50,27 +53,22 @@ public class Robot extends LoggedRobot {
     refresher.finalizeStatusSignals();
     schedulerLogger = CommandSchedulerLogger.getInstance();
     schedulerLogger.bindCommandScheduler();
+    alertManager = AlertManager.getInstance();
   }
 
   @Override
   public void robotPeriodic() {
     refresher.refreshStatusSignals();
 
-    // m_timeAndJoystickReplay.update();
     CommandScheduler.getInstance().run();
 
     schedulerLogger.log();
 
     refresher.checkStatusSignals();
 
-    /*
-     * This example of adding Limelight is very simple and may not be sufficient for on-field use.
-     * Users typically need to provide a standard deviation that scales with the distance to target
-     * and changes with number of tags available.
-     *
-     * This example is sufficient to show that vision integration is possible, though exact implementation
-     * of how to use vision should be tuned per-robot and to the team's specification.
-     */
+    alertManager.periodic();
+
+    LoggedTunableUtil.checkLoggedTunables();
   }
 
   @Override

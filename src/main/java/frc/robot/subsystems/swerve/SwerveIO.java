@@ -3,10 +3,11 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
@@ -24,9 +25,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.loggedimpl.LoggedIO;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface SwerveIO {
+public interface SwerveIO extends LoggedIO {
 
   @AutoLog
   class SwerveIOInputs extends SwerveDriveState {
@@ -50,15 +52,15 @@ public interface SwerveIO {
     // Connection
     public boolean pigeonConnected = false;
     // Angle Inputs
-    public Angle yaw = Radians.of(0.0);
-    public Angle roll = Radians.of(0.0);
-    public Angle pitch = Radians.of(0.0);
+    public Angle yaw = Rotations.of(0.0);
+    public Angle roll = Rotations.of(0.0);
+    public Angle pitch = Rotations.of(0.0);
     public Rotation3d robotOrientation = Rotation3d.kZero;
 
     // Velocity Inputs
-    public AngularVelocity yawVelocity = RadiansPerSecond.of(0.0);
-    public AngularVelocity rollVelocity = RadiansPerSecond.of(0.0);
-    public AngularVelocity pitchVelocity = RadiansPerSecond.of(0.0);
+    public AngularVelocity yawVelocity = RotationsPerSecond.of(0.0);
+    public AngularVelocity rollVelocity = RotationsPerSecond.of(0.0);
+    public AngularVelocity pitchVelocity = RotationsPerSecond.of(0.0);
 
     // Acceleration Inputs
     public LinearAcceleration xAcceleration = MetersPerSecondPerSecond.of(0.0);
@@ -69,24 +71,24 @@ public interface SwerveIO {
   @AutoLog
   class ModuleIOInputs {
     public boolean driveConnected = false;
-    public Angle drivePositionRad = Radians.of(0.0);
-    public AngularVelocity driveVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public Angle drivePositionRads = Rotations.of(0.0);
+    public AngularVelocity driveVelocity = RotationsPerSecond.of(0.0);
     public Voltage driveAppliedVolts = Volts.of(0.0);
-    public Current driveSupplyCurrentAmps = Amps.of(0.0);
-    public Current driveStatorCurrentAmps = Amps.of(0.0);
-    public Temperature driveTemperatureCelsius = Celsius.of(0.0);
+    public Current driveSupplyCurrent = Amps.of(0.0);
+    public Current driveStatorCurrent = Amps.of(0.0);
+    public Temperature driveTemperature = Celsius.of(0.0);
 
     public boolean steerConnected = false;
-    public Angle steerPositionRads = Radians.of(0.0);
+    public Angle steerPositionRads = Rotations.of(0.0);
     public Rotation2d steerPosition = Rotation2d.kZero;
-    public AngularVelocity steerVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public AngularVelocity steerVelocity = RotationsPerSecond.of(0.0);
     public Voltage steerAppliedVolts = Volts.of(0.0);
-    public Current steerSupplyCurrentAmps = Amps.of(0.0);
-    public Current steerStatorCurrentAmps = Amps.of(0.0);
-    public Temperature steerTemperatureCelsius = Celsius.of(0.0);
+    public Current steerSupplyCurrent = Amps.of(0.0);
+    public Current steerStatorCurrent = Amps.of(0.0);
+    public Temperature steerTemperature = Celsius.of(0.0);
 
     public boolean canCoderConnected = false;
-    public Angle canCoderSteerPositionRads = Radians.of(0);
+    public Angle canCoderSteerPosition = Rotations.of(0);
     public Rotation2d steerAbsolutePosition = Rotation2d.kZero;
 
     public SwerveModuleState currentState = new SwerveModuleState();
@@ -102,6 +104,8 @@ public interface SwerveIO {
   default void setSwerveState(SwerveRequest swerveRequest) {}
 
   void resetOdometry(Pose2d pose2d);
+
+  StatusSignal<Current>[] getCurrentSignals();
 
   default void resetRotation() {}
 

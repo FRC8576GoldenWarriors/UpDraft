@@ -38,6 +38,24 @@ public class LoggedTunableDouble implements DoubleSupplier, LoggedTunable {
     this(dashboardKey, 0, onChangeAction, subsystemTuningMode);
   }
 
+  protected LoggedTunableDouble(
+      String dashboardKey,
+      double defaultValue,
+      Consumer<Double> onChangeAction,
+      boolean subsystemTuningMode,
+      boolean register) {
+    this.logKey += "/" + dashboardKey;
+    this.currentValue = defaultValue;
+    this.lastValue = currentValue;
+    this.onChangeAction = onChangeAction;
+    this.subsystemTuningMode = subsystemTuningMode;
+    initLoggedNetworkNumber();
+    this.onChangeAction.accept(currentValue);
+    if (register && subsystemTuningMode) {
+      LoggedTunableUtil.registerLoggedTunable(this);
+    }
+  }
+
   private void initLoggedNetworkNumber() {
     if (subsystemTuningMode) {
       loggedNumber = new LoggedNetworkNumber(this.logKey, this.currentValue);
@@ -50,7 +68,8 @@ public class LoggedTunableDouble implements DoubleSupplier, LoggedTunable {
 
   public boolean hasChanged() {
     currentValue = get();
-    if (!MathUtil.isNear(lastValue, currentValue, 1e-6)) {
+
+    if (!MathUtil.isNear(lastValue, currentValue, 1e-8)) {
       lastValue = currentValue;
       return true;
     }
