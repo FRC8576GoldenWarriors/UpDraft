@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Transport.Transport;
 import frc.robot.subsystems.Transport.TransportIOTalonFx;
+import frc.robot.subsystems.cradle.Cradle;
+import frc.robot.subsystems.cradle.CradleCANrangeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.orca.Orca;
@@ -26,11 +28,14 @@ public class RobotContainer {
   private final Swerve swerve;
   private final Intake intake;
   private final Transport transport;
+  private final Cradle cradle;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
     intake = buildIntakeSubsystem();
     transport = buildTransportSubsystem();
+    cradle = buildCradleSubsystem();
+
     orca = buildOrcaSubsystem();
     configureBindings();
   }
@@ -122,8 +127,8 @@ public class RobotContainer {
 
     driverController
         .leftTrigger()
-        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
+        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)));
+    // .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
 
     driverController
         .rightTrigger(0.25)
@@ -184,5 +189,13 @@ public class RobotContainer {
 
   public Transport getTransportSubsystem() {
     return this.transport;
+  }
+
+  private Cradle buildCradleSubsystem() {
+    return new Cradle(new CradleCANrangeIO());
+  }
+
+  public Cradle getCradleSubsystem() {
+    return this.cradle;
   }
 }

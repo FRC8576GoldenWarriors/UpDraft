@@ -58,7 +58,7 @@ public class Cradle extends CradleStateMachine {
 
   @Override
   public boolean isHoldingPartially() {
-    return inputs.backCANrangeDetected;
+    return inputs.frontCANrangeDetected;
   }
 
   @Override

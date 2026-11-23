@@ -18,8 +18,8 @@ public class TransportConstants {
   public static final Frequency updateFrequency = Hertz.of(50);
   public static final Time debounceTime = Seconds.of(0.2);
 
-  public static final int TRANSPORT_LEFT_MOTOR_ID = 30;
-  public static final int TRANSPORT_RIGHT_MOTOR_ID = 31;
+  public static final int TRANSPORT_LEFT_MOTOR_ID = 25;
+  public static final int TRANSPORT_RIGHT_MOTOR_ID = 26;
 
   public static final boolean TRANSPORT_TUNING_MODE_ENABLED = false;
 
@@ -33,8 +33,8 @@ public class TransportConstants {
 
   public static final InvertedValue RIGHT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-  public static final NeutralModeValue LEFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
-  public static final NeutralModeValue RIGHT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
+  public static final NeutralModeValue LEFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+  public static final NeutralModeValue RIGHT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
   public static final TalonFXConfiguration LEFT_MOTOR_CONFIGURATION =
       new TalonFXConfiguration()
@@ -60,9 +60,9 @@ public class TransportConstants {
                   .withSupplyCurrentLimitEnable(
                       TransportConstants.RIGHT_SUPPLY_CURRENT_LIMIT_ENABLED));
 
-  public static final double IN_DUTY_CYCLE_LEFT = 0.8;
-  public static final double IN_DUTY_CYLE_RIGHT = 0.4;
+  public static final double IN_DUTY_CYCLE_LEFT = 0.6;
+  public static final double IN_DUTY_CYLE_RIGHT = 0.6;
 
-  public static final double OUT_DUTY_CYCLE_LEFT = -0.8;
-  public static final double OUT_DUTY_CYLE_RIGHT = -0.4;
+  public static final double OUT_DUTY_CYCLE_LEFT = -0.6;
+  public static final double OUT_DUTY_CYLE_RIGHT = -0.6;
 }

@@ -6,6 +6,7 @@ package frc.robot.subsystems.orca;
 
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Transport.Transport;
+import frc.robot.subsystems.cradle.Cradle;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.loggedimpl.LoggedSubsystem;
@@ -17,6 +18,7 @@ public class Orca extends LoggedSubsystem {
   private final Swerve swerve;
   private final Intake intake;
   private final Transport transport;
+  private final Cradle cradle;
 
   public enum WantedState {
     // Swerve States
@@ -34,7 +36,8 @@ public class Orca extends LoggedSubsystem {
     ZERO,
     INTAKE,
     RETRACT,
-    OUTTAKE
+    OUTTAKE,
+    HOLD
   }
 
   private enum SystemState {
@@ -53,7 +56,8 @@ public class Orca extends LoggedSubsystem {
     ZEROING,
     INTAKING,
     RETRACTING,
-    OUTTAKING
+    OUTTAKING,
+    HOLDING
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -66,6 +70,7 @@ public class Orca extends LoggedSubsystem {
     this.swerve = robotContainer.getSwerveSubsystem();
     this.intake = robotContainer.getIntakeSubsystem();
     this.transport = robotContainer.getTransportSubsystem();
+    this.cradle = robotContainer.getCradleSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -106,6 +111,7 @@ public class Orca extends LoggedSubsystem {
       case INTAKE -> SystemState.INTAKING;
       case RETRACT -> SystemState.RETRACTING;
       case OUTTAKE -> SystemState.OUTTAKING;
+      case HOLD -> SystemState.HOLDING;
       default -> SystemState.IDLE;
     };
   }
@@ -127,6 +133,7 @@ public class Orca extends LoggedSubsystem {
       case INTAKING -> intaking();
       case RETRACTING -> retracting();
       case OUTTAKING -> outtaking();
+      case HOLDING -> holding();
       default -> idling();
     }
   }
@@ -185,6 +192,15 @@ public class Orca extends LoggedSubsystem {
     swerve.setWantedState(Swerve.WantedState.TELEOP);
     intake.setWantedState(Intake.WantedState.INTAKE);
     transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
+    if (cradle.isHoldingPartially()) {
+      setWantedState(WantedState.HOLD);
+    }
+  }
+
+  private void holding() {
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.RETRACT);
+    transport.setWantedState(Transport.WantedState.IDLE);
   }
 
   private void retracting() {
