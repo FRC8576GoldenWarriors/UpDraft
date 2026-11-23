@@ -37,4 +37,6 @@ abstract class ArmStateMachine extends LoggedSubsystem {
   protected abstract void standingBy();
 
   protected abstract void positioningManually();
+
+  protected abstract void zeroing();
 }

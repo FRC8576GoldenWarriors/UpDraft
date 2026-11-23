@@ -58,7 +58,7 @@ public class ArmConstants {
   public static final AngularAcceleration PIVOT_MOTION_MAGIC_ANGULAR_ACCELERATION =
       RotationsPerSecondPerSecond.of(8);
 
-  public static final double PIVOT_SENSOR_TO_MECHANISM_RATIO = (44 / 44) * (23 / 1);
+  public static final double PIVOT_SENSOR_TO_MECHANISM_RATIO = 69;
 
   public static final Frequency PIVOT_STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 

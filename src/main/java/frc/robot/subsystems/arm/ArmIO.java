@@ -29,6 +29,9 @@ public interface ArmIO extends LoggedIO {
 
   default void setWantedArmPosition(Angle position) {}
 
+  default void zero() {}
+  ;
+
   default boolean home(Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
     return false;
   }

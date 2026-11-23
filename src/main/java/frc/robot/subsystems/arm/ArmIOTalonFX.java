@@ -107,6 +107,11 @@ public class ArmIOTalonFX implements ArmIO {
   }
 
   @Override
+  public void zero() {
+    pivotTalonFX.setPosition(0);
+  }
+
+  @Override
   public void setWantedArmPosition(Angle position) {
     pivotTalonFX.setControl(pivotPositionRequest.withPosition(position));
   }

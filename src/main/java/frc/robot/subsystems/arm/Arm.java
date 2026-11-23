@@ -31,7 +31,8 @@ public class Arm extends ArmStateMachine {
     BARGE,
     HOME,
     STANDBY,
-    POSITION_MANUALLY
+    POSITION_MANUALLY,
+    ZERO
   }
 
   private enum SystemState {
@@ -48,7 +49,8 @@ public class Arm extends ArmStateMachine {
     MOVING_TO_BARGE,
     HOMING,
     STANDING_BY,
-    POSITIONING_MANUALLY
+    POSITIONING_MANUALLY,
+    ZEROING
   }
 
   public Arm(ArmIO io) {
@@ -88,6 +90,7 @@ public class Arm extends ArmStateMachine {
       case HOME -> SystemState.HOMING;
       case STANDBY -> SystemState.STANDING_BY;
       case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
+      case ZERO -> SystemState.ZEROING;
       default -> SystemState.IDLING;
     };
   }
@@ -108,6 +111,7 @@ public class Arm extends ArmStateMachine {
       case HOMING -> homing();
       case STANDING_BY -> standingBy();
       case POSITIONING_MANUALLY -> positioningManually();
+      case ZEROING -> zeroing();
       default -> idling();
     }
   }
@@ -170,6 +174,10 @@ public class Arm extends ArmStateMachine {
   @Override
   protected void standingBy() {
     io.setWantedArmPosition(ArmConstants.STANDBY_POSITION);
+  }
+
+  protected void zeroing() {
+    io.zero();
   }
 
   @Override
