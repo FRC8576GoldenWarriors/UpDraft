@@ -6,6 +6,7 @@ package frc.robot.subsystems.orca;
 
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Transport.Transport;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.cradle.Cradle;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
@@ -19,6 +20,7 @@ public class Orca extends LoggedSubsystem {
   private final Intake intake;
   private final Transport transport;
   private final Cradle cradle;
+  private final Claw claw;
 
   public enum WantedState {
     // Swerve States
@@ -71,6 +73,7 @@ public class Orca extends LoggedSubsystem {
     this.intake = robotContainer.getIntakeSubsystem();
     this.transport = robotContainer.getTransportSubsystem();
     this.cradle = robotContainer.getCradleSubsystem();
+    this.claw = robotContainer.getClawSubsystem();
   }
 
   public void setWantedState(WantedState state) {
