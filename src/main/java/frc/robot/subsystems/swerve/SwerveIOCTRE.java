@@ -190,25 +190,25 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
             // Update Drive Motor Inputs
             moduleInputs.driveConnected =
                 driveConnectedSupplier.getAsBoolean() && drivePositionSignal.getStatus().isOK();
-            moduleInputs.drivePositionRad = drivePositionSignal.getValue();
-            moduleInputs.driveVelocityRadPerSec = driveVelocitySignal.getValue();
+            moduleInputs.drivePositionRads = drivePositionSignal.getValue();
+            moduleInputs.driveVelocity = driveVelocitySignal.getValue();
             moduleInputs.driveAppliedVolts = driveAppliedVoltsSignal.getValue();
-            moduleInputs.driveSupplyCurrentAmps = driveSupplyCurrentSignal.getValue();
-            moduleInputs.driveStatorCurrentAmps = driveStatorCurrentSignal.getValue();
-            moduleInputs.driveTemperatureCelsius = driveTemperatureSignal.getValue();
+            moduleInputs.driveSupplyCurrent = driveSupplyCurrentSignal.getValue();
+            moduleInputs.driveStatorCurrent = driveStatorCurrentSignal.getValue();
+            moduleInputs.driveTemperature = driveTemperatureSignal.getValue();
             // Update Steer Motor Inputs
             moduleInputs.steerConnected =
                 steerConnectedSupplier.getAsBoolean() && steerPositionSignal.getStatus().isOK();
             moduleInputs.steerPositionRads = steerPositionSignal.getValue();
             moduleInputs.steerPosition = new Rotation2d(moduleInputs.steerPositionRads);
-            moduleInputs.steerVelocityRadPerSec = steerVelocitySignal.getValue();
+            moduleInputs.steerVelocity = steerVelocitySignal.getValue();
             moduleInputs.steerAppliedVolts = steerAppliedVoltsSignal.getValue();
-            moduleInputs.steerSupplyCurrentAmps = steerSupplyCurrentSignal.getValue();
-            moduleInputs.steerStatorCurrentAmps = steerStatorCurrentSignal.getValue();
-            moduleInputs.steerTemperatureCelsius = steerTemperatureSignal.getValue();
+            moduleInputs.steerSupplyCurrent = steerSupplyCurrentSignal.getValue();
+            moduleInputs.steerStatorCurrent = steerStatorCurrentSignal.getValue();
+            moduleInputs.steerTemperature = steerTemperatureSignal.getValue();
 
             moduleInputs.canCoderConnected = canCoderConnectedSupplier.getAsBoolean();
-            moduleInputs.canCoderSteerPositionRads = canCoderSteerPositionRads.getValue();
+            moduleInputs.canCoderSteerPosition = canCoderSteerPositionRads.getValue();
             moduleInputs.steerAbsolutePosition =
                 new Rotation2d(steerAbsolutePositionSignal.getValue());
           };

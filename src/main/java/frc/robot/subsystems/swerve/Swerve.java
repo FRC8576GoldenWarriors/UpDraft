@@ -252,17 +252,15 @@ public class Swerve extends SwerveStateMachine {
   }
 
   private void applyOperatorForwardPerspective() {
-    if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-      DriverStation.getAlliance()
-          .ifPresent(
-              allianceColor -> {
-                io.setOperatorPerspectiveForward(
-                    (allianceColor == Alliance.Red)
-                        ? SwerveConstants.RED_PERSPECTIVE_ROTATION
-                        : SwerveConstants.BLUE_PERSPECTIVE_ROTATION);
-                hasAppliedOperatorPerspective = true;
-              });
-    }
+    DriverStation.getAlliance()
+        .ifPresent(
+            allianceColor -> {
+              io.setOperatorPerspectiveForward(
+                  (allianceColor == Alliance.Red)
+                      ? SwerveConstants.RED_PERSPECTIVE_ROTATION
+                      : SwerveConstants.BLUE_PERSPECTIVE_ROTATION);
+              hasAppliedOperatorPerspective = true;
+            });
   }
 
   // Apply States Methods
@@ -430,11 +428,7 @@ public class Swerve extends SwerveStateMachine {
                   state.positions = new double[4];
 
                   for (int i = 0; i < state.positions.length; i++) {
-                    state.positions[i] =
-                        moduleInputs[i]
-                            .drivePositionRad
-                            .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
-                            .in(Radians);
+                    state.positions[i] = moduleInputs[i].drivePositionRads.in(Radians);
                   }
 
                   state.lastAngle = swerveInputs.RawHeading;
@@ -455,11 +449,7 @@ public class Swerve extends SwerveStateMachine {
                       double[] positions = new double[4];
 
                       for (int i = 0; i < positions.length; i++) {
-                        positions[i] =
-                            moduleInputs[i]
-                                .drivePositionRad
-                                .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
-                                .in(Radians);
+                        positions[i] = moduleInputs[i].drivePositionRads.in(Radians);
                       }
 
                       double wheelDelta = 0.0;
