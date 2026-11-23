@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Transport.Transport;
-import frc.robot.subsystems.Transport.TransportIOTalonFx;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOTalonFX;
 import frc.robot.subsystems.cradle.Cradle;
@@ -23,6 +21,8 @@ import frc.robot.subsystems.orca.Orca.WantedState;
 import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
+import frc.robot.subsystems.transport.Transport;
+import frc.robot.subsystems.transport.TransportIOTalonFx;
 
 public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);

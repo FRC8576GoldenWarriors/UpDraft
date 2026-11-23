@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Transport;
+package frc.robot.subsystems.transport;
 
 import frc.robot.util.loggedimpl.LoggedSystemState;
 import frc.robot.util.loggedimpl.LoggedWantedState;
