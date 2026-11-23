@@ -58,16 +58,10 @@ public class CradleCANrangeIO implements CradleIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         CradleConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,
         frontCANrangeDetectedSignal,
-        frontCANrangeDistanceSignal,
-        backCANrangeDetectedSignal,
-        backCANrangeDistanceSignal);
+        frontCANrangeDistanceSignal);
 
     StatusSignalRefresher.getInstance()
-        .addStatusSignals(
-            frontCANrangeDetectedSignal,
-            frontCANrangeDistanceSignal,
-            backCANrangeDetectedSignal,
-            backCANrangeDistanceSignal);
+        .addStatusSignals(frontCANrangeDetectedSignal, frontCANrangeDistanceSignal);
 
     m1 = new TalonFX(35, TunerConstants.kCANBus);
     m2 = new TalonFX(36, TunerConstants.kCANBus);
@@ -77,7 +71,7 @@ public class CradleCANrangeIO implements CradleIO {
     TalonFX.optimizeBusUtilizationForAll(Hertz.of(0), m1, m2, m3, m4);
 
     frontCANrange.getConfigurator().apply(CradleConstants.FRONT_CANRANGE_PROXIMITY_PARAMS_CONFIG);
-    backCANrange.getConfigurator().apply(CradleConstants.BACK_CANRANGE_PROXIMITY_PARAMS_CONFIG);
+    // backCANrange.getConfigurator().apply(CradleConstants.BACK_CANRANGE_PROXIMITY_PARAMS_CONFIG);
   }
 
   @Override
