@@ -46,6 +46,16 @@ public class RobotContainer {
 
   private void configureBindings() {
 
+    configureDefaultBindings();
+
+    if (OrcaConstants.USE_SYS_ID_MODE) {
+      configureSysIDBindings();
+    } else {
+      configureOrcaBindings();
+    }
+  }
+
+  private void configureDefaultBindings() {
     swerve.setDefaultCommand(
         swerve
             .runEnd(
@@ -55,68 +65,62 @@ public class RobotContainer {
                         driverController.getLeftX(),
                         driverController.getRightX()),
                 () -> swerve.acceptControllerInput(0, 0, 0))
-            .withName("Accept Teleop Input"));
+            .withName("AcceptTeleopInput"));
 
     driverController
         .start()
         .onTrue(Commands.runOnce(swerve::zeroHeading).withName("Reset Heading"));
 
     RobotModeTriggers.disabled()
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE))
-                .ignoringDisable(true)
-                .withName("Idle"));
+        .onTrue(orca.commandWantedState(WantedState.IDLE, "Idle").ignoringDisable(true));
 
     RobotModeTriggers.teleop()
-        .and(
-            () ->
-                orca.getWantedState() == Orca.WantedState.IDLE
-                    || orca.getWantedState() == Orca.WantedState.TELEOP)
-        .onTrue(
-            Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TELEOP))
-                .withName("Drive Teleop"));
+        .and(() -> orca.stateEquals(WantedState.IDLE) || orca.stateEquals(WantedState.TELEOP))
+        .onTrue(orca.commandWantedState(WantedState.TELEOP, "DriveTeleop"));
+  }
+
+  private void configureSysIDBindings() {
+
+    driverController.a().whileTrue(intake.pivotRoutine.getForwardQuasistaticCommand());
+    driverController.b().whileTrue(intake.pivotRoutine.getBackwardQuasistaticCommand());
+    driverController.y().whileTrue(intake.pivotRoutine.getForwardDynamicCommand());
+    driverController.x().whileTrue(intake.pivotRoutine.getBackwardDynamicCommand());
+
+    // driverController
+    //     .rightBumper()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 orca.setWantedState(
+    //                     OrcaConstants
+    //                         .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or
+    // not
+    // driverController.x().and(driverController.a()).whileTrue(swerve.getDynamicForwardCommand());
+    // driverController.a().and(driverController.b()).whileTrue(swerve.getDynamicReverseCommand());
+    // driverController
+    //     .b()
+    //     .and(driverController.y())
+    //     .whileTrue(swerve.getQuasistaticForwardCommand());
+    // driverController
+    //     .y()
+    //     .and(driverController.x())
+    //     .whileTrue(swerve.getQuasistaticReverseCommand());
+    // driverController
+    //     .leftBumper()
+    //     .whileTrue(
+    //         swerve
+    //             .getWheelRadiusCharacterizationCommand()
+    //             .beforeStarting(
+    //                 () ->
+    // orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
+  }
+
+  private void configureOrcaBindings() {
 
     driverController
         .povDown()
         .onTrue(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ZERO)))
         .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
-
-    if (OrcaConstants.USE_SYS_ID_MODE) {
-
-      driverController.a().whileTrue(intake.pivotRoutine.getForwardQuasistaticCommand());
-      driverController.b().whileTrue(intake.pivotRoutine.getBackwardQuasistaticCommand());
-      driverController.y().whileTrue(intake.pivotRoutine.getForwardDynamicCommand());
-      driverController.x().whileTrue(intake.pivotRoutine.getBackwardDynamicCommand());
-
-      // driverController
-      //     .rightBumper()
-      //     .onTrue(
-      //         Commands.runOnce(
-      //             () ->
-      //                 orca.setWantedState(
-      //                     OrcaConstants
-      //                         .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or
-      // not
-      // driverController.x().and(driverController.a()).whileTrue(swerve.getDynamicForwardCommand());
-      // driverController.a().and(driverController.b()).whileTrue(swerve.getDynamicReverseCommand());
-      // driverController
-      //     .b()
-      //     .and(driverController.y())
-      //     .whileTrue(swerve.getQuasistaticForwardCommand());
-      // driverController
-      //     .y()
-      //     .and(driverController.x())
-      //     .whileTrue(swerve.getQuasistaticReverseCommand());
-      // driverController
-      //     .leftBumper()
-      //     .whileTrue(
-      //         swerve
-      //             .getWheelRadiusCharacterizationCommand()
-      //             .beforeStarting(
-      //                 () ->
-      // orca.setWantedState(Orca.WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
-      return;
-    }
 
     driverController
         .a()

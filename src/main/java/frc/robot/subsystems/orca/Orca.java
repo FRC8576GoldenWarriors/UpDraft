@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.orca;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.cradle.Cradle;
@@ -11,6 +13,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.transport.Transport;
 import frc.robot.util.loggedimpl.LoggedSubsystem;
+import java.util.Set;
 
 public class Orca extends LoggedSubsystem {
   /** Creates a new Orca. */
@@ -80,8 +83,21 @@ public class Orca extends LoggedSubsystem {
     this.wantedState = state;
   }
 
+  public Command commandWantedState(WantedState state) {
+    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of());
+  }
+
+  public Command commandWantedState(WantedState state, String commandName) {
+    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of())
+        .withName(commandName);
+  }
+
   public WantedState getWantedState() {
     return this.wantedState;
+  }
+
+  public boolean stateEquals(WantedState state) {
+    return getWantedState() == state;
   }
 
   @Override

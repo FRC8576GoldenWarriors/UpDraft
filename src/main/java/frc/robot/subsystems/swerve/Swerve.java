@@ -321,6 +321,30 @@ public class Swerve extends SwerveStateMachine {
     io.resetRotation();
   }
 
+  private ChassisSpeeds getChassisSpeedsFromControllerInput(
+      double xController, double yController, double omegaController) {
+    double xMagnitude = MathUtil.applyDeadband(xController, SwerveConstants.DEADBAND);
+    double yMagnitude = MathUtil.applyDeadband(yController, SwerveConstants.DEADBAND);
+    double omegaMagnitude = MathUtil.applyDeadband(omegaController, SwerveConstants.DEADBAND);
+
+    if (xMagnitude + yMagnitude + omegaMagnitude == 0) {
+      return SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
+    }
+
+    if (SwerveConstants.SQUARE_INPUTS) {
+      xMagnitude = MathUtil.copyDirectionPow(xMagnitude, SwerveConstants.SQUARE_VALUE);
+      yMagnitude = MathUtil.copyDirectionPow(yMagnitude, SwerveConstants.SQUARE_VALUE);
+      omegaMagnitude = MathUtil.copyDirectionPow(omegaMagnitude, SwerveConstants.SQUARE_VALUE);
+    }
+
+    final LinearVelocity xVelocity = TunerConstants.kSpeedAt12Volts.times(xMagnitude);
+    final LinearVelocity yVelocity = TunerConstants.kSpeedAt12Volts.times(yMagnitude);
+    final AngularVelocity omegaVelocity =
+        SwerveConstants.MAX_ANGULAR_VELOCITY.times(omegaMagnitude);
+
+    return new ChassisSpeeds(xVelocity, yVelocity, omegaVelocity);
+  }
+
   public boolean isSettingModulePositions() {
     return wantedState == WantedState.SET_MODULE_ROTATIONS
         || systemState == SystemState.SETTING_MODULE_ROTATIONS;
@@ -482,29 +506,5 @@ public class Swerve extends SwerveStateMachine {
     double[] positions = new double[4];
     Rotation2d lastAngle = Rotation2d.kZero;
     double gyroDelta = 0.0;
-  }
-
-  private ChassisSpeeds getChassisSpeedsFromControllerInput(
-      double xController, double yController, double omegaController) {
-    double xMagnitude = MathUtil.applyDeadband(xController, SwerveConstants.DEADBAND);
-    double yMagnitude = MathUtil.applyDeadband(yController, SwerveConstants.DEADBAND);
-    double omegaMagnitude = MathUtil.applyDeadband(omegaController, SwerveConstants.DEADBAND);
-
-    if (xMagnitude + yMagnitude + omegaMagnitude == 0) {
-      return SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
-    }
-
-    if (SwerveConstants.SQUARE_INPUTS) {
-      xMagnitude = MathUtil.copyDirectionPow(xMagnitude, SwerveConstants.SQUARE_VALUE);
-      yMagnitude = MathUtil.copyDirectionPow(yMagnitude, SwerveConstants.SQUARE_VALUE);
-      omegaMagnitude = MathUtil.copyDirectionPow(omegaMagnitude, SwerveConstants.SQUARE_VALUE);
-    }
-
-    final LinearVelocity xVelocity = TunerConstants.kSpeedAt12Volts.times(xMagnitude);
-    final LinearVelocity yVelocity = TunerConstants.kSpeedAt12Volts.times(yMagnitude);
-    final AngularVelocity omegaVelocity =
-        SwerveConstants.MAX_ANGULAR_VELOCITY.times(omegaMagnitude);
-
-    return new ChassisSpeeds(xVelocity, yVelocity, omegaVelocity);
   }
 }
