@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Transport;
+package frc.robot.subsystems.transport;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Hertz;
@@ -60,8 +60,8 @@ public class TransportConstants {
                   .withSupplyCurrentLimitEnable(
                       TransportConstants.RIGHT_SUPPLY_CURRENT_LIMIT_ENABLED));
 
-  public static final double IN_DUTY_CYCLE_LEFT = 0.4;
-  public static final double IN_DUTY_CYLE_RIGHT = 0.4;
+  public static final double IN_DUTY_CYCLE_LEFT = 0.25;
+  public static final double IN_DUTY_CYLE_RIGHT = 0.25;
 
   public static final double OUT_DUTY_CYCLE_LEFT = -0.6;
   public static final double OUT_DUTY_CYLE_RIGHT = -0.6;

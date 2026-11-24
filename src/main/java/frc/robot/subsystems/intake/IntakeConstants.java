@@ -55,7 +55,7 @@ public class IntakeConstants {
   public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
       RotationsPerSecondPerSecond.of(11.1266);
 
-  public static final double PIVOT_HOMING_VOLTAGE_OUT = -1.5;
+  public static final double PIVOT_HOMING_VOLTAGE_OUT = -1;
   public static final Current PIVOT_HOMING_CURRENT = Amps.of(45);
   // swap to make it so the pivot curent is greater than this value then home is
   // complete
