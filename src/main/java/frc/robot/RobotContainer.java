@@ -119,8 +119,8 @@ public class RobotContainer {
 
     driverController
         .povDown()
-        .onTrue(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.ZERO)))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.IDLE)));
+        .onTrue(orca.commandWantedState(Orca.WantedState.ZERO))
+        .onFalse(orca.commandWantedState(Orca.WantedState.IDLE));
 
     driverController
         .a()
@@ -133,22 +133,25 @@ public class RobotContainer {
                         intake.isIntakeHomed()
                             && intake.getWantedState() == Intake.WantedState.HOME));
 
+    driverController.leftTrigger().onTrue(orca.commandWantedState(WantedState.INTAKE));
+
     driverController
         .leftTrigger()
-        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.INTAKE)));
-    // .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)));
+        .and(() -> orca.stateEquals(WantedState.INTAKE))
+        .onTrue(orca.commandWantedState(WantedState.RETRACT));
+    // .onFalse(orca.commandWantedState(WantedState.RETRACT)));
 
     driverController
         .rightTrigger(0.25)
         .and(() -> intake.getWantedState() == Intake.WantedState.RETRACT)
         .and(() -> intake.nearSetpoint())
-        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.OUTTAKE)))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+        .onTrue(orca.commandWantedState(WantedState.OUTTAKE))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
 
     driverController
         .x()
-        .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.RETRACT)))
-        .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
+        .onTrue(orca.commandWantedState(WantedState.RETRACT))
+        .onFalse(orca.commandWantedState(WantedState.IDLE));
     driverController
         .y()
         .onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.POSITION_MANUALLY)))
