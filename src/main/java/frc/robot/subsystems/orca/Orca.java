@@ -13,7 +13,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.transport.Transport;
 import frc.robot.util.loggedimpl.LoggedSubsystem;
-import java.util.Set;
+import java.util.Arrays;
 
 public class Orca extends LoggedSubsystem {
   /** Creates a new Orca. */
@@ -84,12 +84,11 @@ public class Orca extends LoggedSubsystem {
   }
 
   public Command commandWantedState(WantedState state) {
-    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of());
+    return Commands.runOnce(() -> setWantedState(state)).withName(state.toString());
   }
 
   public Command commandWantedState(WantedState state, String commandName) {
-    return Commands.defer(() -> Commands.runOnce(() -> setWantedState(state)), Set.of())
-        .withName(commandName);
+    return Commands.runOnce(() -> setWantedState(state)).withName(commandName);
   }
 
   public WantedState getWantedState() {
@@ -98,6 +97,10 @@ public class Orca extends LoggedSubsystem {
 
   public boolean stateEquals(WantedState state) {
     return getWantedState() == state;
+  }
+
+  public boolean stateEqualsAny(WantedState... states) {
+    return Arrays.stream(states).anyMatch(this::stateEquals);
   }
 
   @Override
