@@ -133,7 +133,9 @@ public class RobotContainer {
                         intake.isIntakeHomed()
                             && intake.getWantedState() == Intake.WantedState.HOME));
 
-    driverController.leftTrigger().onTrue(orca.commandWantedState(WantedState.INTAKE));
+    driverController
+        .leftTrigger()
+        .onTrue(orca.toggleWantedState(WantedState.INTAKE, WantedState.RETRACT));
 
     driverController
         .leftTrigger()

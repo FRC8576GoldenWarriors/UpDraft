@@ -91,6 +91,14 @@ public class Orca extends LoggedSubsystem {
     return Commands.runOnce(() -> setWantedState(state)).withName(commandName);
   }
 
+  public Command toggleWantedState(WantedState firstToggleFirst, WantedState secondToggleSecond) {
+    return Commands.either(
+            commandWantedState(secondToggleSecond),
+            commandWantedState(firstToggleFirst),
+            () -> getWantedState() == firstToggleFirst)
+        .withName("Toggle " + firstToggleFirst.toString() + " / " + secondToggleSecond.toString());
+  }
+
   public WantedState getWantedState() {
     return this.wantedState;
   }
