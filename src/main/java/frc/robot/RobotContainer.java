@@ -16,6 +16,8 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOTalonFX;
 import frc.robot.subsystems.cradle.Cradle;
 import frc.robot.subsystems.cradle.CradleCANrangeIO;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.orca.Orca;
@@ -35,6 +37,7 @@ public class RobotContainer {
   private final Cradle cradle;
   private final Arm arm;
   private final Claw claw;
+  private final Elevator elevator;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
@@ -43,6 +46,7 @@ public class RobotContainer {
     cradle = buildCradleSubsystem();
     arm = buildArmSubsystem();
     claw = buildClawSubsystem();
+    elevator = buildElevatorSubsystem();
 
     orca = buildOrcaSubsystem();
     configureBindings();
@@ -238,5 +242,13 @@ public class RobotContainer {
 
   public Arm getArmSubsystem() {
     return this.arm;
+  }
+
+  private Elevator buildElevatorSubsystem() {
+    return new Elevator(new ElevatorIOTalonFX());
+  }
+
+  public Elevator getElevatorSubsystem() {
+    return this.elevator;
   }
 }

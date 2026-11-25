@@ -10,6 +10,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.cradle.Cradle;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.transport.Transport;
@@ -26,6 +27,7 @@ public class Orca extends LoggedSubsystem {
   private final Cradle cradle;
   private final Arm arm;
   private final Claw claw;
+  private final Elevator elevator;
 
   public enum WantedState {
     // Swerve States
@@ -82,6 +84,7 @@ public class Orca extends LoggedSubsystem {
     this.cradle = robotContainer.getCradleSubsystem();
     this.claw = robotContainer.getClawSubsystem();
     this.arm = robotContainer.getArmSubsystem();
+    this.elevator = robotContainer.getElevatorSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -185,6 +188,11 @@ public class Orca extends LoggedSubsystem {
 
   private void wheelLockWithX() {
     swerve.setWantedState(Swerve.WantedState.WHEEL_LOCK_WITH_X);
+  }
+
+  private void homing() {
+    swerve.setWantedState(Swerve.WantedState.IDLE);
+    elevator.setWantedState(Elevator.WantedState.HOME);
   }
 
   private void idling() {

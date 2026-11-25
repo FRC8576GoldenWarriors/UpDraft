@@ -36,7 +36,7 @@ public class SwerveConstants {
   public static final String LOG_PATH = "Drive/";
   public static final String[] MODULE_NAMES = {"FrontLeft", "FrontRight", "BackLeft", "BackRight"};
 
-  public static final Frequency FAST_UPDATE_FREQUENCY = Hertz.of(100);
+  public static final Frequency FAST_UPDATE_FREQUENCY = Hertz.of(50);
   public static final Frequency SLOW_UPDATE_FREQUENCY = Hertz.of(0);
   public static final Frequency OPTIMIZED_UPDATE_FREQUENCY = Hertz.of(0);
 
@@ -114,7 +114,7 @@ public class SwerveConstants {
   // ==========================================
   // Odometry & Vision Pose Estimation
   // ==========================================
-  public static final Frequency ODOMETRY_FREQUENCY = Hertz.of(250);
+  public static final Frequency ODOMETRY_FREQUENCY = Hertz.of(100);
 
   public static final Matrix<N3, N1> DRIVETRAIN_BASE_STANDARD_DEVIATIONS =
       VecBuilder.fill(0.1, 0.1, 0.001);
