@@ -28,41 +28,41 @@ public class ArmConstants {
 
   public static final boolean TUNING_MODE_ENABLED = true;
 
-  public static final int PIVOT_MOTOR = 60;
+  public static final int PIVOT_MOTOR = 40;
 
   public static final GravityTypeValue GRAVITY_TYPE_VALUE = GravityTypeValue.Arm_Cosine;
   public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
       StaticFeedforwardSignValue.UseVelocitySign;
 
-  public static final double KP = 0.0;
+  public static final double KP = 151.789;
   public static final double KI = 0.0;
-  public static final double KD = 0.0;
+  public static final double KD = 4.718;
   public static final double KS = 0.0;
-  public static final double KG = 0.0;
-  public static final double KV = 0.0;
-  public static final double KA = 0.0;
+  public static final double KG = 0.507;
+  public static final double KV = 6.332;
+  public static final double KA = 0.145;
 
   public static final PIDFConstants PIDF_CONSTANTS = new PIDFConstants(KP, KI, KD, KS, KG, KV, KA);
 
-  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(0);
-  public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = false;
+  public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(100);
+  public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLED = true;
 
-  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(0);
-  public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = false;
+  public static final Current PIVOT_SUPPLY_CURRENT_LIMIT = Amps.of(60);
+  public static final boolean PIVOT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
-  public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+  public static final InvertedValue PIVOT_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
   public static final NeutralModeValue PIVOT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
 
   public static final AngularVelocity PIVOT_MOTION_MAGIC_ANGULAR_VELOCITY =
-      RotationsPerSecond.of(8);
+      RotationsPerSecond.of(1.7236);
   public static final AngularAcceleration PIVOT_MOTION_MAGIC_ANGULAR_ACCELERATION =
-      RotationsPerSecondPerSecond.of(8);
+      RotationsPerSecondPerSecond.of(67.8489);
 
   public static final double PIVOT_SENSOR_TO_MECHANISM_RATIO = 69;
 
   public static final Frequency PIVOT_STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final double PIVOT_HOMING_DUTY_CYCLE = 0.15;
+  public static final double PIVOT_HOMING_VOLTAGE = -2;
   public static final Current PIVOT_HOMING_CURRENT = Amps.of(89);
   public static final Current PIVOT_HOMING_CURRENT_TOLERANCE = Amps.of(2);
   public static final AngularVelocity PIVOT_HOMING_VELOCITY = RotationsPerSecond.of(0);

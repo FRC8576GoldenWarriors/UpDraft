@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Hertz;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
@@ -27,8 +26,6 @@ public class CradleCANrangeIO implements CradleIO {
   private final BooleanSupplier backCANrangeConnectedSignal;
   private final StatusSignal<Boolean> backCANrangeDetectedSignal;
   private final StatusSignal<Distance> backCANrangeDistanceSignal;
-
-  private final TalonFX m1, m2, m3, m4;
 
   public CradleCANrangeIO() {
     frontCANrange = new CANrange(CradleConstants.FRONT_CANRANGE_ID, TunerConstants.kCANBus);
@@ -52,8 +49,8 @@ public class CradleCANrangeIO implements CradleIO {
             new Alert("Back CANrange disconnected.", AlertType.kError),
             backCANrangeConnectedSignal);
 
-    frontCANrange.optimizeBusUtilization(Hertz.of(0));
-    backCANrange.optimizeBusUtilization(Hertz.of(0));
+    frontCANrange.optimizeBusUtilization(Hertz.zero());
+    backCANrange.optimizeBusUtilization(Hertz.zero());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         CradleConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,
@@ -63,15 +60,8 @@ public class CradleCANrangeIO implements CradleIO {
     StatusSignalRefresher.getInstance()
         .addStatusSignals(frontCANrangeDetectedSignal, frontCANrangeDistanceSignal);
 
-    m1 = new TalonFX(35, TunerConstants.kCANBus);
-    m2 = new TalonFX(36, TunerConstants.kCANBus);
-    m3 = new TalonFX(40, TunerConstants.kCANBus);
-    m4 = new TalonFX(45, TunerConstants.kCANBus);
-
-    TalonFX.optimizeBusUtilizationForAll(Hertz.of(0), m1, m2, m3, m4);
-
     frontCANrange.getConfigurator().apply(CradleConstants.FRONT_CANRANGE_PROXIMITY_PARAMS_CONFIG);
-    // backCANrange.getConfigurator().apply(CradleConstants.BACK_CANRANGE_PROXIMITY_PARAMS_CONFIG);
+    backCANrange.getConfigurator().apply(CradleConstants.BACK_CANRANGE_PROXIMITY_PARAMS_CONFIG);
   }
 
   @Override

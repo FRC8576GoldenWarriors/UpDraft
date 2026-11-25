@@ -24,8 +24,6 @@ public interface ClawIO extends LoggedIO {
     public Current rollerSupplyCurrent = Amps.zero();
 
     public boolean digitalInputCoral = false;
-    public boolean digitalInputReefLeft = false;
-    public boolean digitalInputReefRight = false;
   }
 
   void updateInputs(ClawIOInputs inputs);

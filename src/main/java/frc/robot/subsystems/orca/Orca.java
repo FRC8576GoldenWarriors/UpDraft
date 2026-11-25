@@ -7,6 +7,7 @@ package frc.robot.subsystems.orca;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.cradle.Cradle;
 import frc.robot.subsystems.intake.Intake;
@@ -23,6 +24,7 @@ public class Orca extends LoggedSubsystem {
   private final Intake intake;
   private final Transport transport;
   private final Cradle cradle;
+  private final Arm arm;
   private final Claw claw;
 
   public enum WantedState {
@@ -42,7 +44,8 @@ public class Orca extends LoggedSubsystem {
     INTAKE,
     RETRACT,
     OUTTAKE,
-    HOLD
+    HOLD,
+    HOME_ARM
   }
 
   private enum SystemState {
@@ -62,7 +65,8 @@ public class Orca extends LoggedSubsystem {
     INTAKING,
     RETRACTING,
     OUTTAKING,
-    HOLDING
+    HOLDING,
+    HOMING_ARM
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -77,6 +81,7 @@ public class Orca extends LoggedSubsystem {
     this.transport = robotContainer.getTransportSubsystem();
     this.cradle = robotContainer.getCradleSubsystem();
     this.claw = robotContainer.getClawSubsystem();
+    this.arm = robotContainer.getArmSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -137,6 +142,7 @@ public class Orca extends LoggedSubsystem {
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
       case HOME_INTAKE -> SystemState.HOMING_INTAKE;
+      case HOME_ARM -> SystemState.HOMING_ARM;
       case ZERO -> SystemState.ZEROING;
       case INTAKE -> SystemState.INTAKING;
       case RETRACT -> SystemState.RETRACTING;
@@ -158,7 +164,8 @@ public class Orca extends LoggedSubsystem {
       case SYS_ID_STEER -> sysIdSteer();
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
-      case HOMING_INTAKE -> home();
+      case HOMING_INTAKE -> homeIntake();
+      case HOMING_ARM -> homingArm();
       case ZEROING -> zeroing();
       case INTAKING -> intaking();
       case RETRACTING -> retracting();
@@ -187,11 +194,15 @@ public class Orca extends LoggedSubsystem {
   }
 
   private void zeroing() {
-    intake.setWantedState(Intake.WantedState.ZERO);
+    arm.setWantedState(Arm.WantedState.ZERO);
   }
 
-  private void home() {
+  private void homeIntake() {
     intake.setWantedState(Intake.WantedState.HOME);
+  }
+
+  private void homingArm() {
+    arm.setWantedState(Arm.WantedState.HOME);
   }
 
   private void setpoint() {
@@ -219,12 +230,12 @@ public class Orca extends LoggedSubsystem {
   }
 
   private void intaking() {
-    swerve.setWantedState(Swerve.WantedState.TELEOP);
-    intake.setWantedState(Intake.WantedState.INTAKE);
-    transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
     if (cradle.isHoldingPartially()) {
       setWantedState(WantedState.HOLD);
     }
+    swerve.setWantedState(Swerve.WantedState.TELEOP);
+    intake.setWantedState(Intake.WantedState.INTAKE);
+    transport.setWantedState(Transport.WantedState.TRANSPORT_IN);
   }
 
   private void holding() {

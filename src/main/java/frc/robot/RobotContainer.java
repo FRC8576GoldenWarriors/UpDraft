@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOTalonFX;
 import frc.robot.subsystems.cradle.Cradle;
@@ -31,6 +33,7 @@ public class RobotContainer {
   private final Intake intake;
   private final Transport transport;
   private final Cradle cradle;
+  private final Arm arm;
   private final Claw claw;
 
   public RobotContainer() {
@@ -38,6 +41,7 @@ public class RobotContainer {
     intake = buildIntakeSubsystem();
     transport = buildTransportSubsystem();
     cradle = buildCradleSubsystem();
+    arm = buildArmSubsystem();
     claw = buildClawSubsystem();
 
     orca = buildOrcaSubsystem();
@@ -134,6 +138,14 @@ public class RobotContainer {
                             && intake.getWantedState() == Intake.WantedState.HOME));
 
     driverController
+        .b()
+        .onTrue(
+            Commands.runEnd(
+                    () -> orca.setWantedState(WantedState.HOME_ARM),
+                    () -> orca.setWantedState(WantedState.IDLE))
+                .until(() -> arm.isHomed() && arm.getWantedState() == Arm.WantedState.HOME));
+
+    driverController
         .leftTrigger()
         .onTrue(orca.toggleWantedState(WantedState.INTAKE, WantedState.RETRACT));
 
@@ -218,5 +230,13 @@ public class RobotContainer {
 
   public Cradle getCradleSubsystem() {
     return this.cradle;
+  }
+
+  private Arm buildArmSubsystem() {
+    return new Arm(new ArmIOTalonFX());
+  }
+
+  public Arm getArmSubsystem() {
+    return this.arm;
   }
 }

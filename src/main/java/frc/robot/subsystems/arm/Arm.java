@@ -87,7 +87,12 @@ public class Arm extends ArmStateMachine {
       case ALAGE_FLOOR -> SystemState.MOVING_TO_ALAGE_FLOOR;
       case ALAGE_LOLIPOP -> SystemState.MOVING_TO_ALAGE_LOLIPOP;
       case BARGE -> SystemState.MOVING_TO_BARGE;
-      case HOME -> SystemState.HOMING;
+      case HOME -> {
+        if (systemState != SystemState.HOMING) {
+          isHomed = false;
+        }
+        yield SystemState.HOMING;
+      }
       case STANDBY -> SystemState.STANDING_BY;
       case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
       case ZERO -> SystemState.ZEROING;

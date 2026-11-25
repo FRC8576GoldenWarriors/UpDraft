@@ -1,9 +1,12 @@
 package frc.robot.subsystems.claw;
 
+import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -23,10 +26,8 @@ public class ClawIOTalonFX implements ClawIO {
   private final TalonFX rollerTalonFX;
 
   private final DigitalInput coralPhotoelectric;
-  private final DigitalInput leftReefPhotoelectric;
-  private final DigitalInput rightReefPhotoelectric;
 
-  private final DutyCycleOut rollerDutyCycleRequest = new DutyCycleOut(0);
+  private final VoltageOut rollerVoltageRequest = new VoltageOut(Volts.zero());
   private final EmptyControl rollerIdleRequest = new EmptyControl();
 
   private final BooleanSupplier rollerConnectedSignal;
@@ -42,8 +43,6 @@ public class ClawIOTalonFX implements ClawIO {
     rollerTalonFX = new TalonFX(ClawConstants.ROLLER_MOTOR_ID, TunerConstants.kCANBus);
 
     coralPhotoelectric = new DigitalInput(ClawConstants.CORAL_DIGITAL_INPUT_ID);
-    leftReefPhotoelectric = new DigitalInput(ClawConstants.LEFT_REEF_DIGITAL_INPUT_ID);
-    rightReefPhotoelectric = new DigitalInput(ClawConstants.RIGHT_REEF_DIGITAL_INPUT_ID);
 
     rollerConnectedSignal = () -> rollerTalonFX.isConnected();
     rollerPositionSignal = rollerTalonFX.getPosition();
@@ -57,6 +56,8 @@ public class ClawIOTalonFX implements ClawIO {
         .registerAlert(
             new Alert("The Claw Roller Motor is Disconnected", AlertType.kError),
             rollerConnectedSignal);
+
+    rollerTalonFX.optimizeBusUtilization(Hertz.zero());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         ClawConstants.STATUS_SIGNAL_UPDATE_FREQUENCY,
@@ -87,8 +88,6 @@ public class ClawIOTalonFX implements ClawIO {
     inputs.rollerSupplyCurrent = rollerSupplyCurrentSignal.getValue();
 
     inputs.digitalInputCoral = coralPhotoelectric.get();
-    inputs.digitalInputReefLeft = leftReefPhotoelectric.get();
-    inputs.digitalInputReefRight = rightReefPhotoelectric.get();
   }
 
   @Override
@@ -103,6 +102,6 @@ public class ClawIOTalonFX implements ClawIO {
 
   @Override
   public void setWantedDutyCycle(double dutyCycle) {
-    rollerTalonFX.setControl(rollerDutyCycleRequest.withOutput(dutyCycle));
+    rollerTalonFX.setControl(rollerVoltageRequest.withOutput(Volts.of(12).times(dutyCycle)));
   }
 }

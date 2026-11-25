@@ -19,7 +19,7 @@ public class ClawConstants {
   public static final String TUNING_PATH = LOG_PATH + "Roller";
   public static final boolean TUNING_MODE_ENABLED = true;
 
-  public static final int ROLLER_MOTOR_ID = 70;
+  public static final int ROLLER_MOTOR_ID = 45;
 
   public static final int CORAL_DIGITAL_INPUT_ID = 0;
   public static final int LEFT_REEF_DIGITAL_INPUT_ID = 1;

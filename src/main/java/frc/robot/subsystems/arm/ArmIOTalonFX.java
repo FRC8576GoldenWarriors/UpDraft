@@ -1,12 +1,13 @@
 package frc.robot.subsystems.arm;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -27,8 +28,7 @@ public class ArmIOTalonFX implements ArmIO {
   private final TalonFX pivotTalonFX;
 
   private final MotionMagicVoltage pivotPositionRequest = new MotionMagicVoltage(Rotations.zero());
-  private final DutyCycleOut pivotHomingRequest =
-      new DutyCycleOut(ArmConstants.PIVOT_HOMING_DUTY_CYCLE);
+  private final VoltageOut pivotHomingRequest = new VoltageOut(ArmConstants.PIVOT_HOMING_VOLTAGE);
   private final EmptyControl pivotIdleRequest = new EmptyControl();
 
   private final LoggedTunablePIDFConstants pivotLoggedTunablePIDFConstants;
@@ -85,6 +85,10 @@ public class ArmIOTalonFX implements ArmIO {
     StatusSignalRefresher.getInstance()
         .addStatusSignals(
             pivotPositionSignal, pivotVelocitySignal, pivotVoltageSignal, pivotCurrentSignal);
+
+    pivotTalonFX.optimizeBusUtilization(Hertz.zero());
+
+    pivotTalonFX.getConfigurator().apply(ArmConstants.PIVOT_CONFIG);
   }
 
   @Override
@@ -123,7 +127,7 @@ public class ArmIOTalonFX implements ArmIO {
       return false;
     }
     pivotTalonFX.setPosition(ArmConstants.PIVOT_EXPECTED_HOMING_ZERO);
-    pivotTalonFX.setControl(pivotIdleRequest);
+    this.idle();
     return true;
   }
 
@@ -135,8 +139,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   private boolean atUpperHomingHardstop(
       Current activeHomingCurrent, AngularVelocity activeHomingVelocity) {
-    return pivotCurrentSignal.isNear(
-            ArmConstants.PIVOT_HOMING_CURRENT, ArmConstants.PIVOT_HOMING_CURRENT_TOLERANCE)
+    return pivotCurrentSignal.getValue().gt(ArmConstants.PIVOT_HOMING_CURRENT)
         && pivotVelocitySignal.isNear(
             ArmConstants.PIVOT_HOMING_VELOCITY, ArmConstants.PIVOT_HOMING_VELOCITY_TOLERANCE);
   }
