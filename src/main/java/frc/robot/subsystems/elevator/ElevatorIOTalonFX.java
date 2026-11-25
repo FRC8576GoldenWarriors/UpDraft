@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.units.measure.Angle;
@@ -114,6 +115,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leftLiftMotor.getConfigurator().apply(ElevatorConstants.LEFT_LIFT_CONFIG);
     rightLiftMotor.getConfigurator().apply(ElevatorConstants.RIGHT_LIFT_CONFIG);
 
+    TalonFX m1 = new TalonFX(20, TunerConstants.kCANBus);
+    TalonFX m2 = new TalonFX(21, TunerConstants.kCANBus);
+    TalonFX m3 = new TalonFX(25, TunerConstants.kCANBus);
+    TalonFX m4 = new TalonFX(26, TunerConstants.kCANBus);
+    CANrange c1 = new CANrange(30, TunerConstants.kCANBus);
+    CANrange c2 = new CANrange(31, TunerConstants.kCANBus);
+    TalonFX m5 = new TalonFX(40, TunerConstants.kCANBus);
+    TalonFX m6 = new TalonFX(45, TunerConstants.kCANBus);
+
+    TalonFX.optimizeBusUtilizationForAll(Hertz.zero(), m1, m2, m3, m4, m5, m6, c1, c2);
+
     rightLiftMotor.setControl(liftFollowerRequest);
   }
 
@@ -180,6 +192,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     return rotationalPositionSignal.isNear(
         liftPositionRequest.getPositionMeasure(),
         ElevatorConstants.linearToAngular(ElevatorConstants.LIFT_POSITION_TOLERANCE));
+  }
+
+  @Override
+  public void zero() {
+    leftLiftMotor.setPosition(0);
+    rightLiftMotor.setPosition(0);
   }
 
   private boolean atLowerHardstop() {

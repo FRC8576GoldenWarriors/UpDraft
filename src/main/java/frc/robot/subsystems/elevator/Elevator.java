@@ -66,6 +66,14 @@ public class Elevator extends ElevatorStateMachine {
             "ManualSetpoint", (value) -> {}, ElevatorConstants.TUNING_MODE_ENABLED);
   }
 
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  public WantedState getWantedState() {
+    return wantedState;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
@@ -188,8 +196,10 @@ public class Elevator extends ElevatorStateMachine {
 
   @Override
   protected void homing() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'homing'");
+    this.isHomed = io.home();
+    if (this.isHomed) {
+      setWantedState(WantedState.IDLE);
+    }
   }
 
   @Override
@@ -200,13 +210,11 @@ public class Elevator extends ElevatorStateMachine {
 
   @Override
   protected void positioningManually() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'positioningManually'");
+    io.setWantedPosition(Meters.of(manualPositionSetpoint.getAsDouble()));
   }
 
   @Override
   protected void zeroing() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'zeroing'");
+    io.zero();
   }
 }

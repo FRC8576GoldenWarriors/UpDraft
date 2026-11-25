@@ -43,13 +43,13 @@ public class ElevatorConstants {
   public static final StaticFeedforwardSignValue STATIC_FEEDFORWARD_SIGN_VALUE =
       StaticFeedforwardSignValue.UseVelocitySign;
 
-  public static final double KP = 0.0;
+  public static final double KP = 2.551;
   public static final double KI = 0.0;
-  public static final double KD = 0.0;
+  public static final double KD = 0.066;
   public static final double KS = 0.0;
-  public static final double KG = 0.0;
-  public static final double KV = 0.0;
-  public static final double KA = 0.0;
+  public static final double KG = 0.391;
+  public static final double KV = 0.118;
+  public static final double KA = 0.002;
 
   // ! CURRENT LIMIT NOT CONFIGURED YET
   public static final Current LIFT_STATOR_CURRENT_LIMIT = Amps.of(110);
@@ -70,7 +70,7 @@ public class ElevatorConstants {
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final Voltage LIFT_HOMING_VOLTAGE = Volts.of(-1);
+  public static final Voltage LIFT_HOMING_VOLTAGE = Volts.of(-3);
 
   public static final Current LIFT_HOMING_CURRENT = Amps.of(89);
   public static final Current LIFT_HOMING_CURRENT_TOLERANCE = Amps.of(2);

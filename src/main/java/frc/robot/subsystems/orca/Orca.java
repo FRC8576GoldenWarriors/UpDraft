@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import org.littletonrobotics.junction.Logger;
@@ -20,6 +21,7 @@ public class Orca extends SubsystemBase {
   private final RobotContainer robotContainer;
 
   private final Swerve swerve;
+  private final Elevator elevator;
 
   private Pose2d currentRobotPose = new Pose2d();
 
@@ -37,7 +39,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    POSITION_MANUALLY
   }
 
   private enum SystemState {
@@ -51,7 +54,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
-    WHEEL_RADIUS_CHARACTERIZATION;
+    WHEEL_RADIUS_CHARACTERIZATION,
+    POSITIONING_MANUALLY
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -61,6 +65,7 @@ public class Orca extends SubsystemBase {
   public Orca(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
     this.swerve = robotContainer.getSwerveSubsystem();
+    this.elevator = robotContainer.getElevatorSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -96,6 +101,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> SystemState.SYS_ID_STEER;
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
+      case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
       default -> SystemState.IDLE;
     };
   }
@@ -112,6 +118,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_STEER -> sysIdSteer();
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
+      case POSITIONING_MANUALLY -> positioningManually();
       default -> idling();
     }
   }
@@ -130,6 +137,7 @@ public class Orca extends SubsystemBase {
 
   private void idling() {
     swerve.setWantedState(Swerve.WantedState.IDLE);
+    elevator.setWantedState(Elevator.WantedState.IDLE);
   }
 
   private void taxi() {
@@ -150,5 +158,9 @@ public class Orca extends SubsystemBase {
 
   private void wheelRadiusCharacterization() {
     swerve.setWantedState(Swerve.WantedState.WHEEL_RADIUS_CHARACTERIZATION);
+  }
+
+  private void positioningManually() {
+    elevator.setWantedState(Elevator.WantedState.POSITION_MANUALLY);
   }
 }

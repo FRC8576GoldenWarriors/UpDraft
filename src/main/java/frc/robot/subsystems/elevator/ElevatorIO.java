@@ -47,4 +47,6 @@ public interface ElevatorIO extends LoggedIO {
   boolean home();
 
   boolean nearSetpoint();
+
+  void zero();
 }

@@ -115,7 +115,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
         yAccelerationSignal,
         zAccelerationSignal);
 
-    pigeon.optimizeBusUtilization(SwerveConstants.OPTIMIZED_UPDATE_FREQUENCY);
+    pigeon.optimizeBusUtilization(Hertz.zero()); // SwerveConstants.OPTIMIZED_UPDATE_FREQUENCY);
 
     statusSignalRefresher.addStatusSignals(
         yawSignal,
@@ -234,7 +234,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
           steerTemperatureSignal);
 
       ParentDevice.optimizeBusUtilizationForAll(
-          SwerveConstants.OPTIMIZED_UPDATE_FREQUENCY, driveMotor, steerMotor, steerCANCoder);
+          Hertz.zero(), driveMotor, steerMotor, steerCANCoder);
 
       statusSignalRefresher.addStatusSignals(
           drivePositionSignal,
