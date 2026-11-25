@@ -217,4 +217,8 @@ public class Elevator extends ElevatorStateMachine {
   protected void zeroing() {
     io.zero();
   }
+
+  public boolean isHomed() {
+    return isHomed;
+  }
 }

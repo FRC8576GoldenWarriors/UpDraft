@@ -47,7 +47,7 @@ public class ElevatorConstants {
   public static final double KI = 0.0;
   public static final double KD = 0.066;
   public static final double KS = 0.0;
-  public static final double KG = 0.391;
+  public static final double KG = 0.25;
   public static final double KV = 0.118;
   public static final double KA = 0.002;
 
@@ -64,9 +64,9 @@ public class ElevatorConstants {
       InvertedValue.CounterClockwise_Positive;
   public static final NeutralModeValue RIGHT_LIFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
-  public static final LinearVelocity MOTION_MAGIC_ANGULAR_VELOCITY = MetersPerSecond.of(4.753);
-  public static final LinearAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
-      MetersPerSecondPerSecond.of(57.031);
+  public static final AngularVelocity MOTION_MAGIC_ANGULAR_VELOCITY = RotationsPerSecond.of(88.013);
+  public static final AngularAcceleration MOTION_MAGIC_ANGULAR_ACCELERATION =
+      RotationsPerSecondPerSecond.of(1056.125);
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
@@ -110,12 +110,8 @@ public class ElevatorConstants {
                   .withNeutralMode(LEFT_LIFT_NEUTRAL_MODE_VALUE))
           .withMotionMagic(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(
-                      MOTION_MAGIC_ANGULAR_VELOCITY.in(MetersPerSecond)
-                          * LINEAR_TO_ANGULAR.in(Value))
-                  .withMotionMagicAcceleration(
-                      MOTION_MAGIC_ANGULAR_ACCELERATION.in(MetersPerSecondPerSecond)
-                          * LINEAR_TO_ANGULAR.in(Value)))
+                  .withMotionMagicCruiseVelocity(MOTION_MAGIC_ANGULAR_VELOCITY)
+                  .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION))
           .withFeedback(
               new FeedbackConfigs().withSensorToMechanismRatio(LIFT_SENSOR_TO_MECHANISM_RATIO));
 
@@ -144,38 +140,34 @@ public class ElevatorConstants {
                   .withNeutralMode(RIGHT_LIFT_NEUTRAL_MODE_VALUE))
           .withMotionMagic(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(
-                      MOTION_MAGIC_ANGULAR_VELOCITY.in(MetersPerSecond)
-                          * LINEAR_TO_ANGULAR.in(Value))
-                  .withMotionMagicAcceleration(
-                      MOTION_MAGIC_ANGULAR_ACCELERATION.in(MetersPerSecondPerSecond)
-                          * LINEAR_TO_ANGULAR.in(Value)))
+                  .withMotionMagicCruiseVelocity(MOTION_MAGIC_ANGULAR_VELOCITY)
+                  .withMotionMagicAcceleration(MOTION_MAGIC_ANGULAR_ACCELERATION))
           .withFeedback(
               new FeedbackConfigs().withSensorToMechanismRatio(LIFT_SENSOR_TO_MECHANISM_RATIO));
 
   public static Distance angularToLinear(Angle angle) {
-    return Meters.of(angle.in(Rotations) * LINEAR_TO_ANGULAR.in(Value));
+    return Meters.of(angle.in(Rotations) / LINEAR_TO_ANGULAR.in(Value));
   }
 
   public static Angle linearToAngular(Distance distance) {
-    return Rotations.of(distance.in(Meters) / LINEAR_TO_ANGULAR.in(Value));
+    return Rotations.of(distance.in(Meters) * LINEAR_TO_ANGULAR.in(Value));
   }
 
   public static LinearVelocity angularToLinear(AngularVelocity angularVelocity) {
-    return MetersPerSecond.of(angularVelocity.in(RotationsPerSecond) * LINEAR_TO_ANGULAR.in(Value));
+    return MetersPerSecond.of(angularVelocity.in(RotationsPerSecond) / LINEAR_TO_ANGULAR.in(Value));
   }
 
   public static AngularVelocity linearToAngular(LinearVelocity linearVelocity) {
-    return RotationsPerSecond.of(linearVelocity.in(MetersPerSecond) / LINEAR_TO_ANGULAR.in(Value));
+    return RotationsPerSecond.of(linearVelocity.in(MetersPerSecond) * LINEAR_TO_ANGULAR.in(Value));
   }
 
   public static LinearAcceleration angularToLinear(AngularAcceleration angularAcceleration) {
     return MetersPerSecondPerSecond.of(
-        angularAcceleration.in(RotationsPerSecondPerSecond) * LINEAR_TO_ANGULAR.in(Value));
+        angularAcceleration.in(RotationsPerSecondPerSecond) / LINEAR_TO_ANGULAR.in(Value));
   }
 
   public static AngularAcceleration linearToAngular(LinearAcceleration linearAcceleration) {
     return RotationsPerSecondPerSecond.of(
-        linearAcceleration.in(MetersPerSecondPerSecond) / LINEAR_TO_ANGULAR.in(Value));
+        linearAcceleration.in(MetersPerSecondPerSecond) * LINEAR_TO_ANGULAR.in(Value));
   }
 }

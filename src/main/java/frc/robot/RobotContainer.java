@@ -87,7 +87,16 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.POSITION_MANUALLY)))
         .onFalse(Commands.runOnce(() -> orca.setWantedState(WantedState.IDLE)));
 
-    controller.b().onTrue(Commands.runOnce(() -> orca.setWantedState(WantedState.HOME)));
+    controller
+        .b()
+        .onTrue(
+            Commands.runEnd(
+                    () -> orca.setWantedState(WantedState.HOME),
+                    () -> orca.setWantedState(WantedState.IDLE))
+                .until(
+                    () ->
+                        elevator.isHomed()
+                            && elevator.getWantedState() == Elevator.WantedState.HOME));
 
     // // Run SysId routines when holding back/start and X/Y.
     // // Note that each routine should be run exactly once in a single log.
