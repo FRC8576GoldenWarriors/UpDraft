@@ -57,11 +57,11 @@ public class ElevatorConstants {
   public static final Current LIFT_SUPPLY_CURRENT_LIMIT = Amps.of(50);
   public static final boolean LIFT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
-  public static final InvertedValue LEFT_LIFT_INVERTED_VALUE =
-      InvertedValue.Clockwise_Positive;
+  public static final InvertedValue LEFT_LIFT_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
   public static final NeutralModeValue LEFT_LIFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
-  public static final InvertedValue RIGHT_LIFT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+  public static final InvertedValue RIGHT_LIFT_INVERTED_VALUE =
+      InvertedValue.CounterClockwise_Positive;
   public static final NeutralModeValue RIGHT_LIFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
   public static final LinearVelocity MOTION_MAGIC_ANGULAR_VELOCITY = MetersPerSecond.of(4.753);

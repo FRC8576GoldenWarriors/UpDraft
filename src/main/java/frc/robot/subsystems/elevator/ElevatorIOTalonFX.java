@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Value;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -36,7 +35,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX rightLiftMotor;
 
   private final MotionMagicVoltage liftPositionRequest = new MotionMagicVoltage(Rotations.zero());
-  private final VoltageOut liftHomingPositionRequest = new VoltageOut(ElevatorConstants.LIFT_HOMING_VOLTAGE);
+  private final VoltageOut liftHomingPositionRequest =
+      new VoltageOut(ElevatorConstants.LIFT_HOMING_VOLTAGE);
   private final EmptyControl liftIdleRequest = new EmptyControl();
   private final Follower liftFollowerRequest =
       new Follower(ElevatorConstants.LEFT_LIFT_MOTOR_ID, MotorAlignmentValue.Opposed);
