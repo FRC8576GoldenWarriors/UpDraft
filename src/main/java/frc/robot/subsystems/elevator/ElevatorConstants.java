@@ -33,7 +33,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorConstants {
-  public static final String LOG_PATH = "Elevator/";
+  public static final String LOG_PATH = "Elevator";
   public static final boolean TUNING_MODE_ENABLED = true;
 
   public static final int LEFT_LIFT_MOTOR_ID = 35;
@@ -58,10 +58,10 @@ public class ElevatorConstants {
   public static final boolean LIFT_SUPPLY_CURRENT_LIMIT_ENABLED = true;
 
   public static final InvertedValue LEFT_LIFT_INVERTED_VALUE =
-      InvertedValue.CounterClockwise_Positive;
+      InvertedValue.Clockwise_Positive;
   public static final NeutralModeValue LEFT_LIFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
-  public static final InvertedValue RIGHT_LIFT_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+  public static final InvertedValue RIGHT_LIFT_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
   public static final NeutralModeValue RIGHT_LIFT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
   public static final LinearVelocity MOTION_MAGIC_ANGULAR_VELOCITY = MetersPerSecond.of(4.753);
@@ -70,9 +70,9 @@ public class ElevatorConstants {
 
   public static final Frequency STATUS_SIGNAL_UPDATE_FREQUENCY = Hertz.of(50);
 
-  public static final Voltage LIFT_HOMING_VOLTAGE = Volts.of(-3);
+  public static final Voltage LIFT_HOMING_VOLTAGE = Volts.of(-2);
 
-  public static final Current LIFT_HOMING_CURRENT = Amps.of(89);
+  public static final Current LIFT_HOMING_CURRENT = Amps.of(100);
   public static final Current LIFT_HOMING_CURRENT_TOLERANCE = Amps.of(2);
   public static final LinearVelocity LIFT_HOMING_VELOCITY = MetersPerSecond.of(0);
   public static final LinearVelocity LIFT_HOMING_VELOCITY_TOLERANCE = MetersPerSecond.of(0.05);

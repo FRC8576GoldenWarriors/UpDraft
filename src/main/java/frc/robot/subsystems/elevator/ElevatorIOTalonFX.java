@@ -36,7 +36,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX rightLiftMotor;
 
   private final MotionMagicVoltage liftPositionRequest = new MotionMagicVoltage(Rotations.zero());
-  private final VoltageOut liftHomingPositionRequest = new VoltageOut(Volts.zero());
+  private final VoltageOut liftHomingPositionRequest = new VoltageOut(ElevatorConstants.LIFT_HOMING_VOLTAGE);
   private final EmptyControl liftIdleRequest = new EmptyControl();
   private final Follower liftFollowerRequest =
       new Follower(ElevatorConstants.LEFT_LIFT_MOTOR_ID, MotorAlignmentValue.Opposed);
@@ -126,6 +126,15 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     TalonFX.optimizeBusUtilizationForAll(Hertz.zero(), m1, m2, m3, m4, m5, m6, c1, c2);
 
+    m1.close();
+    m2.close();
+    m3.close();
+    m4.close();
+    m5.close();
+    m6.close();
+    c1.close();
+    c2.close();
+
     rightLiftMotor.setControl(liftFollowerRequest);
   }
 
@@ -201,8 +210,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   private boolean atLowerHardstop() {
-    return leftMotorStatorCurrentSignal.isNear(
-            ElevatorConstants.LIFT_HOMING_CURRENT, ElevatorConstants.LIFT_HOMING_CURRENT_TOLERANCE)
+    return leftMotorStatorCurrentSignal.getValue().gt(ElevatorConstants.LIFT_HOMING_CURRENT)
         && rotationalVelocitySignal.isNear(
             ElevatorConstants.linearToAngular(ElevatorConstants.LIFT_HOMING_VELOCITY),
             ElevatorConstants.linearToAngular(ElevatorConstants.LIFT_HOMING_VELOCITY_TOLERANCE));

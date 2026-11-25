@@ -40,7 +40,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_STEER,
     SYS_ID_ROTATION,
     WHEEL_RADIUS_CHARACTERIZATION,
-    POSITION_MANUALLY
+    POSITION_MANUALLY,
+    HOME
   }
 
   private enum SystemState {
@@ -55,7 +56,8 @@ public class Orca extends SubsystemBase {
     SYS_ID_STEER,
     SYS_ID_ROTATION,
     WHEEL_RADIUS_CHARACTERIZATION,
-    POSITIONING_MANUALLY
+    POSITIONING_MANUALLY,
+    HOMING
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -102,6 +104,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
       case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
       case POSITION_MANUALLY -> SystemState.POSITIONING_MANUALLY;
+      case HOME -> SystemState.HOMING;
       default -> SystemState.IDLE;
     };
   }
@@ -119,6 +122,7 @@ public class Orca extends SubsystemBase {
       case SYS_ID_ROTATION -> sysIdRotation();
       case WHEEL_RADIUS_CHARACTERIZATION -> wheelRadiusCharacterization();
       case POSITIONING_MANUALLY -> positioningManually();
+      case HOMING -> homing();
       default -> idling();
     }
   }
@@ -133,6 +137,11 @@ public class Orca extends SubsystemBase {
 
   private void wheelLockWithX() {
     swerve.setWantedState(Swerve.WantedState.WHEEL_LOCK_WITH_X);
+  }
+
+  private void homing() {
+    swerve.setWantedState(Swerve.WantedState.IDLE);
+    elevator.setWantedState(Elevator.WantedState.HOME);
   }
 
   private void idling() {
